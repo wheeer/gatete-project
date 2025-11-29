@@ -8,6 +8,8 @@
 
 [node name="Camera3D" type="Camera3D" parent="."]
 
-[node name="suelo" type="MeshInstance3D" parent="."]
+[node name="Suelo" type="MeshInstance3D" parent="."]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
 mesh = SubResource("PlaneMesh_if3av")
+
+[node name="DonGato" type="CharacterBody3D" parent="."]
