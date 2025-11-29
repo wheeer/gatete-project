@@ -73,8 +73,6 @@ animations = [{
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-
 [node name="Suelo" type="MeshInstance3D" parent="."]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
 mesh = SubResource("PlaneMesh_if3av")
@@ -84,8 +82,11 @@ mesh = SubResource("PlaneMesh_if3av")
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="DonGato"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0027571917, 0.25964424, -0.023606062)
 sprite_frames = SubResource("SpriteFrames_4pgcx")
-frame_progress = 0.46295303
+frame_progress = 0.17690715
 speed_scale = 2.855
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato"]
 shape = SubResource("BoxShape3D_sput5")
+
+[node name="Camera3D" type="Camera3D" parent="DonGato"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -4)
