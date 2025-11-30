@@ -47,12 +47,19 @@ func _physics_process(delta: float) -> void:
 		is_running = false
 
 	# dash instantáneo (solo al presionar)
+	# Si no hay dirección en el input, tomar dirección del frente,
+# y si aun así es 0, usar un vector seguro para evitar el error.
 	if Input.is_action_just_pressed("run_dash") and dash_cooldown <= 0.0:
 		is_dashing = true
 		dash_timer = DASH_TIME
 		dash_direction = direction
+
 		if dash_direction == Vector3.ZERO:
-			dash_direction = -global_transform.basis.z.normalized()
+			var f = -global_transform.basis.z
+			if f.length() < 0.001:
+				f = Vector3.FORWARD
+			dash_direction = f.normalized()
+	else:
 		dash_direction = dash_direction.normalized()
 
 	#  DASH EXECUTION

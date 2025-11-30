@@ -1,26 +1,41 @@
-[gd_scene load_steps=9 format=3 uid="uid://dkk3eeau0my6m"]
+[gd_scene load_steps=14 format=3 uid="uid://dkk3eeau0my6m"]
 
-[ext_resource type="Texture2D" uid="uid://b1kuogu0kq2ia" path="res://Imagenes/Mundo/Suelo.jpg" id="1_d4nod"]
-[ext_resource type="Script" uid="uid://cqv42iooxn0dr" path="res://camera_3d.gd" id="1_dnntf"]
+[ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="1_d4nod"]
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://don_gato.gd" id="1_llgbh"]
+[ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://camera_ring.gd" id="2_d4nod"]
+[ext_resource type="Texture2D" uid="uid://cg5rid4hvciia" path="res://Imagenes/Mundo/paredgrid.png" id="4_xmuii"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_2rrma"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_xmuii"]
+size = Vector2(1, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dnntf"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63nh0"]
 albedo_texture = ExtResource("1_d4nod")
+uv1_scale = Vector3(4, 1, 1)
+uv1_triplanar = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_llgbh"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_2rrma"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_63nh0"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_llgbh"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xmuii"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_aew1u"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d4nod"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xmuii"]
+albedo_texture = ExtResource("4_xmuii")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_63nh0"]
+size = Vector3(1, 1, 30)
 
 [node name="Mundo3d" type="Node3D"]
 
 [node name="Suelo" type="MeshInstance3D" parent="."]
-transform = Transform3D(300, 0, 0, 0, 0.5, 0, 0, 0, 15, 140, 0, 0)
-mesh = SubResource("BoxMesh_2rrma")
-surface_material_override/0 = SubResource("StandardMaterial3D_dnntf")
+transform = Transform3D(800, 0, 0, 0, 0.5, 0, 0, 0, 30, 350, 0, 0)
+mesh = SubResource("PlaneMesh_xmuii")
+surface_material_override/0 = SubResource("StandardMaterial3D_63nh0")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Suelo"]
 
@@ -29,20 +44,48 @@ shape = SubResource("BoxShape3D_llgbh")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 5)
-projection = 1
-current = true
-size = 10.0
-script = ExtResource("1_dnntf")
+[node name="CameraRing" type="CharacterBody3D" parent="." node_paths=PackedStringArray("target")]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 4.775249, 6.126559)
+script = ExtResource("2_d4nod")
 target = NodePath("../DonGato")
 
+[node name="Camera3D" type="Camera3D" parent="CameraRing"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 1.7)
+current = true
+size = 10.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CameraRing"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 1.7179749, 1.682025)
+shape = SubResource("SphereShape3D_63nh0")
+
 [node name="DonGato" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 script = ExtResource("1_llgbh")
 
 [node name="DonGatoMesh" type="MeshInstance3D" parent="DonGato"]
-transform = Transform3D(1, 0, 0, 0, 0.25, 0, 0, 0, 0.45, 0, 0.4, 0)
-mesh = SubResource("CapsuleMesh_2rrma")
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("CapsuleMesh_xmuii")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato"]
-shape = SubResource("CapsuleShape3D_llgbh")
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, -0.1, 0)
+shape = SubResource("CylinderShape3D_aew1u")
+
+[node name="ParedInferior" type="MeshInstance3D" parent="."]
+transform = Transform3D(800, 0, 0, 0, 30, 0, 0, 0, 1, 350, 15, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ParedInferior"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ParedInferior/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 15)
+shape = SubResource("BoxShape3D_d4nod")
+
+[node name="ParedSuperior" type="MeshInstance3D" parent="."]
+transform = Transform3D(800, 0, 0, 0, 30, 0, 0, 0, 1, 350, 15, -30)
+material_override = SubResource("StandardMaterial3D_xmuii")
+mesh = SubResource("BoxMesh_63nh0")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="ParedSuperior"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ParedSuperior/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 15)
+shape = SubResource("BoxShape3D_d4nod")
