@@ -1,0 +1,48 @@
+[gd_scene load_steps=9 format=3 uid="uid://dkk3eeau0my6m"]
+
+[ext_resource type="Texture2D" uid="uid://b1kuogu0kq2ia" path="res://Imagenes/Mundo/Suelo.jpg" id="1_d4nod"]
+[ext_resource type="Script" uid="uid://cqv42iooxn0dr" path="res://camera_3d.gd" id="1_dnntf"]
+[ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://don_gato.gd" id="1_llgbh"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_2rrma"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dnntf"]
+albedo_texture = ExtResource("1_d4nod")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_llgbh"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_2rrma"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_llgbh"]
+
+[node name="Mundo3d" type="Node3D"]
+
+[node name="Suelo" type="MeshInstance3D" parent="."]
+transform = Transform3D(300, 0, 0, 0, 0.5, 0, 0, 0, 15, 140, 0, 0)
+mesh = SubResource("BoxMesh_2rrma")
+surface_material_override/0 = SubResource("StandardMaterial3D_dnntf")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Suelo"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Suelo/StaticBody3D"]
+shape = SubResource("BoxShape3D_llgbh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 5)
+projection = 1
+current = true
+size = 10.0
+script = ExtResource("1_dnntf")
+target = NodePath("../DonGato")
+
+[node name="DonGato" type="CharacterBody3D" parent="."]
+script = ExtResource("1_llgbh")
+
+[node name="DonGatoMesh" type="MeshInstance3D" parent="DonGato"]
+transform = Transform3D(1, 0, 0, 0, 0.25, 0, 0, 0, 0.45, 0, 0.4, 0)
+mesh = SubResource("CapsuleMesh_2rrma")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato"]
+shape = SubResource("CapsuleShape3D_llgbh")
