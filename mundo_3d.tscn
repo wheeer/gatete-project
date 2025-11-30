@@ -45,13 +45,14 @@ shape = SubResource("BoxShape3D_llgbh")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 
 [node name="CameraRing" type="CharacterBody3D" parent="." node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 4.775249, 6.126559)
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 12.178162, 10.861444)
 script = ExtResource("2_d4nod")
 target = NodePath("../DonGato")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRing"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 1.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 current = true
+fov = 81.2
 size = 10.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CameraRing"]

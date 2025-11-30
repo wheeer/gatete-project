@@ -1,9 +1,9 @@
 extends CharacterBody3D
 
 # --- MOVIMIENTO ---
-const WALK_SPEED := 4.0
-const RUN_SPEED := 8.0
-const CROUCH_SPEED := 1.5     
+const WALK_SPEED := 10.0
+const RUN_SPEED := 15.0
+const CROUCH_SPEED := 5.0     
 
 # --- SALTO ---
 const JUMP_VELOCITY := 7.0
@@ -12,11 +12,11 @@ const GRAVITY_FALL := 28.0
 const JUMP_CUT_MULT := 0.4
 
 # --- DASH ---
-const DASH_SPEED := 16.0
+const DASH_SPEED := 20.0
 const DASH_TIME := 0.12
-const DASH_COOLDOWN := 0.05
-var dash_timer := 0.0
-var dash_cooldown := 0.0
+const DASH_COOLDOWN := 0.75
+var dash_timer := 0.12
+var dash_cooldown := 0.75
 var is_dashing := false
 var dash_direction := Vector3.ZERO
 
