@@ -1,10 +1,11 @@
-[gd_scene load_steps=21 format=3 uid="uid://dkk3eeau0my6m"]
+[gd_scene load_steps=24 format=3 uid="uid://dkk3eeau0my6m"]
 
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="1_d4nod"]
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://don_gato.gd" id="1_llgbh"]
 [ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://camera_ring.gd" id="2_d4nod"]
 [ext_resource type="Texture2D" uid="uid://cg5rid4hvciia" path="res://Imagenes/Mundo/paredgrid.png" id="4_xmuii"]
 [ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="5_63nh0"]
+[ext_resource type="Script" uid="uid://4meee31626gw" path="res://dummie.gd" id="6_aew1u"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_xmuii"]
 size = Vector2(1, 1)
@@ -38,6 +39,93 @@ material = SubResource("StandardMaterial3D_aew1u")
 [sub_resource type="BoxShape3D" id="BoxShape3D_63nh0"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_63nh0"]
+
+[sub_resource type="Animation" id="Animation_63nh0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Cuerpo:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, -0.3)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("PataDerecha:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.6, 0, -0.9)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PataDerecha:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, -0.7853982, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HitboxPata/CollisionShape3D:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.6153711, 0.4711225, 0.15405786)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HitboxPata/CollisionShape3D:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.7853982, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HitboxPata/CollisionShape3D:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.9999999, 1, 0.9999999)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("PataDerecha:scale")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.99999994, 1, 0.99999994)]
+}
 
 [sub_resource type="Animation" id="Animation_xmuii"]
 resource_name = "ataque"
@@ -127,98 +215,15 @@ tracks/6/keys = {
 "values": [Vector3(0.99999994, 1, 0.99999994)]
 }
 
-[sub_resource type="Animation" id="Animation_63nh0"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Cuerpo:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0, -0.3)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("PataDerecha:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.6, 0, -0.9)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("PataDerecha:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, -0.7853982, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("HitboxPata/CollisionShape3D:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(1.6153711, 0.4711225, 0.15405786)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("HitboxPata/CollisionShape3D:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0.7853982, 0)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("HitboxPata/CollisionShape3D:scale")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.9999999, 1, 0.9999999)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("PataDerecha:scale")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.99999994, 1, 0.99999994)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_63nh0"]
 _data = {
 &"RESET": SubResource("Animation_63nh0"),
 &"ataque": SubResource("Animation_xmuii")
 }
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uoyuw"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_aew1u"]
 
 [node name="Mundo3d" type="Node3D"]
 
@@ -269,19 +274,19 @@ size = 10.0
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 1.7179749, 1.682025)
 shape = SubResource("SphereShape3D_63nh0")
 
-[node name="DonGato" type="CharacterBody3D" parent="."]
+[node name="DonGato" type="CharacterBody3D" parent="." groups=["player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1192334, 0)
 script = ExtResource("1_llgbh")
 
-[node name="Cuerpo" type="MeshInstance3D" parent="DonGato"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+[node name="Cuerpo" type="MeshInstance3D" parent="DonGato" groups=["player"]]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -0.3)
 mesh = SubResource("CapsuleMesh_xmuii")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.100000024, 0)
 shape = SubResource("CylinderShape3D_aew1u")
 
-[node name="HitboxPata" type="Area3D" parent="DonGato" groups=["enemigo"]]
+[node name="HitboxPata" type="Area3D" parent="DonGato"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -0.5, -1)
 monitoring = false
 
@@ -299,4 +304,22 @@ libraries = {
 &"": SubResource("AnimationLibrary_63nh0")
 }
 
+[node name="Dummie" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
+script = ExtResource("6_aew1u")
+player = NodePath("../DonGato")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie"]
+mesh = SubResource("CapsuleMesh_xmuii")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie"]
+shape = SubResource("CapsuleShape3D_uoyuw")
+
+[node name="HitArea" type="Area3D" parent="Dummie"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie/HitArea"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_aew1u")
+
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
+[connection signal="body_entered" from="Dummie/HitArea" to="Dummie" method="_on_hit_area_body_entered"]
