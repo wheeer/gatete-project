@@ -14,11 +14,9 @@ extends CharacterBody3D
 var health: int
 var contact_cooldown: float = 0.0
 
-
 func _ready() -> void:
 	randomize()
 	health = max_health
-
 
 func _physics_process(delta: float) -> void:
 	if not player:
@@ -48,7 +46,6 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-
 # --- contacto físico con el gato (HitArea → body_entered) ---
 func _on_hit_area_body_entered(body: Node3D) -> void:
 	if not body.is_in_group("player"):
@@ -63,22 +60,37 @@ func _on_hit_area_body_entered(body: Node3D) -> void:
 	var push_dir := Vector3(to_player.x, 0.0, to_player.z).normalized()
 
 	var force := 6.0
-	var damage := contact_damage
+	var is_strong := false
 
+	# probabilidad de empujón fuerte
 	if randi() % push_threshold == 0:
 		force = 16.0
-		damage = strong_damage
-		print("EMPÚJON FUERTE!")
+		is_strong = true
 
-	# empuje físico
+	# --- EMPUJE FÍSICO ---
 	if body.has_method("apply_central_impulse"):
 		body.apply_central_impulse(push_dir * force)
 
-	# daño al gato
-	if body.has_method("receive_damage"):
-		# usamos knockback_strength = 0 porque ya empujamos con impulso
-		body.receive_damage(damage, false, 0.0)
+	# --- EMPUJÓN FUERTE ---
+	if is_strong:
+		print("EMPÚJON FUERTE!")
 
+		# habilitar recuperación aérea
+		if body.has_method("enable_air_recovery"):
+			body.enable_air_recovery(true)
+
+		# activar time stop SOLO en fuerte
+		if body.has_method("activate_timestop"):
+			body.activate_timestop()
+
+	# --- DAÑO AL GATO ---
+	if body.has_method("receive_damage"):
+		var dmg := 6.0
+		if is_strong:
+			dmg = 10.0
+
+		print("Daño de empujón:", dmg)
+		body.receive_damage(dmg, false, 0.0)
 
 # --- recibir daño del gato ---
 func take_damage(amount: float) -> void:

@@ -7,7 +7,6 @@ extends CharacterBody3D
 
 # ---------- STATS ----------
 @export var target_radius: float = 20.0
-
 @export var stat_strength: int = 10
 @export var stat_agility: int = 10
 @export var stat_speed: int = 10
@@ -18,13 +17,10 @@ extends CharacterBody3D
 
 # ---------- DEFENSA / RECURSOS ----------
 var hurt_cooldown: float = 0.0
-
 var max_health: float
 var health: float
-
 var max_stamina: float
 var stamina: float
-
 var max_posture: float
 var posture: float = 0.0
 
@@ -55,10 +51,8 @@ var dash_timer := 0.0
 var dash_cooldown := 0.0
 var is_dashing := false
 var dash_direction: Vector3 = Vector3.ZERO
-
 var is_running := false
 var is_crouching := false
-
 var attack_cooldown := 0.0
 var is_attacking := false
 
@@ -66,19 +60,28 @@ var is_attacking := false
 var impulse: Vector3 = Vector3.ZERO
 const IMPULSE_DECAY := 20.0
 
+# ---------- RECUPERACIÓN AÉREA / STUN ----------
+var can_recover_in_air: bool = false
+var attempted_recovery: bool = false
+var recovery_window: float = 0.35
+var recovery_timer: float = 0.0
+var stunned: bool = false
+var stun_timer: float = 0.0
+var pending_recovery_is_strong: bool = false
+
+# ---------- TIME STOP ----------
+var timestop: bool = false
+var timestop_timer: float = 0.0
+const TIMESTOP_DURATION := 0.20   # 200ms, ajustable
 
 func _ready() -> void:
 	lives = max_lives
-
 	max_health = 50.0 + stat_vitality * 3.0
 	health = max_health
-
 	max_stamina = 50.0 + stat_speed * 3.0 + stat_agility * 2.0
 	stamina = max_stamina
-
 	max_posture = 50.0 + stat_composure * 5.0
 	posture = 0.0
-
 
 # =====================================================
 #                   ATAQUE
@@ -107,44 +110,124 @@ func atacar() -> void:
 	pata_derecha.visible = false
 	is_attacking = false
 
-
-# =====================================================
-#                  DAÑO AL GATO
-# =====================================================
 func receive_damage(amount: float, ignore_lives: bool = false, knockback_strength: float = 0.0) -> void:
 	if hurt_cooldown > 0.0:
 		return
 
-	# empuje opcional extra desde el atacante (si lo usan)
+	# ============================================
+	# DEBUG PRINT — ENTRADA DE DAÑO
+	# ============================================
+	print("=== DAÑO RECIBIDO ===")
+	print("• Daño solicitado:", amount)
+	print("• HP antes:", health)
+	print("• Vidas:", lives)
+	print("• Postura:", posture)
+
+	# empuje opcional extra
 	if knockback_strength != 0.0:
 		apply_central_impulse(-global_transform.basis.z * knockback_strength)
 
+	# ============================================
+	# DAÑO REAL (IGNORA VIDAS)
+	# ============================================
 	if ignore_lives:
 		health -= amount
-		hurt_cooldown = 0.4
-		print("Daño REAL:", amount, "HP:", health)
-	else:
-		if lives > 0:
-			lives -= 1
-			var chip := amount * 0.25
-			health -= chip
-			hurt_cooldown = 0.3
-			print("Daño leve:", chip, "HP:", health, "Vidas:", lives)
-		else:
-			health -= amount * 1.5
-			hurt_cooldown = 0.45
-			print("Daño REAL aumentado:", amount * 1.5, "HP:", health)
+		hurt_cooldown = 0.40
+		print("→ DAÑO REAL aplicado:", amount)
+		print("HP ahora:", health)
+		print("---------------------")
+
+		if health <= 0.0:
+			print("💀 Gatito murió (daño real)")
+		return
+
+	# ============================================
+	# DAÑO LEVE (AÚN QUEDAN VIDAS)
+	# ============================================
+	if lives > 0:
+		lives -= 1
+		var chip := amount * 0.25
+		health -= chip
+		hurt_cooldown = 0.30
+
+		print("→ DAÑO LEVE (por sistema de 9 vidas)")
+		print("    Daño reducido a:", chip)
+		print("    Vidas restantes:", lives)
+		print("HP ahora:", health)
+		print("---------------------")
+
+		if health <= 0.0:
+			print("💀 Gatito murió (daño leve reducido)")
+		return
+
+	# ============================================
+	# DAÑO AUMENTADO (SIN VIDAS)
+	# ============================================
+	var real_damage := amount * 1.5
+	health -= real_damage
+	hurt_cooldown = 0.45
+
+	print("→ DAÑO REAL ++ aumentado (sin vidas)")
+	print("    Daño aumentado:", real_damage)
+	print("HP ahora:", health)
+	print("---------------------")
 
 	if health <= 0.0:
-		print("Gatito murió 💀")
+		print("💀 Gatito murió (fin de vidas)")
 
 
 # =====================================================
 #             EMPUJE FÍSICO (desde dummie)
 # =====================================================
 func apply_central_impulse(vec: Vector3) -> void:
-	impulse += vec
+	impulse += vec * 0.6
+# =====================================================
+#             habilitar recuperacion aerea 
+# =====================================================
+func enable_air_recovery(is_strong: bool = true) -> void:
+	can_recover_in_air = true
+	attempted_recovery = false
+	pending_recovery_is_strong = is_strong
+	recovery_timer = recovery_window
 
+func perform_air_recovery() -> void:
+	if not can_recover_in_air:
+		return
+
+	# ÉXITO: se hizo dentro de la ventana (aún queda tiempo)
+	if recovery_timer > 0.1:
+		print("Recuperación felina PERFECTA 😼")
+
+		# corta la caída y da un pequeño ajuste
+		velocity.y = 0.0
+		apply_central_impulse(-global_transform.basis.z * 2.0)
+
+		# recompensa: reducir un poco el daño/postura si fue empujón fuerte
+		if pending_recovery_is_strong:
+			health = min(health + 5.0, max_health)
+			posture = max(posture - 15.0, 0.0)
+	else:
+		# FALLO: se presionó tarde
+		print("Recuperación fallida → stun 0.5s")
+
+		if pending_recovery_is_strong and lives > 0:
+			lives -= 1
+			print("Perdiste una vida por mala caída. Vidas:", lives)
+
+		stunned = true
+		stun_timer = 0.5
+
+	can_recover_in_air = false
+	attempted_recovery = true
+	pending_recovery_is_strong = false
+
+# =====================================================
+#                ACTIVAR TIMESTOP
+# =====================================================
+func activate_timestop():
+	timestop = true
+	timestop_timer = TIMESTOP_DURATION
+	print("⏸ TIME STOP ACTIVADO")
 
 # =====================================================
 #                PROCESO PRINCIPAL
@@ -155,6 +238,55 @@ func _physics_process(delta: float) -> void:
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
+
+	# --- si está stuneado, no puede moverse ni hacer nada ---
+	if stunned:
+		stun_timer -= delta
+		velocity = Vector3.ZERO
+		impulse = Vector3.ZERO
+
+		if stun_timer <= 0.0:
+			stunned = false
+			print("Stun finalizado")
+
+	# --- TIME STOP ---
+	if timestop:
+		timestop_timer -= delta
+		velocity = velocity  # sigue volando
+		# detener IA y animaciones (solo jugador)
+		if anim:
+			anim.speed_scale = 0.0
+
+		if timestop_timer <= 0.0:
+			timestop = false
+			if anim:
+				anim.speed_scale = 1.0
+			print("▶ TIME STOP TERMINADO")
+			
+		move_and_slide()
+		return
+
+	# --- ventana de recuperación aérea ---
+	if can_recover_in_air:
+		recovery_timer -= delta
+
+		# si se acabó el tiempo y no intentó recuperarse
+		if recovery_timer <= 0.0 and not attempted_recovery:
+			print("No te recuperaste → mala caída")
+
+			if pending_recovery_is_strong and lives > 0:
+				lives -= 1
+				print("Perdiste una vida por no recuperarte. Vidas:", lives)
+
+			stunned = true
+			stun_timer = 0.5
+			can_recover_in_air = false
+			pending_recovery_is_strong = false
+
+	# --- aplicar empuje ANTES del movimiento ---
+	velocity.x += impulse.x
+	velocity.z += impulse.z
+	impulse = impulse.move_toward(Vector3.ZERO, IMPULSE_DECAY * delta)
 
 	# ------------ INPUT ------------
 	var input_2d := Vector2(
@@ -237,13 +369,17 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-
 # =====================================================
 #                  INPUT GLOBAL
 # =====================================================
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("atacar"):
 		atacar()
+
+	# intentar recuperación en el aire
+	if event.is_action_pressed("saltar"):
+		if can_recover_in_air and not attempted_recovery:
+			perform_air_recovery()
 
 	if event.is_action_pressed("look_on"):
 		if is_locked_on:
@@ -252,6 +388,10 @@ func _input(event: InputEvent) -> void:
 		else:
 			current_target = get_closest_enemy()
 			is_locked_on = current_target != null
+			
+	if event.is_action_pressed("recompostura"):
+		if can_recover_in_air and not attempted_recovery:
+			perform_air_recovery()
 
 
 # =====================================================
@@ -260,7 +400,6 @@ func _input(event: InputEvent) -> void:
 func _on_hitbox_pata_body_entered(body: Node3D) -> void:
 	if body.is_in_group("enemigo") and body.has_method("take_damage"):
 		body.take_damage(10.0)
-
 
 # =====================================================
 #             BUSCAR OBJETIVO CERCANO
