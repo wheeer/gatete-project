@@ -362,11 +362,6 @@ func _physics_process(delta: float) -> void:
 			is_locked_on = false
 			current_target = null
 
-	# ------------ APLICAR IMPULSO ------------
-	velocity.x += impulse.x
-	velocity.z += impulse.z
-	impulse = impulse.move_toward(Vector3.ZERO, IMPULSE_DECAY * delta)
-
 	move_and_slide()
 
 # =====================================================
