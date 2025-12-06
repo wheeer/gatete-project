@@ -67,8 +67,8 @@ Inspirado parcialmente en Sekiro:
 
 Sistema de “9 vidas”
 • Representan suerte, no vidas clásicas  
-• Mientras haya suerte → daño evitado  
-• Sin suerte → daño real
+• Mientras haya suerte → daño reducido o evitado
+• Sin suerte → daño real o letal
 
 E V O L U C I Ó N   Y   B U I L D S   D E L   G A T O
 
@@ -90,9 +90,9 @@ Ejemplos de builds:
 Todo ocurre dentro del mundo interno del gato:  
 los escenarios reales son reinterpretados por sus instintos y fantasía.
 
-• El gato cree vivir aventuras épicas.  
+• El gato cree vivir aventuras épicas o no?  
 • En el mundo real solo camina, acompaña o explora.  
-• El final revelará la dualidad entre realidad e instinto.
+• El final revelará la posible dualidad entre realidad e instinto.
 
 D I S E Ñ O   D E   N I V E L E S
 
@@ -122,8 +122,8 @@ E S T A D O   A C T U A L   D E L   P R O Y E C T O
 
 Sistema en progreso:
 • Movimiento y físicas  
-• Combate base  
-• Prototipos de enemigos  
+• Combate base
+• Prototipos de enemigos
 • Cámara dinámica  
 • Primeros niveles  
 • Documentación oficial
