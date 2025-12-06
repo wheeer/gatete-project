@@ -24,6 +24,23 @@ var stamina: float
 var max_posture: float
 var posture: float = 0.0
 
+# ---------- ATAQUES / COMBOS ----------
+const COMBO_MAX := 3
+const COMBO_RESET_TIME := 0.5
+
+const LIGHT_ATTACK_DAMAGE := 10.0
+const AIR_ATTACK_DAMAGE := 8.0
+const CHARGED_ATTACK_DAMAGE := 25.0
+
+var combo_index: int = 0
+var combo_timer: float = 0.0
+
+var is_charging: bool = false
+var charge_timer: float = 0.0
+const CHARGE_MIN_TIME := 0.5   # tiempo mínimo para considerarlo "cargado"
+
+var current_attack_damage: float = LIGHT_ATTACK_DAMAGE
+
 # ---------- VIDAS ----------
 var max_lives: int = 9
 var lives: int = max_lives
@@ -90,13 +107,44 @@ func _ready() -> void:
 # =====================================================
 #                   ATAQUE
 # =====================================================
-func atacar() -> void:
+func atacar(attack_type: String = "auto") -> void:
 	if attack_cooldown > 0.0 or is_attacking:
 		return
 
-	is_attacking = true
-	attack_cooldown = 0.25
+	# decidir tipo de ataque si viene "auto"
+	var final_type := attack_type
 
+	if final_type == "auto":
+		if not is_on_floor():
+			final_type = "air"
+		else:
+			final_type = "light"
+
+	is_attacking = true
+
+	match final_type:
+		"light":
+			_do_light_attack()
+		"air":
+			_do_air_attack()
+		"charged":
+			_do_charged_attack()
+
+func _do_light_attack() -> void:
+	# manejar combo
+	if combo_timer > 0.0:
+		combo_index = (combo_index % COMBO_MAX) + 1
+	else:
+		combo_index = 1
+
+	combo_timer = COMBO_RESET_TIME
+
+	# dañar un poco más en golpes avanzados del combo
+	current_attack_damage = LIGHT_ATTACK_DAMAGE * (1.0 + 0.3 * float(combo_index - 1))
+
+	attack_cooldown = 0.22
+
+	# orientación
 	if is_locked_on and current_target:
 		var tpos := current_target.global_transform.origin
 		look_at(Vector3(tpos.x, global_transform.origin.y, tpos.z), Vector3.UP)
@@ -105,8 +153,14 @@ func atacar() -> void:
 
 	pata_derecha.visible = true
 
-	if anim and anim.has_animation("ataque"):
-		anim.play("ataque")
+	# seleccionar anim según combo (ajusta nombres a lo que tengas)
+	var _anim_name := "ataque"
+	if anim:
+		var combo_anim := "ataque_" + str(combo_index)
+		if anim.has_animation(combo_anim):
+			anim.play(combo_anim)
+		else:
+			anim.play("ataque")
 
 	hitbox.monitoring = true
 	await get_tree().create_timer(0.12).timeout
@@ -114,13 +168,68 @@ func atacar() -> void:
 	pata_derecha.visible = false
 	is_attacking = false
 
+
+func _do_air_attack() -> void:
+	combo_index = 0
+	combo_timer = 0.0
+	current_attack_damage = AIR_ATTACK_DAMAGE
+	attack_cooldown = 0.25
+
+	# pequeño impulso hacia adelante opcional
+	var forward := -global_transform.basis.z
+	velocity.x += forward.x * 3.0
+	velocity.z += forward.z * 3.0
+
+	pata_derecha.visible = true
+
+	if anim:
+		if anim.has_animation("ataque_aereo"):
+			anim.play("ataque_aereo")
+		else:
+			anim.play("ataque")
+
+	hitbox.monitoring = true
+	await get_tree().create_timer(0.10).timeout
+	hitbox.monitoring = false
+	pata_derecha.visible = false
+	is_attacking = false
+
+
+func _do_charged_attack() -> void:
+	combo_index = 0
+	combo_timer = 0.0
+	current_attack_damage = CHARGED_ATTACK_DAMAGE
+	attack_cooldown = 0.45
+
+	# mirar al objetivo si lo hay
+	if is_locked_on and current_target:
+		var tpos := current_target.global_transform.origin
+		look_at(Vector3(tpos.x, global_transform.origin.y, tpos.z), Vector3.UP)
+	else:
+		look_at(global_transform.origin + last_direction, Vector3.UP)
+
+	pata_derecha.visible = true
+
+	if anim:
+		if anim.has_animation("ataque_cargado"):
+			anim.play("ataque_cargado")
+		else:
+			anim.play("ataque")
+
+	hitbox.monitoring = true
+	await get_tree().create_timer(0.18).timeout
+	hitbox.monitoring = false
+	pata_derecha.visible = false
+	is_attacking = false
+
+
 func receive_damage(amount: float, ignore_lives: bool = false, knockback_strength: float = 0.0) -> void:
 	if hurt_cooldown > 0.0:
 		return
 
 	# ============================================
 	# DEBUG PRINT — ENTRADA DE DAÑO
-	# ============================================
+	# ============================================ddd
 	print("=== DAÑO RECIBIDO ===")
 	print("• Daño solicitado:", amount)
 	print("• HP antes:", health)
@@ -243,6 +352,16 @@ func _physics_process(delta: float) -> void:
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
+
+		# --- CARGA DE ATAQUE ---
+	if is_charging:
+		charge_timer += delta
+
+	# --- TIMER DEL COMBO ---
+	if combo_timer > 0.0 and not is_attacking:
+		combo_timer -= delta
+		if combo_timer <= 0.0:
+			combo_index = 0
 
 	# --- STUN ---
 	if stunned:
@@ -428,8 +547,22 @@ func _physics_process(delta: float) -> void:
 #                  INPUT GLOBAL
 # =====================================================
 func _input(event: InputEvent) -> void:
+		# --- ATAQUE / CARGA ---
 	if event.is_action_pressed("atacar"):
-		atacar()
+		is_charging = true
+		charge_timer = 0.0
+
+	if event.is_action_released("atacar"):
+		if not is_charging:
+			return
+
+		is_charging = false
+
+		# cargado (solo en suelo)
+		if charge_timer >= CHARGE_MIN_TIME and is_on_floor():
+			atacar("charged")
+		else:
+			atacar("auto")
 
 	# intentar recuperación en el aire
 	if event.is_action_pressed("saltar"):
@@ -474,8 +607,8 @@ func _input(event: InputEvent) -> void:
 # =====================================================
 func _on_hitbox_pata_body_entered(body: Node3D) -> void:
 	if body.is_in_group("enemigo") and body.has_method("take_damage"):
-		body.take_damage(10.0)
-		
+		body.take_damage(current_attack_damage)
+
 # =====================================================
 #             SET TARGET MARKER
 # =====================================================

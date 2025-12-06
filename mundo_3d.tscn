@@ -306,7 +306,7 @@ libraries = {
 }
 
 [node name="Dummie" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.231873, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.489758, 1, 1.4010353)
 script = ExtResource("6_aew1u")
 player = NodePath("../DonGato")
 
@@ -327,74 +327,5 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
 visible = false
 mesh = SubResource("SphereMesh_aew1u")
 
-[node name="Dummie2" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, 2.2079902)
-script = ExtResource("6_aew1u")
-player = NodePath("../DonGato")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie2"]
-mesh = SubResource("CapsuleMesh_xmuii")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie2"]
-shape = SubResource("CapsuleShape3D_uoyuw")
-
-[node name="HitArea" type="Area3D" parent="Dummie2"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie2/HitArea"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_aew1u")
-
-[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie2"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
-visible = false
-mesh = SubResource("SphereMesh_aew1u")
-
-[node name="Dummie3" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, -9.389598)
-script = ExtResource("6_aew1u")
-player = NodePath("../DonGato")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie3"]
-mesh = SubResource("CapsuleMesh_xmuii")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie3"]
-shape = SubResource("CapsuleShape3D_uoyuw")
-
-[node name="HitArea" type="Area3D" parent="Dummie3"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie3/HitArea"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_aew1u")
-
-[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie3"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
-visible = false
-mesh = SubResource("SphereMesh_aew1u")
-
-[node name="Dummie4" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.452333, 1, 0)
-script = ExtResource("6_aew1u")
-player = NodePath("../DonGato")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie4"]
-mesh = SubResource("CapsuleMesh_xmuii")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie4"]
-shape = SubResource("CapsuleShape3D_uoyuw")
-
-[node name="HitArea" type="Area3D" parent="Dummie4"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie4/HitArea"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_aew1u")
-
-[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie4"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
-visible = false
-mesh = SubResource("SphereMesh_aew1u")
-
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
 [connection signal="body_entered" from="Dummie/HitArea" to="Dummie" method="_on_hit_area_body_entered"]
-[connection signal="body_entered" from="Dummie2/HitArea" to="Dummie2" method="_on_hit_area_body_entered"]
-[connection signal="body_entered" from="Dummie3/HitArea" to="Dummie3" method="_on_hit_area_body_entered"]
-[connection signal="body_entered" from="Dummie4/HitArea" to="Dummie4" method="_on_hit_area_body_entered"]
