@@ -72,7 +72,11 @@ var pending_recovery_is_strong: bool = false
 # ---------- TIME STOP ----------
 var timestop: bool = false
 var timestop_timer: float = 0.0
-const TIMESTOP_DURATION := 0.20   # 200ms, ajustable
+const TIMESTOP_DURATION := 0.35   # 200ms, ajustable
+var timestop_saved_velocity: Vector3 = Vector3.ZERO
+var timestop_saved_impulse: Vector3 = Vector3.ZERO
+var timestop_has_saved_state: bool = false
+
 
 func _ready() -> void:
 	lives = max_lives
@@ -175,7 +179,6 @@ func receive_damage(amount: float, ignore_lives: bool = false, knockback_strengt
 	if health <= 0.0:
 		print("💀 Gatito murió (fin de vidas)")
 
-
 # =====================================================
 #             EMPUJE FÍSICO (desde dummie)
 # =====================================================
@@ -227,19 +230,21 @@ func perform_air_recovery() -> void:
 func activate_timestop():
 	timestop = true
 	timestop_timer = TIMESTOP_DURATION
+	timestop_has_saved_state = false
 	print("⏸ TIME STOP ACTIVADO")
 
 # =====================================================
 #                PROCESO PRINCIPAL
 # =====================================================
 func _physics_process(delta: float) -> void:
+	# --- COOLDOWNS ---
 	if hurt_cooldown > 0.0:
 		hurt_cooldown -= delta
 
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
 
-	# --- si está stuneado, no puede moverse ni hacer nada ---
+	# --- STUN ---
 	if stunned:
 		stun_timer -= delta
 		velocity = Vector3.ZERO
@@ -252,25 +257,44 @@ func _physics_process(delta: float) -> void:
 	# --- TIME STOP ---
 	if timestop:
 		timestop_timer -= delta
-		velocity = velocity  # sigue volando
-		# detener IA y animaciones (solo jugador)
+
+		# Guardar estado SOLO UNA VEZ, al inicio del timestop
+		if not timestop_has_saved_state:
+			timestop_saved_velocity = velocity
+			timestop_saved_impulse = impulse
+			timestop_has_saved_state = true
+
+		# Congelar movimiento
+		velocity = Vector3.ZERO
+		impulse = Vector3.ZERO
+
+		# Congelar animación
 		if anim:
 			anim.speed_scale = 0.0
 
+		# Mantener física congelada
+		move_and_slide()
+
+		# Terminar timestop
 		if timestop_timer <= 0.0:
 			timestop = false
+
+			# Restaurar empuje del golpe fuerte
+			velocity = timestop_saved_velocity
+			impulse = timestop_saved_impulse
+			timestop_has_saved_state = false
+
 			if anim:
 				anim.speed_scale = 1.0
+
 			print("▶ TIME STOP TERMINADO")
-			
-		move_and_slide()
+
 		return
 
 	# --- ventana de recuperación aérea ---
 	if can_recover_in_air:
 		recovery_timer -= delta
 
-		# si se acabó el tiempo y no intentó recuperarse
 		if recovery_timer <= 0.0 and not attempted_recovery:
 			print("No te recuperaste → mala caída")
 
@@ -354,13 +378,49 @@ func _physics_process(delta: float) -> void:
 		velocity.z = lerp(velocity.z, target_vel.z, delta * 11.0)
 
 	# ------------ LOCK-ON ------------
-	if is_locked_on and current_target and not is_attacking and not is_dashing:
-		var tpos := current_target.global_transform.origin
-		look_at(Vector3(tpos.x, global_transform.origin.y, tpos.z), Vector3.UP)
+	if is_locked_on:
 
-		if global_transform.origin.distance_to(tpos) > target_radius:
-			is_locked_on = false
-			current_target = null
+		# 1. Si el target murió o fue eliminado
+		if not is_instance_valid(current_target):
+
+			var old := current_target
+			current_target = get_closest_enemy()
+
+			# apagar marcador del viejo SOLO si sigue vivo
+			if is_instance_valid(old):
+				_set_target_marker(old, false)
+
+			# si no queda nadie → salir del lock-on
+			if current_target == null:
+				is_locked_on = false
+				return
+
+			# nuevo marcador
+			_set_target_marker(current_target, true)
+
+		else:
+			# 2. Si el target existe, mirar hacia él
+			if not is_attacking and not is_dashing:
+				var tpos := current_target.global_transform.origin
+				look_at(Vector3(tpos.x, global_transform.origin.y, tpos.z), Vector3.UP)
+
+			# 3. Si está fuera del rango, buscar otro
+			if global_transform.origin.distance_to(current_target.global_transform.origin) > target_radius:
+
+				var old_target := current_target
+				current_target = get_closest_enemy()
+
+				# apagar marcador del objetivo anterior SOLO si sigue vivo
+				if is_instance_valid(old_target):
+					_set_target_marker(old_target, false)
+
+				# no hay nuevo enemigo → salir del lock-on
+				if current_target == null:
+					is_locked_on = false
+					return
+
+				# nueva marca
+				_set_target_marker(current_target, true)
 
 	move_and_slide()
 
@@ -377,17 +437,37 @@ func _input(event: InputEvent) -> void:
 			perform_air_recovery()
 
 	if event.is_action_pressed("look_on"):
+
+		# APAGAR si ya había lock-on
 		if is_locked_on:
+			if is_instance_valid(current_target):
+				_set_target_marker(current_target, false)
+
 			is_locked_on = false
 			current_target = null
-		else:
-			current_target = get_closest_enemy()
-			is_locked_on = current_target != null
-			
+			return
+
+		# ACTIVAR NUEVO LOCK-ON
+		var new_target := get_closest_enemy()
+		if new_target:
+			current_target = new_target
+			is_locked_on = true
+			_set_target_marker(current_target, true)
+
 	if event.is_action_pressed("recompostura"):
 		if can_recover_in_air and not attempted_recovery:
 			perform_air_recovery()
+	
+	# cambiar objetivo con scroll
+	if is_locked_on and event is InputEventMouseButton:
 
+		# Scroll arriba
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
+			cycle_target(+1)
+
+		# Scroll abajo
+		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
+			cycle_target(-1)
 
 # =====================================================
 #          HITBOX PATITA → DAÑO A ENEMIGO
@@ -395,6 +475,81 @@ func _input(event: InputEvent) -> void:
 func _on_hitbox_pata_body_entered(body: Node3D) -> void:
 	if body.is_in_group("enemigo") and body.has_method("take_damage"):
 		body.take_damage(10.0)
+		
+# =====================================================
+#             SET TARGET MARKER
+# =====================================================
+func _set_target_marker(enemy: Node3D, active: bool) -> void:
+	if enemy == null:
+		return
+	if not is_instance_valid(enemy):
+		return
+	if not enemy.has_node("LockOnMarker"):
+		return
+
+	enemy.get_node("LockOnMarker").visible = active
+# =====================================================
+# LISTA QUE DEVUELVE TODOS LOS ENEMIGOS ORDENADOS POR DISTANCIA
+# =====================================================
+func get_enemies_sorted() -> Array:
+	var enemies := get_tree().get_nodes_in_group("enemigo")
+	var valid := []
+
+	for e in enemies:
+		if not is_instance_valid(e):
+			continue
+		if not e is Node3D:
+			continue
+
+		var dist := global_transform.origin.distance_to(e.global_transform.origin)
+		if dist <= target_radius:
+			valid.append({"ref": e, "dist": dist})
+
+	# ordenar por distancia
+	valid.sort_custom(func(a, b): return a["dist"] < b["dist"])
+
+	# devolver solo la referencia al nodo
+	return valid.map(func(d): return d["ref"])
+
+# =====================================================
+#         CAMBIO DE OBJETIVO
+# =====================================================	
+func cycle_target(direction: int) -> void:
+	# direction = +1 scroll arriba, -1 scroll abajo
+
+	var list := get_enemies_sorted()
+	if list.is_empty():
+		return
+
+	# si no hay target actual, fijar el primero
+	if current_target == null or not is_instance_valid(current_target):
+		current_target = list[0]
+		_set_target_marker(current_target, true)
+		is_locked_on = true
+		return
+
+	# buscar índice del enemigo actual
+	var index := list.find(current_target)
+	if index == -1:
+		# si el actual no está, fijar el primero
+		current_target = list[0]
+		_set_target_marker(current_target, true)
+		return
+
+	# nuevo índice
+	var new_index := (index + direction) % list.size()
+	if new_index < 0:
+		new_index = list.size() - 1
+
+	var old := current_target
+	current_target = list[new_index]
+
+	# apagar marcador del viejo
+	if is_instance_valid(old):
+		_set_target_marker(old, false)
+
+	# activar marcador del nuevo
+	_set_target_marker(current_target, true)
 
 # =====================================================
 #             BUSCAR OBJETIVO CERCANO

@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+@onready var marker := $LockOnMarker
+
 @export var player: CharacterBody3D
 @export var move_speed: float = 4.0
 @export var stop_distance: float = 2.0
@@ -17,6 +19,7 @@ var contact_cooldown: float = 0.0
 func _ready() -> void:
 	randomize()
 	health = max_health
+	
 
 func _physics_process(delta: float) -> void:
 	if not player:
