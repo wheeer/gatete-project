@@ -1,5 +1,14 @@
 extends CharacterBody3D
 
+enum CatState {
+	NORMAL,
+	DASHING,
+	STUNNED,
+	TIMESTOP
+}
+
+var state: CatState = CatState.NORMAL
+
 # ---------- NODOS ----------
 @onready var hitbox: Area3D = $HitboxPata
 @onready var anim: AnimationPlayer = $AnimationPlayer
@@ -23,6 +32,8 @@ var max_stamina: float
 var stamina: float
 var max_posture: float
 var posture: float = 0.0
+var combat_timer: float = 0.0
+const COMBAT_GRACE_TIME := 3.0
 
 # ---------- ATAQUES / COMBOS ----------
 const COMBO_MAX := 3
@@ -66,7 +77,7 @@ const DASH_TIME := 0.12
 const DASH_COOLDOWN := 0.75
 var dash_timer := 0.0
 var dash_cooldown := 0.0
-var is_dashing := false
+
 var dash_direction: Vector3 = Vector3.ZERO
 var is_running := false
 var is_crouching := false
@@ -82,12 +93,12 @@ var can_recover_in_air: bool = false
 var attempted_recovery: bool = false
 var recovery_window: float = 0.35
 var recovery_timer: float = 0.0
-var stunned: bool = false
+
 var stun_timer: float = 0.0
 var pending_recovery_is_strong: bool = false
 
 # ---------- TIME STOP ----------
-var timestop: bool = false
+
 var timestop_timer: float = 0.0
 const TIMESTOP_DURATION := 0.35   # 200ms, ajustable
 var timestop_saved_velocity: Vector3 = Vector3.ZERO
@@ -105,12 +116,40 @@ func _ready() -> void:
 	posture = 0.0
 
 # =====================================================
+#              SISTEMA DE COMPOSTURA
+# =====================================================
+
+func add_posture(amount: float) -> void:
+	if state == CatState.STUNNED:
+		return
+
+	posture += amount
+	posture = clamp(posture, 0.0, max_posture)
+
+	print("➕ Postura +", amount, "→", posture, "/", max_posture)
+
+	if posture >= max_posture:
+		break_posture()
+func reduce_posture(amount: float) -> void:
+	posture -= amount
+	posture = clamp(posture, 0.0, max_posture)
+
+	print("➖ Postura -", amount, "→", posture, "/", max_posture)
+func break_posture() -> void:
+	print("💥 POSTURA ROTA")
+
+	posture = 0.0
+	state = CatState.STUNNED
+	stun_timer = 0.8   # ajustable
+
+# =====================================================
 #                   ATAQUE
 # =====================================================
 func atacar(attack_type: String = "auto") -> void:
 	if attack_cooldown > 0.0 or is_attacking:
 		return
-
+	if state != CatState.NORMAL:
+		return
 	# decidir tipo de ataque si viene "auto"
 	var final_type := attack_type
 
@@ -226,10 +265,20 @@ func _do_charged_attack() -> void:
 func receive_damage(amount: float, ignore_lives: bool = false, knockback_strength: float = 0.0) -> void:
 	if hurt_cooldown > 0.0:
 		return
+	
+	combat_timer = COMBAT_GRACE_TIME
+
+	# --- COMPOSTURA POR DAÑO ---
+	var posture_gain := amount * 0.8
+
+	if knockback_strength > 0.0:
+		posture_gain += knockback_strength * 0.5
+
+	add_posture(posture_gain)
 
 	# ============================================
 	# DEBUG PRINT — ENTRADA DE DAÑO
-	# ============================================ddd
+	# ============================================
 	print("=== DAÑO RECIBIDO ===")
 	print("• Daño solicitado:", amount)
 	print("• HP antes:", health)
@@ -317,7 +366,7 @@ func perform_air_recovery() -> void:
 		# recompensa: reducir un poco el daño/postura si fue empujón fuerte
 		if pending_recovery_is_strong:
 			health = min(health + 5.0, max_health)
-			posture = max(posture - 15.0, 0.0)
+			reduce_posture(20.0)
 	else:
 		# FALLO: se presionó tarde
 		print("Recuperación fallida → stun 0.5s")
@@ -326,9 +375,10 @@ func perform_air_recovery() -> void:
 			lives -= 1
 			print("Perdiste una vida por mala caída. Vidas:", lives)
 
-		stunned = true
+		state = CatState.STUNNED
 		stun_timer = 0.5
-
+		add_posture(25.0)
+		
 	can_recover_in_air = false
 	attempted_recovery = true
 	pending_recovery_is_strong = false
@@ -337,15 +387,22 @@ func perform_air_recovery() -> void:
 #                ACTIVAR TIMESTOP
 # =====================================================
 func activate_timestop():
-	timestop = true
+	state = CatState.TIMESTOP
 	timestop_timer = TIMESTOP_DURATION
 	timestop_has_saved_state = false
 	print("⏸ TIME STOP ACTIVADO")
-
+# =====================================================	
+#                funcion estado pela
+# =====================================================
+func is_in_combat() -> bool:
+	return combat_timer > 0.0 or is_locked_on
 # =====================================================
 #                PROCESO PRINCIPAL
 # =====================================================
 func _physics_process(delta: float) -> void:
+	# --- COMBAT TIMER ---#
+	if combat_timer > 0.0:
+		combat_timer -= delta
 	# --- COOLDOWNS ---
 	if hurt_cooldown > 0.0:
 		hurt_cooldown -= delta
@@ -353,7 +410,7 @@ func _physics_process(delta: float) -> void:
 	if attack_cooldown > 0.0:
 		attack_cooldown -= delta
 
-		# --- CARGA DE ATAQUE ---
+	# --- CARGA DE ATAQUE ---
 	if is_charging:
 		charge_timer += delta
 
@@ -364,17 +421,19 @@ func _physics_process(delta: float) -> void:
 			combo_index = 0
 
 	# --- STUN ---
-	if stunned:
+	if state == CatState.STUNNED:
 		stun_timer -= delta
 		velocity = Vector3.ZERO
 		impulse = Vector3.ZERO
 
 		if stun_timer <= 0.0:
-			stunned = false
+			state = CatState.NORMAL
 			print("Stun finalizado")
 
+		move_and_slide()
+		return
 	# --- TIME STOP ---
-	if timestop:
+	if state == CatState.TIMESTOP:
 		timestop_timer -= delta
 
 		# Guardar estado SOLO UNA VEZ, al inicio del timestop
@@ -396,7 +455,7 @@ func _physics_process(delta: float) -> void:
 
 		# Terminar timestop
 		if timestop_timer <= 0.0:
-			timestop = false
+			state = CatState.NORMAL
 
 			# Restaurar empuje del golpe fuerte
 			velocity = timestop_saved_velocity
@@ -409,6 +468,16 @@ func _physics_process(delta: float) -> void:
 			print("▶ TIME STOP TERMINADO")
 
 		return
+	# --- RECUPERACIÓN DE POSTURA ---
+	if state == CatState.NORMAL and posture > 0.0:
+		if is_in_combat():
+			# en pelea: baja lento
+			posture -= 6.0 * delta
+		else:
+			# fuera de pelea: baja rápido
+			posture -= 18.0 * delta
+
+		posture = max(posture, 0.0)
 
 	# --- ventana de recuperación aérea ---
 	if can_recover_in_air:
@@ -421,7 +490,7 @@ func _physics_process(delta: float) -> void:
 				lives -= 1
 				print("Perdiste una vida por no recuperarte. Vidas:", lives)
 
-			stunned = true
+			state = CatState.STUNNED
 			stun_timer = 0.5
 			can_recover_in_air = false
 			pending_recovery_is_strong = false
@@ -442,7 +511,7 @@ func _physics_process(delta: float) -> void:
 	if direction != Vector3.ZERO:
 		last_direction = direction.normalized()
 
-	if direction != Vector3.ZERO and not is_dashing and not is_attacking and not is_locked_on:
+	if direction != Vector3.ZERO and state != CatState.DASHING and not is_attacking and not is_locked_on:
 		var target := global_transform.origin + direction
 		look_at(Vector3(target.x, global_transform.origin.y, target.z), Vector3.UP)
 
@@ -457,22 +526,23 @@ func _physics_process(delta: float) -> void:
 		is_running = false
 
 	# ------------ DASH ------------
-	if Input.is_action_just_pressed("run_dash") and dash_cooldown <= 0.0:
-		is_dashing = true
+	if Input.is_action_just_pressed("run_dash") and dash_cooldown <= 0.0 and state == CatState.NORMAL:
+		state = CatState.DASHING
 		dash_timer = DASH_TIME
 		dash_direction = direction if direction != Vector3.ZERO else (-global_transform.basis.z).normalized()
 
 	if dash_cooldown > 0.0:
 		dash_cooldown -= delta
 
-	if is_dashing:
+	if state == CatState.DASHING:
 		dash_timer -= delta
 		velocity = dash_direction * DASH_SPEED
 		velocity.y = 0.0
 
 		if dash_timer <= 0.0:
-			is_dashing = false
+			state = CatState.NORMAL
 			dash_cooldown = DASH_COOLDOWN
+
 
 	# ------------ GRAVEDAD / SALTO ------------
 	if not is_on_floor():
@@ -485,7 +555,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = JUMP_VELOCITY
 
 	# ------------ MOVIMIENTO NORMAL ------------
-	if not is_dashing:
+	if state != CatState.DASHING:
 		var current_speed := WALK_SPEED
 		if is_running:
 			current_speed = RUN_SPEED
@@ -519,7 +589,7 @@ func _physics_process(delta: float) -> void:
 
 		else:
 			# 2. Si el target existe, mirar hacia él
-			if not is_attacking and not is_dashing:
+			if not is_attacking and state != CatState.DASHING:
 				var tpos := current_target.global_transform.origin
 				look_at(Vector3(tpos.x, global_transform.origin.y, tpos.z), Vector3.UP)
 
