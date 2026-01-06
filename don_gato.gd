@@ -24,6 +24,7 @@ var state: CatState = CatState.NORMAL
 @export var stat_composure: int = 10
 @export var stat_resilience: int = 10
 
+
 # ---------- DEFENSA / RECURSOS ----------
 var hurt_cooldown: float = 0.0
 var max_health: float
@@ -671,6 +672,13 @@ func _input(event: InputEvent) -> void:
 		# Scroll abajo
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			cycle_target(-1)
+			
+	if event.is_action_pressed("ui_accept"):
+		health -= 5
+		print("TEST vida:", health)
+
+	if event.is_action_pressed("ui_cancel"):
+		add_posture(10)
 
 # =====================================================
 #          HITBOX PATITA → DAÑO A ENEMIGO
@@ -772,3 +780,4 @@ func get_closest_enemy() -> Node3D:
 			closest_dist = dist
 
 	return closest
+# barras comostura y vida

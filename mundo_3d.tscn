@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dkk3eeau0my6m"]
+[gd_scene load_steps=26 format=3 uid="uid://dkk3eeau0my6m"]
 
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="1_d4nod"]
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://don_gato.gd" id="1_llgbh"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cg5rid4hvciia" path="res://Imagenes/Mundo/paredgrid.png" id="4_xmuii"]
 [ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="5_63nh0"]
 [ext_resource type="Script" uid="uid://4meee31626gw" path="res://dummie.gd" id="6_aew1u"]
+[ext_resource type="Script" uid="uid://ckukmcew8rhwc" path="res://ui.gd" id="7_uoyuw"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_xmuii"]
 size = Vector2(1, 1)
@@ -327,25 +328,26 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
 visible = false
 mesh = SubResource("SphereMesh_aew1u")
 
-[node name="UI" type="CanvasLayer" parent="."]
-
-[node name="Root" type="Control" parent="UI"]
+[node name="UI" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("7_uoyuw")
 
-[node name="StatsBox" type="VBoxContainer" parent="UI/Root"]
+[node name="LifeBar" type="ProgressBar" parent="UI"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -40.0
-offset_right = -20.0
-offset_bottom = 20.0
-grow_horizontal = 0
+offset_right = 100.0
+offset_bottom = 27.0
+value = 100.0
+
+[node name="PostureBar" type="ProgressBar" parent="UI"]
+layout_mode = 1
+offset_left = 1.0
+offset_top = 31.0
+offset_right = 101.0
+offset_bottom = 58.0
+value = 100.0
 
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
 [connection signal="body_entered" from="Dummie/HitArea" to="Dummie" method="_on_hit_area_body_entered"]
