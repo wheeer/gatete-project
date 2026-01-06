@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dkk3eeau0my6m"]
+[gd_scene load_steps=28 format=3 uid="uid://dkk3eeau0my6m"]
 
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="1_d4nod"]
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://don_gato.gd" id="1_llgbh"]
@@ -7,6 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="5_63nh0"]
 [ext_resource type="Script" uid="uid://4meee31626gw" path="res://dummie.gd" id="6_aew1u"]
 [ext_resource type="Script" uid="uid://ckukmcew8rhwc" path="res://ui.gd" id="7_uoyuw"]
+[ext_resource type="Texture2D" uid="uid://2etpayvnbsxw" path="res://Imagenes/UI/FullH.png" id="8_c2qnc"]
+[ext_resource type="Texture2D" uid="uid://d1lp0pvj4px77" path="res://Imagenes/UI/EmptyH.png" id="9_ryhgu"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_xmuii"]
 size = Vector2(1, 1)
@@ -331,23 +333,57 @@ mesh = SubResource("SphereMesh_aew1u")
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
 script = ExtResource("7_uoyuw")
+full_heart = ExtResource("8_c2qnc")
+empty_heart = ExtResource("9_ryhgu")
 
 [node name="LifeBar" type="ProgressBar" parent="UI"]
 layout_mode = 1
-offset_right = 100.0
+offset_right = 200.0
 offset_bottom = 27.0
 value = 100.0
 
 [node name="PostureBar" type="ProgressBar" parent="UI"]
 layout_mode = 1
 offset_left = 1.0
-offset_top = 31.0
-offset_right = 101.0
-offset_bottom = 58.0
+offset_top = 32.0
+offset_right = 201.0
+offset_bottom = 59.0
 value = 100.0
+
+[node name="Vidas" type="HBoxContainer" parent="UI"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 62.0
+offset_right = 202.0
+offset_bottom = 102.0
+
+[node name="Heart1" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart2" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart3" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart4" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart5" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart6" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart7" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart8" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
+
+[node name="Heart9" type="TextureRect" parent="UI/Vidas"]
+layout_mode = 2
 
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
 [connection signal="body_entered" from="Dummie/HitArea" to="Dummie" method="_on_hit_area_body_entered"]

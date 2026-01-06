@@ -35,6 +35,8 @@ var max_posture: float
 var posture: float = 0.0
 var combat_timer: float = 0.0
 const COMBAT_GRACE_TIME := 3.0
+var no_lives_hits_left: int = 0
+const EXECUTION_HP_RATIO := 0.15
 
 # ---------- ATAQUES / COMBOS ----------
 const COMBO_MAX := 3
@@ -270,10 +272,15 @@ func receive_damage(amount: float, ignore_lives: bool = false, knockback_strengt
 	combat_timer = COMBAT_GRACE_TIME
 
 	# --- COMPOSTURA POR DAÑO ---
-	var posture_gain := amount * 0.8
+	var pressure_factor := 1.0 + (posture / max_posture)
+	var posture_gain := amount * 1.2 * pressure_factor
+
 
 	if knockback_strength > 0.0:
 		posture_gain += knockback_strength * 0.5
+	# castigo por recibir daño seguido
+	if hurt_cooldown > 0.0:
+		posture_gain *= 1.4
 
 	add_posture(posture_gain)
 
@@ -309,34 +316,64 @@ func receive_damage(amount: float, ignore_lives: bool = false, knockback_strengt
 	# ============================================
 	if lives > 0:
 		lives -= 1
-		var chip := amount * 0.25
-		health -= chip
-		hurt_cooldown = 0.30
 
-		print("→ DAÑO LEVE (por sistema de 9 vidas)")
-		print("    Daño reducido a:", chip)
+		# daño real normal, no chipeo
+		health -= amount
+
+		hurt_cooldown = 0.35
+
+		print("→ DAÑO NORMAL (con corazones)")
 		print("    Vidas restantes:", lives)
 		print("HP ahora:", health)
 		print("---------------------")
 
-		if health <= 0.0:
-			print("💀 Gatito murió (daño leve reducido)")
+		# si justo caíste a 0 vidas, preparar estado peligro
+		if lives == 0:
+			_prepare_no_lives_state()
 		return
 
 	# ============================================
-	# DAÑO AUMENTADO (SIN VIDAS)
+	# DAÑO SIN CORAZONES (ESTADO PELIGRO)
 	# ============================================
-	var real_damage := amount * 1.5
-	health -= real_damage
-	hurt_cooldown = 0.45
+	if lives <= 0:
 
-	print("→ DAÑO REAL ++ aumentado (sin vidas)")
-	print("    Daño aumentado:", real_damage)
-	print("HP ahora:", health)
-	print("---------------------")
+		# ☠ EJECUCIÓN POR ERROR GRAVE (POSTURA CASI ROTA)
+		if health / max_health <= EXECUTION_HP_RATIO and posture >= max_posture * 0.9:
+			print("☠ EJECUCIÓN — POSTURA COLAPSADA")
+			health = 0.0
+			return
 
-	if health <= 0.0:
-		print("💀 Gatito murió (fin de vidas)")
+		no_lives_hits_left -= 1
+
+		print("☠ GOLPE SIN CORAZONES")
+		print("Golpes restantes:", no_lives_hits_left)
+
+		var danger_damage: float = amount * 1.4
+		health -= danger_damage
+		hurt_cooldown = 0.5
+
+		print("Daño aplicado:", danger_damage)
+		print("HP ahora:", health)
+		print("---------------------")
+
+		if no_lives_hits_left <= 0:
+			print(" Gatito murió (sin corazones)")
+			health = 0.0
+
+		return
+
+func _prepare_no_lives_state() -> void:
+	var hp_ratio := health / max_health
+
+	if hp_ratio >= 0.8:
+		no_lives_hits_left = 3
+	elif hp_ratio >= 0.4:
+		no_lives_hits_left = 2
+	else:
+		no_lives_hits_left = 1
+
+	print("⚠ SIN CORAZONES")
+	print("Golpes restantes antes de morir:", no_lives_hits_left)
 
 # =====================================================
 #             EMPUJE FÍSICO (desde dummie)
@@ -370,19 +407,30 @@ func perform_air_recovery() -> void:
 			reduce_posture(20.0)
 	else:
 		# FALLO: se presionó tarde
-		print("Recuperación fallida → stun 0.5s")
+		if pending_recovery_is_strong:
+			punish_failed_air_recovery()
 
-		if pending_recovery_is_strong and lives > 0:
-			lives -= 1
-			print("Perdiste una vida por mala caída. Vidas:", lives)
-
-		state = CatState.STUNNED
-		stun_timer = 0.5
-		add_posture(25.0)
-		
 	can_recover_in_air = false
 	attempted_recovery = true
 	pending_recovery_is_strong = false
+
+func punish_failed_air_recovery() -> void:
+	print("💥 MALA CAÍDA – CASTIGO COMPLETO")
+
+	# daño de compostura
+	add_posture(30.0)
+
+	# daño real directo
+	receive_damage(10.0, true)
+
+	# perder una vida
+	if lives > 0:
+		lives -= 1
+		print("💔 Vida perdida por caída. Vidas:", lives)
+
+	# stun
+	state = CatState.STUNNED
+	stun_timer = 0.6
 
 # =====================================================
 #                ACTIVAR TIMESTOP
@@ -473,7 +521,7 @@ func _physics_process(delta: float) -> void:
 	if state == CatState.NORMAL and posture > 0.0:
 		if is_in_combat():
 			# en pelea: baja lento
-			posture -= 6.0 * delta
+			posture -= 1.5 * delta
 		else:
 			# fuera de pelea: baja rápido
 			posture -= 18.0 * delta
@@ -485,14 +533,9 @@ func _physics_process(delta: float) -> void:
 		recovery_timer -= delta
 
 		if recovery_timer <= 0.0 and not attempted_recovery:
-			print("No te recuperaste → mala caída")
+			if pending_recovery_is_strong:
+				punish_failed_air_recovery()
 
-			if pending_recovery_is_strong and lives > 0:
-				lives -= 1
-				print("Perdiste una vida por no recuperarte. Vidas:", lives)
-
-			state = CatState.STUNNED
-			stun_timer = 0.5
 			can_recover_in_air = false
 			pending_recovery_is_strong = false
 
@@ -704,7 +747,8 @@ func _set_target_marker(enemy: Node3D, active: bool) -> void:
 # =====================================================
 func get_enemies_sorted() -> Array:
 	var enemies := get_tree().get_nodes_in_group("enemigo")
-	var valid := []
+	var valid: Array[Dictionary] = []
+
 
 	for e in enemies:
 		if not is_instance_valid(e):
@@ -728,7 +772,7 @@ func get_enemies_sorted() -> Array:
 func cycle_target(direction: int) -> void:
 	# direction = +1 scroll arriba, -1 scroll abajo
 
-	var list := get_enemies_sorted()
+	var list: Array[Node3D] = get_enemies_sorted()
 	if list.is_empty():
 		return
 
@@ -780,4 +824,3 @@ func get_closest_enemy() -> Node3D:
 			closest_dist = dist
 
 	return closest
-# barras comostura y vida
