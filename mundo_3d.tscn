@@ -337,13 +337,19 @@ script = ExtResource("7_uoyuw")
 full_heart = ExtResource("8_c2qnc")
 empty_heart = ExtResource("9_ryhgu")
 
-[node name="LifeBar" type="ProgressBar" parent="UI"]
+[node name="ShakeContainer" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LifeBar" type="ProgressBar" parent="UI/ShakeContainer"]
 layout_mode = 1
 offset_right = 200.0
 offset_bottom = 27.0
 value = 100.0
 
-[node name="PostureBar" type="ProgressBar" parent="UI"]
+[node name="PostureBar" type="ProgressBar" parent="UI/ShakeContainer"]
 layout_mode = 1
 offset_left = 1.0
 offset_top = 32.0
@@ -351,38 +357,38 @@ offset_right = 201.0
 offset_bottom = 59.0
 value = 100.0
 
-[node name="Vidas" type="HBoxContainer" parent="UI"]
+[node name="Vidas" type="HBoxContainer" parent="UI/ShakeContainer"]
 layout_mode = 0
 offset_left = 2.0
 offset_top = 62.0
 offset_right = 202.0
 offset_bottom = 102.0
 
-[node name="Heart1" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart1" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart2" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart2" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart3" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart3" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart4" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart4" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart5" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart5" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart6" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart6" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart7" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart7" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart8" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart8" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Heart9" type="TextureRect" parent="UI/Vidas"]
+[node name="Heart9" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
