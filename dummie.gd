@@ -101,5 +101,12 @@ func take_damage(amount: float) -> void:
 	print("Dummie recibe", amount, "vida:", health)
 
 	if health <= 0:
-		print("Dummie murió 🪦")
+		print("Dummie murió")
+		
+		# --- RECUPERAR CORAZÓN AL MATAR ---
+	if player and player.is_inside_tree():
+		if player.lives < player.max_lives:
+			player.lives += 1
+			print("Corazón recuperado. Vidas:", player.lives)
+
 		queue_free()

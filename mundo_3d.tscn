@@ -234,6 +234,67 @@ _data = {
 
 [node name="Mundo3d" type="Node3D"]
 
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("7_uoyuw")
+full_heart = ExtResource("8_c2qnc")
+empty_heart = ExtResource("9_ryhgu")
+
+[node name="ShakeContainer" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LifeBar" type="ProgressBar" parent="UI/ShakeContainer"]
+layout_mode = 1
+offset_right = 200.0
+offset_bottom = 27.0
+value = 100.0
+
+[node name="PostureBar" type="ProgressBar" parent="UI/ShakeContainer"]
+layout_mode = 1
+offset_left = 1.0
+offset_top = 32.0
+offset_right = 201.0
+offset_bottom = 59.0
+value = 100.0
+
+[node name="Vidas" type="HBoxContainer" parent="UI/ShakeContainer"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 62.0
+offset_right = 202.0
+offset_bottom = 102.0
+
+[node name="Heart1" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart2" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart3" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart4" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart5" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart6" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart7" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart8" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
+[node name="Heart9" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
+layout_mode = 2
+
 [node name="Suelo" type="MeshInstance3D" parent="."]
 transform = Transform3D(800, 0, 0, 0, 0.5, 0, 0, 0, 30, 350, 0, 0)
 mesh = SubResource("PlaneMesh_xmuii")
@@ -312,7 +373,7 @@ libraries = {
 }
 
 [node name="Dummie" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5550537, 1, 1.4010353)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.74176, 1, -4.0734673)
 script = ExtResource("6_aew1u")
 player = NodePath("../DonGato")
 
@@ -333,66 +394,97 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
 visible = false
 mesh = SubResource("SphereMesh_aew1u")
 
-[node name="UI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-script = ExtResource("7_uoyuw")
-full_heart = ExtResource("8_c2qnc")
-empty_heart = ExtResource("9_ryhgu")
+[node name="Dummie2" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5550537, 1, 6.9101963)
+script = ExtResource("6_aew1u")
+player = NodePath("../DonGato")
 
-[node name="ShakeContainer" type="Control" parent="UI"]
-layout_mode = 1
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie2"]
+mesh = SubResource("CapsuleMesh_xmuii")
 
-[node name="LifeBar" type="ProgressBar" parent="UI/ShakeContainer"]
-layout_mode = 1
-offset_right = 200.0
-offset_bottom = 27.0
-value = 100.0
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie2"]
+shape = SubResource("CapsuleShape3D_uoyuw")
 
-[node name="PostureBar" type="ProgressBar" parent="UI/ShakeContainer"]
-layout_mode = 1
-offset_left = 1.0
-offset_top = 32.0
-offset_right = 201.0
-offset_bottom = 59.0
-value = 100.0
+[node name="HitArea" type="Area3D" parent="Dummie2"]
 
-[node name="Vidas" type="HBoxContainer" parent="UI/ShakeContainer"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 62.0
-offset_right = 202.0
-offset_bottom = 102.0
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie2/HitArea"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_aew1u")
 
-[node name="Heart1" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie2"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_aew1u")
 
-[node name="Heart2" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="Dummie3" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5550537, 1, -7.939599)
+script = ExtResource("6_aew1u")
+player = NodePath("../DonGato")
 
-[node name="Heart3" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie3"]
+mesh = SubResource("CapsuleMesh_xmuii")
 
-[node name="Heart4" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie3"]
+shape = SubResource("CapsuleShape3D_uoyuw")
 
-[node name="Heart5" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="HitArea" type="Area3D" parent="Dummie3"]
 
-[node name="Heart6" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie3/HitArea"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_aew1u")
 
-[node name="Heart7" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie3"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_aew1u")
 
-[node name="Heart8" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="Dummie4" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.893288, 1, 1.4010353)
+script = ExtResource("6_aew1u")
+player = NodePath("../DonGato")
 
-[node name="Heart9" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
-layout_mode = 2
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie4"]
+mesh = SubResource("CapsuleMesh_xmuii")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie4"]
+shape = SubResource("CapsuleShape3D_uoyuw")
+
+[node name="HitArea" type="Area3D" parent="Dummie4"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie4/HitArea"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_aew1u")
+
+[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie4"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_aew1u")
+
+[node name="Dummie5" type="CharacterBody3D" parent="." node_paths=PackedStringArray("player") groups=["enemigo"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.915022, 1, 1.4010353)
+script = ExtResource("6_aew1u")
+player = NodePath("../DonGato")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Dummie5"]
+mesh = SubResource("CapsuleMesh_xmuii")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie5"]
+shape = SubResource("CapsuleShape3D_uoyuw")
+
+[node name="HitArea" type="Area3D" parent="Dummie5"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dummie5/HitArea"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_aew1u")
+
+[node name="LockOnMarker" type="MeshInstance3D" parent="Dummie5"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_aew1u")
 
 [connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
 [connection signal="body_entered" from="Dummie/HitArea" to="Dummie" method="_on_hit_area_body_entered"]
+[connection signal="body_entered" from="Dummie2/HitArea" to="Dummie2" method="_on_hit_area_body_entered"]
+[connection signal="body_entered" from="Dummie3/HitArea" to="Dummie3" method="_on_hit_area_body_entered"]
+[connection signal="body_entered" from="Dummie4/HitArea" to="Dummie4" method="_on_hit_area_body_entered"]
+[connection signal="body_entered" from="Dummie5/HitArea" to="Dummie5" method="_on_hit_area_body_entered"]
