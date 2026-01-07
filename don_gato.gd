@@ -4,6 +4,7 @@ enum CatState {
 	NORMAL,
 	DASHING,
 	STUNNED,
+	POSTURE_BROKEN,
 	TIMESTOP
 }
 
@@ -13,6 +14,8 @@ var state: CatState = CatState.NORMAL
 @onready var hitbox: Area3D = $HitboxPata
 @onready var anim: AnimationPlayer = $AnimationPlayer
 @onready var pata_derecha: Node3D = $PataDerecha
+@onready var cuerpo: MeshInstance3D = $Cuerpo
+
 
 # ---------- STATS ----------
 @export var target_radius: float = 20.0
@@ -41,18 +44,14 @@ const EXECUTION_HP_RATIO := 0.15
 # ---------- ATAQUES / COMBOS ----------
 const COMBO_MAX := 3
 const COMBO_RESET_TIME := 0.5
-
 const LIGHT_ATTACK_DAMAGE := 10.0
 const AIR_ATTACK_DAMAGE := 8.0
 const CHARGED_ATTACK_DAMAGE := 25.0
-
 var combo_index: int = 0
 var combo_timer: float = 0.0
-
 var is_charging: bool = false
 var charge_timer: float = 0.0
 const CHARGE_MIN_TIME := 0.5   # tiempo mínimo para considerarlo "cargado"
-
 var current_attack_damage: float = LIGHT_ATTACK_DAMAGE
 
 # ---------- VIDAS ----------
@@ -68,7 +67,6 @@ var last_direction: Vector3 = Vector3.FORWARD
 const WALK_SPEED := 10.0
 const RUN_SPEED := 15.0
 const CROUCH_SPEED := 5.0     
-
 const JUMP_VELOCITY := 7.0
 const GRAVITY_JUMP := 14.0
 const GRAVITY_FALL := 28.0
@@ -80,7 +78,6 @@ const DASH_TIME := 0.12
 const DASH_COOLDOWN := 0.75
 var dash_timer := 0.0
 var dash_cooldown := 0.0
-
 var dash_direction: Vector3 = Vector3.ZERO
 var is_running := false
 var is_crouching := false
@@ -96,18 +93,24 @@ var can_recover_in_air: bool = false
 var attempted_recovery: bool = false
 var recovery_window: float = 0.35
 var recovery_timer: float = 0.0
-
 var stun_timer: float = 0.0
 var pending_recovery_is_strong: bool = false
 
-# ---------- TIME STOP ----------
+# ---------- POSTURA ROTA ----------
+var posture_broken_timer: float = 0.0
+const POSTURE_BROKEN_DURATION := 1.2
 
+# ---------- TIME STOP ----------
 var timestop_timer: float = 0.0
 const TIMESTOP_DURATION := 0.35   # 200ms, ajustable
 var timestop_saved_velocity: Vector3 = Vector3.ZERO
 var timestop_saved_impulse: Vector3 = Vector3.ZERO
 var timestop_has_saved_state: bool = false
 
+# ---------- ESTADO STUN PERSONAJE -----
+const POSTURE_BROKEN_COLOR := Color(0.7, 0.3, 1.0) # violeta
+const NORMAL_COLOR := Color.WHITE
+var cuerpo_material: StandardMaterial3D
 
 func _ready() -> void:
 	lives = max_lives
@@ -117,13 +120,17 @@ func _ready() -> void:
 	stamina = max_stamina
 	max_posture = 50.0 + stat_composure * 5.0
 	posture = 0.0
-
+	# --- MATERIAL PROPIO ---
+	if cuerpo:
+		cuerpo_material = StandardMaterial3D.new()
+		cuerpo_material.albedo_color = NORMAL_COLOR
+		cuerpo.material_override = cuerpo_material
 # =====================================================
 #              SISTEMA DE COMPOSTURA
 # =====================================================
 
 func add_posture(amount: float) -> void:
-	if state == CatState.STUNNED:
+	if state == CatState.POSTURE_BROKEN:
 		return
 
 	posture += amount
@@ -138,12 +145,19 @@ func reduce_posture(amount: float) -> void:
 	posture = clamp(posture, 0.0, max_posture)
 
 	print("➖ Postura -", amount, "→", posture, "/", max_posture)
+
 func break_posture() -> void:
 	print("💥 POSTURA ROTA")
 
 	posture = 0.0
-	state = CatState.STUNNED
-	stun_timer = 0.8   # ajustable
+	state = CatState.POSTURE_BROKEN
+	posture_broken_timer = POSTURE_BROKEN_DURATION
+	
+	if cuerpo_material:
+		cuerpo_material.albedo_color = POSTURE_BROKEN_COLOR
+
+	if anim and anim.has_animation("posture_break"):
+		anim.play("posture_break")
 
 # =====================================================
 #                   ATAQUE
@@ -266,6 +280,9 @@ func _do_charged_attack() -> void:
 
 
 func receive_damage(amount: float, ignore_lives: bool = false, knockback_strength: float = 0.0) -> void:
+	if state == CatState.POSTURE_BROKEN:
+		amount *= 1.5
+	
 	if hurt_cooldown > 0.0:
 		return
 	
@@ -479,8 +496,22 @@ func _physics_process(delta: float) -> void:
 			state = CatState.NORMAL
 			print("Stun finalizado")
 
+# --- POSTURA ROTA ---
+	if state == CatState.POSTURE_BROKEN:
+		posture_broken_timer -= delta
+		velocity = Vector3.ZERO
+		impulse = Vector3.ZERO
+
+		if posture_broken_timer <= 0.0:
+			state = CatState.NORMAL
+		
+			if cuerpo_material:
+				cuerpo_material.albedo_color = NORMAL_COLOR
+			print("🛠 Postura recompuesta")
+			
 		move_and_slide()
 		return
+
 	# --- TIME STOP ---
 	if state == CatState.TIMESTOP:
 		timestop_timer -= delta
@@ -596,6 +627,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y *= JUMP_CUT_MULT
 
 	if Input.is_action_just_pressed("saltar") and is_on_floor():
+		if state != CatState.NORMAL:
+			return
 		velocity.y = JUMP_VELOCITY
 
 	# ------------ MOVIMIENTO NORMAL ------------
