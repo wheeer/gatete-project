@@ -763,6 +763,11 @@ func _on_hitbox_pata_body_entered(body: Node3D) -> void:
 	if body.is_in_group("enemigo") and body.has_method("take_damage"):
 		body.take_damage(current_attack_damage)
 
+		# si el enemigo sigue vivo → fallo de caza
+		if body.health > 0:
+			if body.has_method("on_failed_hunt"):
+				body.on_failed_hunt()
+
 # =====================================================
 #             SET TARGET MARKER
 # =====================================================
