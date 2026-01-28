@@ -1,0 +1,241 @@
+{
+  "catalogo_razas": {
+	"ROEDOR": {
+	  "descripcion": "Enemigo pequeño, rápido y de baja resistencia.",
+	  "stats_fisicos": {
+		"vida_max": "BAJA",
+		"fuerza_base": "MUY_BAJA",
+		"velocidad_movimiento": "ALTA",
+		"resistencia_postura": "MUY_BAJA"
+	  },
+	  "tolerancias": {
+		"veneno": "MEDIA",
+		"aturdimiento": "MINIMA"
+	  },
+	  "comportamientos_instintivos": [
+		"HUIDA_RAPIDA",
+		"ATAQUE_OCASIONAL",
+        "ESCONDERSE"
+	  ]
+	},
+	"CANINO": {
+	  "descripcion": "Cazador en grupo, equilibrado y persistente.",
+	  "stats_fisicos": {
+		"vida_max": "MEDIA_ALTA",
+		"fuerza_base": "MEDIA",
+		"velocidad_movimiento": "MEDIA_ALTA",
+		"resistencia_postura": "ALTA"
+	  },
+	  "tolerancias": {
+		"veneno": "BAJA",
+		"aturdimiento": "MEDIA"
+	  },
+	  "comportamientos_instintivos": [
+		"PERSECUCION",
+		"LADRIDO_ALERTA",
+        "MORDISCO"
+	  ]
+	},
+	"FELINO": {
+		"descripcion": "Cazador solitario, extremadamente ágil y letal en distancias cortas.",
+		"stats_fisicos": {
+			"vida_max": "MEDIA_BAJA",
+			"fuerza_base": "ALTA",
+			"velocidad_movimiento": "MUY_ALTA",
+			"resistencia_postura": "MEDIA"
+		},
+		"tolerancias": {
+			"veneno": "BAJA",
+			"aturdimiento": "ALTA"
+		},
+		"comportamientos_instintivos": [
+			"ACECHO",
+			"SALTO_PRECARIO",
+			"ZARPAZO_RAPIDO",
+            "RETIRADA_AGIL"
+		]
+		},
+	"INSECTO": {
+		"descripcion": "Enemigo de movimientos erráticos, difícil de predecir.",
+		"stats_fisicos": {
+			"vida_max": "MUY_BAJA",
+			"fuerza_base": "BAJA",
+			"velocidad_movimiento": "ALTA",
+			"resistencia_postura": "MINIMA"
+		},
+		"tolerancias": {
+			"veneno": "MUY_ALTA",
+			"aturdimiento": "MUY_BAJA"
+		},
+		"comportamientos_instintivos": [
+			"VUELO_ERRATICO",
+			"PICADURA_VENENOSA",
+            "ENJAMBRE"
+		]
+		},
+	"AVE": {
+		"descripcion": "Unidad aérea con gran visión y ataques en picado.",
+		"stats_fisicos": {
+			"vida_max": "BAJA",
+			"fuerza_base": "MEDIA",
+			"velocidad_movimiento": "ALTA",
+			"resistencia_postura": "BAJA"
+		},
+		"tolerancias": {
+			"veneno": "MEDIA",
+			"aturdimiento": "MEDIA_BAJA"
+		},
+		"comportamientos_instintivos": [
+			"PICADO",
+			"GRITO_ALERTA",
+            "VUELO_CIRCULAR"
+		]
+		}
+	},
+	"catalogo_perfiles_psicologicos": {
+	 "VALEROSO": {
+	  "id": "PROF_VAL",
+	  "descripcion": "Alta tolerancia al dolor y persistencia. No se rinde fácilmente.",
+	  "umbrales": {
+		"panico": "MUY_BAJO",
+		"duda": "BAJO",
+		"ira": "ALTO"
+	  },
+	  "multiplicadores": {
+		"resistencia_moral": 1.5,
+		"probabilidad_huida": 0.1
+	  },
+	  "posturas_preferidas": ["OFENSIVA", "AGRESIVO_OPORTUNISTA"],
+	  "decisiones_bloqueadas": ["HUIDA_DESESPERADA"]
+	},
+	"AGRESIVO": {
+	  "id": "PROF_AGR",
+	  "descripcion": "Busca el conflicto constante. Sus impulsos de ira son dominantes.",
+	  "umbrales": {
+		"panico": "BAJO",
+		"duda": "MUY_BAJO",
+		"ira": "MUY_ALTO"
+	  },
+	  "multiplicadores": {
+		"agresividad_base": 2.0,
+		"velocidad_reaccion": 1.2
+	  },
+	  "posturas_preferidas": ["AGRESIVO_OPORTUNISTA", "PRESION_CONSTANTE"],
+	  "decisiones_bloqueadas": ["RETIRADA_TACTICA"]
+	},
+	"MIEDOSO": {
+	  "id": "PROF_MIE",
+	  "descripcion": "Prioriza la supervivencia. Favorece la retirada ante el menor riesgo.",
+	  "umbrales": {
+		"panico": "ALTO",
+		"duda": "ALTO",
+		"ira": "MINIMA"
+	  },
+	  "multiplicadores": {
+		"probabilidad_huida": 2.5,
+		"resistencia_moral": 0.5
+	  },
+	  "posturas_preferidas": ["ASUSTADO", "DEFENSIVO_ACTIVO", "ENGAÑO"],
+	  "decisiones_bloqueadas": ["ATAQUE_FRONTAL"]
+	},
+	"DESESPERADO": {
+	  "id": "PROF_DES",
+	  "descripcion": "Perfil inestable. Puede atacar erráticamente o colapsar.",
+	  "umbrales": {
+		"panico": "EXTREMO",
+		"duda": "MEDIO",
+		"ira": "MEDIO"
+	  },
+	  "multiplicadores": {
+		"aleatoriedad_decisiones": 1.8,
+		"resistencia_postura": 0.7
+	  },
+	  "posturas_preferidas": ["ASUSTADO", "ATAQUE_ERRATICO"],
+	  "decisiones_bloqueadas": []
+	},
+	"ULTIMO_AIRE": {
+	  "id": "PROF_ULT",
+	  "descripcion": "Se activa en situaciones críticas. Ignora el dolor para un último esfuerzo.",
+	  "umbrales": {
+		"panico": "MINIMA",
+		"duda": "MINIMA",
+		"ira": "EXTREMO"
+	  },
+	  "multiplicadores": {
+		"resistencia_moral": 3.0,
+		"fuerza_final": 1.5
+	  },
+	  "posturas_preferidas": ["PRESION_CONSTANTE", "ATAQUE_FRONTAL"],
+	  "decisiones_bloqueadas": ["HUIDA_TOTAL", "ESCONDERSE"]
+	}
+  },
+  "catalogo_posturas_mentales": {
+	"DEFENSIVO_ACTIVO": {
+	  "id": "POST_DEF",
+	  "prioridad": "MEDIA",
+	  "modificadores_combate": {
+		"distancia_mantenida": "MEDIA_ALTA",
+		"probabilidad_parry": "ALTA"
+	  },
+	  "acciones_permitidas": ["RETROCEDER", "OBSERVAR", "ATAQUE_OPORTUNISTA"]
+	},
+	"AGRESIVO_OPORTUNISTA": {
+	  "id": "POST_AGR_OP",
+	  "prioridad": "ALTA",
+	  "modificadores_combate": {
+		"distancia_mantenida": "BAJA",
+		"probabilidad_ataque": "MEDIA_ALTA"
+	  },
+	  "acciones_permitidas": ["ACERCARSE", "ATAQUE_RAPIDO", "FLANQUEO"]
+	},
+	"ASUSTADO": {
+	  "id": "POST_ASU",
+	  "prioridad": "MAXIMA",
+	  "modificadores_combate": {
+		"distancia_mantenida": "MAXIMA",
+		"evasión": "ALTA"
+	  },
+	  "acciones_permitidas": ["HUIDA_TOTAL", "RETIRADA_TACTICA", "ENGAÑO"]
+	},
+	"ENGAÑO": {
+	  "id": "POST_ENG",
+	  "prioridad": "ALTA",
+	  "modificadores_combate": {
+		"fingir_vulnerabilidad": true,
+		"probabilidad_contraataque": "MUY_ALTA"
+	  },
+	  "acciones_permitidas": ["PERMANECER_INMOVIL", "ATAQUE_SORPRESA", "FINGIR_MUERTE"]
+	},
+	"PRESION_CONSTANTE": {
+	  "id": "POST_PRE",
+	  "prioridad": "MUY_ALTA",
+	  "modificadores_combate": {
+		"distancia_mantenida": "MINIMA",
+		"cadencia_ataque": "ALTA"
+	  },
+	  "acciones_permitidas": ["PERSECUCION_AGRESIVA", "ATAQUE_COMBO", "INTIMIDAR"]
+	}
+  },
+  "catalogo_eventos_disparadores": {
+	"EVT_RECIBIR_GOLPE": {
+	  "prioridad": "ALTA",
+	  "afecta_capas": ["POSTURA", "IMPULSO"],
+	  "efecto_base": "AUMENTAR_DUDA"
+	},
+	"EVT_ROMPE_POSTURA": {
+	  "prioridad": "ABSOLUTA",
+	  "afecta_capas": ["FISICO", "POSTURA"],
+	  "efecto_base": "BLOQUEAR_PSICOLOGIA"
+	},
+	"EVT_JUGADOR_CERCA": {
+	  "prioridad": "MEDIA",
+	  "afecta_capas": ["POSTURA"],
+	  "efecto_base": "EVALUAR_AGRESIVIDAD"
+	},
+	"EVT_VIDA_CRITICA": {
+	  "prioridad": "ALTA",
+	  "afecta_capas": ["PERFIL", "POSTURA"],
+	  "efecto_base": "TRANSICION_ULTIMO_AIRE"
+	}
+  }
+}
