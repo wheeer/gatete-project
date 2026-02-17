@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://dpesllgvfjakd"]
+
+[ext_resource type="Script" uid="uid://bngguphae3oav" path="res://Enemies/Dummy/enemy_dummy.gd" id="1_qv586"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ekoys"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qv586"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qfvqi"]
+
+[node name="EnemyDummy" type="CharacterBody3D"]
+collision_layer = 4
+script = ExtResource("1_qv586")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_ekoys")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_qv586")
+
+[node name="HurtBox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtBox" groups=["enemigo"]]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_qfvqi")

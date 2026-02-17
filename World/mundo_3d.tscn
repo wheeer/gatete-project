@@ -1,231 +1,34 @@
-[gd_scene load_steps=25 format=3 uid="uid://dkk3eeau0my6m"]
+[gd_scene load_steps=12 format=3 uid="uid://dkk3eeau0my6m"]
 
 [ext_resource type="Script" uid="uid://ckukmcew8rhwc" path="res://UI/ui.gd" id="1_p1pji"]
 [ext_resource type="Texture2D" uid="uid://2etpayvnbsxw" path="res://Imagenes/UI/FullH.png" id="2_0y31f"]
 [ext_resource type="Texture2D" uid="uid://d1lp0pvj4px77" path="res://Imagenes/UI/EmptyH.png" id="3_f5r2b"]
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="4_t1j4r"]
-[ext_resource type="Texture2D" uid="uid://cg5rid4hvciia" path="res://Imagenes/Mundo/paredgrid.png" id="5_kjl2h"]
-[ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="7_xgt71"]
 [ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://Camera/camera_ring.gd" id="8_a26sd"]
-[ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://Player/don_gato.gd" id="9_i1swd"]
+[ext_resource type="PackedScene" uid="uid://dpesllgvfjakd" path="res://Enemies/Dummy/enemy_dummy.tscn" id="8_qhlrw"]
+[ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Player/DonGatoController.tscn" id="9_p1pji"]
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_xmuii"]
-size = Vector2(1, 1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_cttvy"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63nh0"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1vy48"]
 albedo_texture = ExtResource("4_t1j4r")
-uv1_scale = Vector3(4, 1, 1)
-uv1_triplanar = true
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_llgbh"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_d4nod"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xmuii"]
-albedo_texture = ExtResource("5_kjl2h")
-uv1_triplanar = true
-
-[sub_resource type="BoxMesh" id="BoxMesh_63nh0"]
-size = Vector3(1, 1, 30)
+[sub_resource type="BoxMesh" id="BoxMesh_1vy48"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_63nh0"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aew1u"]
-albedo_texture = ExtResource("7_xgt71")
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_xmuii"]
-material = SubResource("StandardMaterial3D_aew1u")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c2qnc"]
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_aew1u"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_63nh0"]
-
-[sub_resource type="PrismMesh" id="PrismMesh_63nh0"]
-
-[sub_resource type="Animation" id="Animation_63nh0"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Cuerpo:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0, -0.3)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("PataDerecha:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.6, 0, -0.9)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("PataDerecha:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, -0.7853982, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("HitboxPata/CollisionShape3D:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(1.6153711, 0.4711225, 0.15405786)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("HitboxPata/CollisionShape3D:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0.7853982, 0)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("HitboxPata/CollisionShape3D:scale")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.9999999, 1, 0.9999999)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("PataDerecha:scale")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.99999994, 1, 0.99999994)]
-}
-
-[sub_resource type="Animation" id="Animation_xmuii"]
-resource_name = "ataque"
-length = 0.12
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Cuerpo:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.06, 0.12),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, 0, -0.3), Vector3(0, 0, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("PataDerecha:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0.033333335, 0.06666667, 0.1, 0.12),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector3(0.6, 0, -0.9), Vector3(0, 0, -1), Vector3(-0.5, 0, -0.8), Vector3(0.6, 0, -0.9)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("PataDerecha:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.033333335, 0.06666667, 0.1, 0.12),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector3(0, -0.7853982, 0), Vector3(0, 0, 0), Vector3(0, 0.7853982, 0), Vector3(0, -0.7853982, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("HitboxPata/CollisionShape3D:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0.033333335, 0.06666667, 0.1, 0.12),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector3(1.6153711, 0.4711225, 0.15405786), Vector3(1, 0.5, 0), Vector3(0.5, 0.5, 0.2), Vector3(1.6153711, 0.4711225, 0.15405786)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("HitboxPata/CollisionShape3D:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0.033333335, 0.06666667, 0.1, 0.12),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector3(0, 0.7853982, 0), Vector3(0, 0, 0), Vector3(0, 0.7853982, 0), Vector3(0, 0.7853982, 0)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("HitboxPata/CollisionShape3D:scale")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0.1, 0.12),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0.9999999, 1, 0.9999999), Vector3(0.9999999, 1, 0.9999999)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("PataDerecha:scale")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0.12),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0.99999994, 1, 0.99999994)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_63nh0"]
-_data = {
-&"RESET": SubResource("Animation_63nh0"),
-&"ataque": SubResource("Animation_xmuii")
-}
-
 [node name="Mundo3d" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+transform = Transform3D(200, 0, 0, 0, 1, 0, 0, 0, 20, 0, 0, 0)
+shape = SubResource("BoxShape3D_cttvy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(200, 0, 0, 0, 1, 0, 0, 0, 20, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_1vy48")
+mesh = SubResource("BoxMesh_1vy48")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
@@ -288,43 +91,14 @@ layout_mode = 2
 [node name="Heart9" type="TextureRect" parent="UI/ShakeContainer/Vidas"]
 layout_mode = 2
 
-[node name="Suelo" type="MeshInstance3D" parent="."]
-transform = Transform3D(800, 0, 0, 0, 0.5, 0, 0, 0, 30, 350, 0, 0)
-mesh = SubResource("PlaneMesh_xmuii")
-surface_material_override/0 = SubResource("StandardMaterial3D_63nh0")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Suelo"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Suelo/StaticBody3D"]
-shape = SubResource("BoxShape3D_llgbh")
-
-[node name="ParedInferior" type="MeshInstance3D" parent="."]
-transform = Transform3D(800, 0, 0, 0, 30, 0, 0, 0, 1, 350, 15, 0)
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ParedInferior"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ParedInferior/StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 15)
-shape = SubResource("BoxShape3D_d4nod")
-
-[node name="ParedSuperior" type="MeshInstance3D" parent="."]
-transform = Transform3D(800, 0, 0, 0, 30, 0, 0, 0, 1, 350, 15, -30)
-material_override = SubResource("StandardMaterial3D_xmuii")
-mesh = SubResource("BoxMesh_63nh0")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="ParedSuperior"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ParedSuperior/StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 15)
-shape = SubResource("BoxShape3D_d4nod")
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.6427877, -0.586824, -0.4924039, 5.619428e-08, -0.64278764, 0.76604444, -0.7660444, -0.49240395, -0.41317594, -15, 25, -8)
+transform = Transform3D(0.879129, -0.2279, -0.4185608, 0.2407677, -0.545555, 0.8027458, -0.4112939, -0.8064937, -0.42474273, 17.785597, 25.000128, 2.156973)
+shadow_enabled = true
 
 [node name="CameraRing" type="CharacterBody3D" parent="." node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 10, 10)
 script = ExtResource("8_a26sd")
-target = NodePath("../DonGato")
+target = NodePath("../DonGatoController")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRing"]
 current = true
@@ -334,35 +108,9 @@ size = 10.0
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 shape = SubResource("SphereShape3D_63nh0")
 
-[node name="DonGato" type="CharacterBody3D" parent="." groups=["player"]]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 1, 0)
-script = ExtResource("9_i1swd")
+[node name="DonGatoController" parent="." instance=ExtResource("9_p1pji")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+collision_mask = 5
 
-[node name="Cuerpo" type="MeshInstance3D" parent="DonGato" groups=["player"]]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -0.3)
-mesh = SubResource("CapsuleMesh_xmuii")
-surface_material_override/0 = SubResource("StandardMaterial3D_c2qnc")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("CylinderShape3D_aew1u")
-
-[node name="HitboxPata" type="Area3D" parent="DonGato"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -0.5, -1)
-monitoring = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DonGato/HitboxPata"]
-transform = Transform3D(0.7071067, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, 0.7071067, 1.6153711, 0.4711225, 0.15405786)
-shape = SubResource("BoxShape3D_63nh0")
-
-[node name="PataDerecha" type="MeshInstance3D" parent="DonGato"]
-transform = Transform3D(0.7071067, 0, -0.7071067, 0, 1, 0, 0.7071067, 0, 0.7071067, 0.6, 0, -0.9)
-visible = false
-mesh = SubResource("PrismMesh_63nh0")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="DonGato"]
-libraries = {
-&"": SubResource("AnimationLibrary_63nh0")
-}
-
-[connection signal="body_entered" from="DonGato/HitboxPata" to="DonGato" method="_on_hitbox_pata_body_entered"]
+[node name="EnemyDummy" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.5, 0)
