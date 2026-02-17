@@ -7,6 +7,7 @@ class_name DonGatoStateMachine
 
 enum CatState {
 	NORMAL,
+	ATTACKING,
 	DASHING,
 	STUNNED,
 	POSTURE_BROKEN,
@@ -14,7 +15,6 @@ enum CatState {
 }
 
 var current_state: CatState = CatState.NORMAL
-
 
 func physics_update(delta: float) -> void:
 	match current_state:
@@ -35,12 +35,11 @@ func handle_input(event: InputEvent) -> void:
 			movement_system.handle_input(event)
 			
 			if event.is_action_pressed("atacar"):
-				combat_system.try_attack()
+				if combat_system.try_attack():
+					change_state(CatState.ATTACKING)
 		
-		CatState.DASHING:
+		CatState.ATTACKING:
 			pass
-
-
 
 func change_state(new_state: CatState) -> void:
 	current_state = new_state

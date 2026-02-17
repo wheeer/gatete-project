@@ -33,7 +33,7 @@ func _regenerate(delta: float) -> void:
 	# Si está exhausto, esperar
 	if is_exhausted:
 		recovery_timer -= delta
-		
+	
 		if recovery_timer > 0:
 			return
 		
