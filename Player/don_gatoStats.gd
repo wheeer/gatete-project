@@ -50,13 +50,11 @@ func _regenerate(delta: float) -> void:
 	
 	stamina += regen_rate * delta
 	stamina = min(stamina, stamina_max)
-
 	
 	emit_signal("stamina_changed", stamina, stamina_max)
 
-func can_spend(amount: float) -> bool:
+func can_spend(_amount: float) -> bool:
 	return not is_exhausted
-
 
 func spend(amount: float) -> bool:
 	if is_exhausted:

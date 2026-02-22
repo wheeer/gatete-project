@@ -14,9 +14,10 @@ class_name DonGatoController
 
 func _ready() -> void:
 	
-	movement_system.setup(self, $MeshInstance3D, stats_system)
 	combat_system.setup(self, $AttackArea, stats_system)
-
+	movement_system.setup(self, $MeshInstance3D, stats_system)
+	combat_system.attack_finished.connect(_on_attack_finished)
+	combat_system.attack_started.connect(_on_attack_started)
 	# Conexiones de señales Movement
 	movement_system.jumped.connect(_on_jumped)
 	movement_system.dash_started.connect(_on_dash_started)
@@ -36,9 +37,16 @@ func _input(event: InputEvent) -> void:
 
 func _on_jumped() -> void:
 	pass
-
+	
+func _on_attack_started() -> void:
+	state_machine.change_state(state_machine.CatState.ATTACKING)
+	
+func _on_attack_finished() -> void:
+	state_machine.change_state(state_machine.CatState.NORMAL)
+	
 func _on_dash_started() -> void:
 	state_machine.change_state(state_machine.CatState.DASHING)
-
+	
 func _on_dash_finished() -> void:
 	state_machine.change_state(state_machine.CatState.NORMAL)
+	

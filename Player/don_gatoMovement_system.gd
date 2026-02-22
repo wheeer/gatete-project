@@ -39,11 +39,11 @@ func setup(_body: CharacterBody3D, _mesh_root: Node3D, _stats: DonGatoStats) -> 
 	stats = _stats
 	original_mesh_y = mesh_root.position.y
 
-func physics_update(delta: float) -> void:
+func physics_update(delta: float, speed_multiplier: float = 1.0) -> void:
 	_read_input()
 	_update_state()
 	_apply_gravity(delta)
-	_apply_movement(delta)
+	_apply_movement(delta, speed_multiplier)
 	body.move_and_slide()
 	_update_visuals()
 	
@@ -72,7 +72,7 @@ func _apply_gravity(delta: float) -> void:
 	if not body.is_on_floor():
 		body.velocity.y -= GRAVITY * delta
 
-func _apply_movement(delta: float) -> void:
+func _apply_movement(delta: float, speed_multiplier: float) -> void:
 	var speed := WALK_SPEED
 
 	# Prioridad absoluta: agotado
@@ -90,14 +90,15 @@ func _apply_movement(delta: float) -> void:
 		else:
 			is_sprinting = false
 			speed = WALK_SPEED
-	
+			
+	speed *= speed_multiplier
+
 	if input_dir != Vector3.ZERO:
 		body.velocity.x = move_toward(body.velocity.x, input_dir.x * speed, speed * 5 * delta)
 		body.velocity.z = move_toward(body.velocity.z, input_dir.z * speed, speed * 5 * delta)
 	else:
 		body.velocity.x = move_toward(body.velocity.x, 0, speed * 5 * delta)
 		body.velocity.z = move_toward(body.velocity.z, 0, speed * 5 * delta)
-
 
 func _update_visuals() -> void:
 	if mesh_root == null:
