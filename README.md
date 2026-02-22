@@ -128,3 +128,43 @@ Gatete-Project es un viaje creativo en evolución.
 Todo aquel que quiera explorar, aprender o aportar es bienvenido.
 
  ~ Gracias por acercarte al Instinto ~
+
+Estado Actual del Proyecto
+Sistemas implementados
+
+	Sistema de combate modular con fases:
+
+		Startup
+		Active
+		Recovery
+
+	Combo básico 1-2-3 con reinicio por temporizador
+	Consumo de stamina en:
+
+		Ataques
+		Sprint
+		Salto
+
+	Sistema de agotamiento (exhaustion) con recuperación progresiva
+	Máquina de estados del jugador
+	Movimiento completo:
+		Caminar
+		Correr
+		Agacharse
+		Saltar
+
+	Dummy de prueba que recibe daño
+	UI base (vida, postura preparada, sistema de vidas)
+
+En desarrollo
+
+	Combo basado en impacto real
+	Patadas aéreas
+	Sistema de parry y esquiva perfecta
+	Dash con ventana de invulnerabilidad activa
+	Sistema de postura
+	IA enemiga básica
+
+Objetivo actual
+
+Consolidar un MVP sólido del sistema de combate antes de expandir mecánicas avanzadas o contenido adicional.
