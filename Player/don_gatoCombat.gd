@@ -115,11 +115,17 @@ func _start_attack() -> void:
 	emit_signal("attack_started")
 
 func _on_attack_area_area_entered(area: Area3D) -> void:
-	print("Golpe en fase:", current_phase)
+	if current_phase != AttackPhase.ACTIVE:
+		return
+	
+	if already_hit:
+		return
+	
 	var enemy = area.get_parent()
 	
-	if enemy.has_method("take_damage"):
+	if enemy and enemy.has_method("take_damage"):
 		enemy.take_damage(attack_damage)
+		already_hit = true
 
 func _end_attack() -> void:
 	is_attacking = false
