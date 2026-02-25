@@ -11,13 +11,16 @@ class_name DonGatoController
 @onready var posture_system = $PostureSystem
 @onready var lives_system = $LivesSystem
 @onready var stats_system = $PlayerStats
+@onready var targeting_system = $Targeting
 
 func _ready() -> void:
 	
 	combat_system.setup(self, $AttackArea, stats_system)
-	movement_system.setup(self, $MeshInstance3D, stats_system)
+	movement_system.setup(self, $MeshInstance3D, stats_system, targeting_system)
+	targeting_system.setup(self)
 	combat_system.attack_finished.connect(_on_attack_finished)
 	combat_system.attack_started.connect(_on_attack_started)
+	
 	# Conexiones de señales Movement
 	movement_system.jumped.connect(_on_jumped)
 	movement_system.dash_started.connect(_on_dash_started)
@@ -29,11 +32,13 @@ func _physics_process(delta: float) -> void:
 	
 	# El controller delega la lógica de estado
 	state_machine.physics_update(delta)
+	targeting_system.physics_update()
 
 func _input(event: InputEvent) -> void:
 	
 	# Delegamos input a la máquina de estados
 	state_machine.handle_input(event)
+	targeting_system.handle_input(event)
 
 func _on_jumped() -> void:
 	pass

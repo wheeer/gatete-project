@@ -155,6 +155,15 @@ Sistemas implementados
 
 	Dummy de prueba que recibe daño
 	UI base (vida, postura preparada, sistema de vidas)
+	
+	Implementado sistema completo de Target Lock con cambio automático al morir enemigo
+
+		Lock al enemigo más cercano dentro del radio
+		Cambio manual de objetivo (siguiente / anterior)
+		Rotación del jugador solo en eje Y hacia el target
+		Cambio automático al siguiente enemigo al eliminar el actual
+		Integración con Movement sin bloquear desplazamiento
+		Corrección de dash sin input (dirección frontal correcta)
 
 En desarrollo
 

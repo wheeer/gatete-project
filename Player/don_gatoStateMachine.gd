@@ -54,7 +54,7 @@ func handle_input(event: InputEvent) -> void:
 			if event.is_action_pressed("atacar"):
 				combat_system.try_attack()
 			
-			if event.is_action_pressed("dash"):
+			if event.is_action_pressed("rundash"):
 				combat_system.cancel_attack()
 				change_state(CatState.DASHING)
 			

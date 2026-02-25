@@ -28,7 +28,7 @@ func _physics_process(delta: float) -> void:
 
 func _regenerate(delta: float) -> void:
 	
-	if Input.is_action_pressed("correr"):
+	if Input.is_action_pressed("rundash"):
 		return
 	# Si está exhausto, esperar
 	if is_exhausted:

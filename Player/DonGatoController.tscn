@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cmkwn2l00wewt"]
+[gd_scene load_steps=15 format=3 uid="uid://cmkwn2l00wewt"]
 
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://Player/don_gatoController.gd" id="1_diguv"]
 [ext_resource type="Script" uid="uid://b17toxwfhdrjw" path="res://Player/don_gatoStats.gd" id="2_70n47"]
@@ -6,10 +6,16 @@
 [ext_resource type="Script" uid="uid://5bth6bkghft5" path="res://Player/don_gatoHealth.gd" id="3_5sya5"]
 [ext_resource type="Script" uid="uid://c7t1s3o6ny8qu" path="res://Player/don_gatoMovement_system.gd" id="3_lnpoi"]
 [ext_resource type="Script" uid="uid://b3stjrf3nmxhu" path="res://Player/don_gatoCombat.gd" id="3_ydhkc"]
+[ext_resource type="Script" uid="uid://b1b51fm7xexb2" path="res://Player/don_gatoTargeting.gd" id="4_8qaur"]
 [ext_resource type="Script" uid="uid://dr0t1llk8svc8" path="res://Player/don_gatoPosture.gd" id="4_hnpxo"]
 [ext_resource type="Script" uid="uid://ojvqn6b3r8e" path="res://Player/don_gatoLives.gd" id="5_70o2q"]
+[ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="9_s40ee"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8qaur"]
+albedo_texture = ExtResource("9_s40ee")
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lnpoi"]
+material = SubResource("StandardMaterial3D_8qaur")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ydhkc"]
 
@@ -25,6 +31,9 @@ script = ExtResource("2_lnpoi")
 
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource("3_lnpoi")
+
+[node name="Targeting" type="Node" parent="."]
+script = ExtResource("4_8qaur")
 
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource("3_ydhkc")
@@ -42,6 +51,7 @@ script = ExtResource("2_70n47")
 script = ExtResource("3_5sya5")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.010320306, 0, 0)
 mesh = SubResource("CapsuleMesh_lnpoi")
 skeleton = NodePath("")
 
@@ -54,5 +64,5 @@ collision_mask = 8
 monitoring = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AttackArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -1)
 shape = SubResource("BoxShape3D_5sya5")

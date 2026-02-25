@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dpesllgvfjakd"]
+[gd_scene load_steps=6 format=3 uid="uid://dpesllgvfjakd"]
 
 [ext_resource type="Script" uid="uid://bngguphae3oav" path="res://Enemies/Dummy/enemy_dummy.gd" id="1_qv586"]
 
@@ -8,7 +8,9 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qfvqi"]
 
-[node name="EnemyDummy" type="CharacterBody3D"]
+[sub_resource type="SphereMesh" id="SphereMesh_qv586"]
+
+[node name="EnemyDummy" type="CharacterBody3D" groups=["enemigo", "targetable"]]
 collision_layer = 4
 script = ExtResource("1_qv586")
 
@@ -26,3 +28,8 @@ monitoring = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="HurtBox" groups=["enemigo"]]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_qfvqi")
+
+[node name="TargetMarker" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_qv586")

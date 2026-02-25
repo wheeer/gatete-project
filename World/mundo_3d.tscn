@@ -109,8 +109,14 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 shape = SubResource("SphereShape3D_63nh0")
 
 [node name="DonGatoController" parent="." instance=ExtResource("9_p1pji")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 0, 1.5, 0)
 collision_mask = 5
 
 [node name="EnemyDummy" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.5, 0)
+
+[node name="EnemyDummy2" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.638405, 1.5, 0)
+
+[node name="EnemyDummy3" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.5, -5.446026)
