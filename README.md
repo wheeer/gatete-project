@@ -1,17 +1,17 @@
 # GATETE-PROJECT 
 ![Godot](https://img.shields.io/badge/Engine-Godot_4.5.1-blue)
 ![Status](https://img.shields.io/badge/Status-Pre--Alpha-red)
-![License](https://img.shields.io/badge/License-MIT-green)
+![Genre](https://img.shields.io/badge/Genre-Action_Combat-darkred)
 ![Platform](https://img.shields.io/badge/Platform-PC-lightgrey)
 
 **Juego de acción 2.5D / 3D estilizado — tierno, feroz y narrado desde la mente  
-y los instintos de un gato negro adorable… pero peligrosamente depredador.**
+y los instintos de un gato negro adorable… pero letal.**
 
 Motor: **Godot Engine 4.5.1**
 
 ---
 
-# Visión General
+## Visión General
 
 **Gatete-Project** es un juego de combate donde el jugador controla a un gato negro  
 ágil y letal que se abre paso entre enemigos usando velocidad, reflejos y puro  
@@ -28,15 +28,15 @@ Algunos enemigos parecen… distintos.
 
 ---
 
-# Identidad del Juego
+## Identidad del Juego
 
-## Estética
+### Estética
 
 - Protagonista: **gato negro estilo cartoon**, adorable pero intimidante  
 - Escenarios **3D con presentación 2.5D**  
 - Ambientes nocturnos, urbanos y progresivamente más surrealistas  
 
-## Tono
+### Tono
 
 - Humor felino y comportamiento juguetón  
 - Violencia estilizada, nunca realista  
@@ -44,9 +44,9 @@ Algunos enemigos parecen… distintos.
 
 ---
 
-# Mecánicas Principales
+## Mecánicas Principales
 
-## Movimiento
+### Movimiento
 
 El jugador se mueve como un gato: rápido, flexible y reactivo.
 
@@ -58,7 +58,7 @@ El jugador se mueve como un gato: rápido, flexible y reactivo.
 
 ---
 
-## Combate
+### Combate
 
 El combate está centrado en presión constante y control del enemigo.
 
@@ -70,7 +70,7 @@ El combate está centrado en presión constante y control del enemigo.
 
 ---
 
-## Sistema de Postura/Compostura
+### Sistema de Postura/Compostura
 
 Los enemigos poseen una barra de **postura**.
 
@@ -81,7 +81,7 @@ Cuando la postura se rompe:
 
 ---
 
-## Sistema de Captura
+### Sistema de Captura
 
 Cuando un enemigo está debilitado:
 
@@ -91,7 +91,7 @@ Cuando un enemigo está debilitado:
 
 ---
 
-# Sistema de “9 Vidas”
+## Sistema de “9 Vidas”
 
 Las vidas no funcionan como en juegos tradicionales.
 
@@ -106,7 +106,7 @@ Cuando la suerte se agota, el daño comienza a ser **real**.
 
 ---
 
-# Diseño del MVP
+## Diseño del MVP
 
 El objetivo actual del proyecto es consolidar un **MVP jugable** que demuestre  
 el núcleo del sistema de combate.
@@ -135,7 +135,7 @@ Durante esta demo el jugador debería experimentar:
 
 ---
 
-# Estado Actual del Proyecto
+## Estado Actual del Proyecto
 
 **PRE-ALPHA — Desarrollo activo**
 
@@ -195,7 +195,7 @@ Sistema de **Target Lock**
 
 ---
 
-# En Desarrollo
+## En Desarrollo
 
 - sistema completo de **captura**
 - **ejecución** de enemigos
@@ -206,7 +206,7 @@ Sistema de **Target Lock**
 
 ---
 
-# Tecnologías
+## Tecnologías
 
 **Motor**
 
@@ -222,7 +222,7 @@ Assets **2D / 2.5D / 3D estilizados**
 
 ---
 
-# Estructura del Proyecto
+## Estructura del Proyecto
 
 El código está organizado de forma **modular** para que los sistemas principales  
 (movimiento, combate, enemigos, UI) puedan evolucionar sin romper el resto  
@@ -233,7 +233,7 @@ a medida que el juego crece.
 
 ---
 
-# 💬 Sobre el Repositorio
+## 💬 Sobre el Repositorio
 
 Este repositorio funciona también como un espacio de **aprendizaje y exploración**  
 dentro del desarrollo de videojuegos.
@@ -246,13 +246,13 @@ respeten la dirección general del juego.
 
 ---
 
-# Licencia
+## Licencia
 
 Por definir según avance del proyecto.
 
 ---
 
-# Nota del Autor
+## Nota del Autor
 
 Gatete-Project es un proyecto personal en evolución.
 
