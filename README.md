@@ -1,179 +1,287 @@
-G A T E T E – P R O J E C T
+  ░██████                ░██                  ░██                     
+ ░██   ░██               ░██                  ░██                     
+░██         ░██████   ░████████  ░███████  ░████████  ░███████        
+░██  █████       ░██     ░██    ░██    ░██    ░██    ░██    ░██       
+░██     ██  ░███████     ░██    ░█████████    ░██    ░█████████       
+ ░██  ░███ ░██   ░██     ░██    ░██           ░██    ░██              
+  ░█████░█  ░█████░██     ░████  ░███████      ░████  ░███████        
+                                                                      
+                                                                      
+                                                                      
+░█████████                        ░██                          ░██    
+░██     ░██                                                    ░██    
+░██     ░██ ░██░████  ░███████    ░██  ░███████   ░███████  ░████████ 
+░█████████  ░███     ░██    ░██   ░██ ░██    ░██ ░██    ░██    ░██    
+░██         ░██      ░██    ░██   ░██ ░█████████ ░██           ░██    
+░██         ░██      ░██    ░██   ░██ ░██        ░██    ░██    ░██    
+░██         ░██       ░███████    ░██  ░███████   ░███████      ░████ 
+                                  ░██                                 
+                                ░███                                  
+                                                                      
+![Godot](https://img.shields.io/badge/Engine-Godot_4.5-blue)
+![Status](https://img.shields.io/badge/Status-Prototype-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Platform](https://img.shields.io/badge/Platform-PC-lightgrey)
+**Juego de acción 2.5D / 3D estilizado — tierno, feroz y narrado desde la mente  
+y los instintos de un gato negro adorable… pero peligrosamente depredador.**
 
-Juego de acción 2.5D / 3D estilizado — Tierno, feroz y narrado desde la mente 
-y los instintos de un gato negro adorable… pero peligrosamente depredador.
+Motor: **Godot Engine 4.5.x**
 
-El repositorio centraliza el código, documentación, assets y flujo de trabajo,
-pensado tanto para principiantes como desarrolladores experimentados.
+---
 
-O B J E T I V O   D E L   P R O Y E C T O
+# Visión General
 
-✔ Combate expresivo influenciado por estadísticas evolutivas.  
-✔ Movilidad fluida (dash, salto, parry, recompostura felina).  
-✔ Estética tierno-macabro-felina.  
-✔ Progresión que define distintas “identidades de gato”.
+**Gatete-Project** es un juego de combate donde el jugador controla a un gato negro  
+ágil y letal que se abre paso entre enemigos usando velocidad, reflejos y puro  
+instinto depredador.
 
-I D E N T I D A D   D E L   J U E G O
+La experiencia comienza en escenarios relativamente cotidianos: calles, patios,  
+techos y rincones urbanos donde pequeños animales se convierten en rivales.
 
-Estética
-• Protagonista: gato negro cartoon, tierno pero imponente.  
-• Escenarios 3D con look 2.5D.  
-• Ambientes nocturnos, urbanos y zonas surrealistas del “abismo felino”.
+A medida que se avanza, el mundo empieza a cambiar sutilmente.
 
-Tono
-• Humor felino juguetón.  
-• Brutalidad depredadora estilizada (no realista).  
-• Narración poética, sensorial e instintiva.
+Los escenarios se vuelven más extraños.  
+Las criaturas se comportan de formas inusuales.  
+Algunos enemigos parecen… distintos.
 
-M E C Á N I C A S   P R I N C I P A L E S
+---
 
-Movilidad
-• Movimiento en 4 patas  
-• Salto  
-• Dash instantáneo  
-• Parry  
-• Recompostura felina (caer de pie para reducir daño)
+# Identidad del Juego
 
-Combate
-Inspirado parcialmente en Sekiro:
-• Compostura enemiga → Stun normal (pataditas)  
-• Compostura rota → Stun letal (caza depredadora)  
-• Overkill: tajo limpio a enemigos débiles  
-• Animaciones ligadas a estadísticas (agilidad, fuerza, suerte, etc.)
+## Estética
 
-Sistema de “9 vidas”
-• Representan suerte, no vidas clásicas  
-• Mientras haya suerte → daño reducido o evitado
-• Sin suerte → daño real o letal
+- Protagonista: **gato negro estilo cartoon**, adorable pero intimidante  
+- Escenarios **3D con presentación 2.5D**  
+- Ambientes nocturnos, urbanos y progresivamente más surrealistas  
 
-E V O L U C I Ó N   Y   B U I L D S   D E L   G A T O
+## Tono
 
-Las estadísticas afectan:
-• Animaciones  
-• Daño  
-• Velocidad  
-• Defensa  
-• Estabilidad  
-• Capacidades acrobáticas
+- Humor felino y comportamiento juguetón  
+- Violencia estilizada, nunca realista  
+- Narrativa ambiental **sugerida más que explicada**
 
-Ejemplos de builds:
-• Gato Tanque — aguante, control, impactos pesados  
-• Gato Ninja — combos ágiles y movilidad extrema  
-• Gato Tirador — combate a distancia (en desarrollo)
+---
 
- N A R R A T I V A
+# Mecánicas Principales
 
-Todo ocurre dentro del mundo interno del gato:  
-los escenarios reales son reinterpretados por sus instintos y fantasía.
+## Movimiento
 
-• El gato cree vivir aventuras épicas o no?  
-• En el mundo real solo camina, acompaña o explora.  
-• El final revelará la posible dualidad entre realidad e instinto.
+El jugador se mueve como un gato: rápido, flexible y reactivo.
 
-D I S E Ñ O   D E   N I V E L E S
+- Movimiento en **cuatro patas**
+- **Salto**
+- **Sprint**
+- **Dash**
+- **Recompostura felina** al caer
 
-• Niveles lineales en 2.5D con exploración ligera  
-• Eventos tipo QTE felinos  
-• Spawneo progresivo de enemigos  
-• Interacciones temáticas:
-  - Bebederos (curación)  
-  - Presas pequeñas (bonus)  
-  - Rascadores (buff de garras)  
-  - Pasto (curación de debuffs)  
-  - Siestas reparadoras
+---
 
-F E E D B A C K   V I S U A L   D E L   G A T O
+## Combate
 
-• Cojera y heridas visibles  
-• Ojos brillosos en modo acecho  
-• Piel erizada ante amenazas  
-• Garras afiladas (buff visual)  
-• Ronroneo como buff temporal  
-• Lamer heridas para curar debuffs
+El combate está centrado en presión constante y control del enemigo.
 
-E S T A D O   A C T U A L   D E L   P R O Y E C T O
+- Sistema de **combo básico**
+- **Daño por impacto**
+- **Ruptura de postura enemiga**
+- **Captura de enemigos debilitados**
+- **Ejecución tras captura**
 
+---
 
-████░░   PRE-ALPHA — Desarrollo Activo   ░░████  
+## Sistema de Postura/Compostura
 
-Sistema en progreso:
-• Movimiento y físicas  
-• Combate base
-• Prototipos de enemigos
-• Cámara dinámica  
-• Primeros niveles  
-• Documentación oficial
+Los enemigos poseen una barra de **postura**.
 
-T E C N O L O G Í A S   U S A D A S
+Cuando la postura se rompe:
 
-• Godot Engine 4.5.x  
-• GDScript  
-• Assets personalizados (2D / 2.5D / 3D estilizado)
+- el enemigo queda vulnerable  
+- el jugador puede **capturarlo**
 
-C O N T R I B U C I O N E S
+---
 
-Se aceptan contribuciones de cualquier nivel.
+## Sistema de Captura
 
-1. Abre un *issue* detallado  
-2. Envía un *pull request* bien documentado  
-3. Respeta la estructura del repositorio y el estilo de código
+Cuando un enemigo está debilitado:
 
-L I C E N C I A
+- el gato puede **atraparlo como presa**
+- ocurre un **forcejeo**
+- si el jugador gana, puede **ejecutarlo**
 
-Por definir según el avance del proyecto.
+---
 
-N O T A   D E L   A U T O R
+# Sistema de “9 Vidas”
 
-Gatete-Project es un viaje creativo en evolución.  
-Todo aquel que quiera explorar, aprender o aportar es bienvenido.
+Las vidas no funcionan como en juegos tradicionales.
 
- ~ Gracias por acercarte al Instinto ~
+Representan la **suerte del gato**.
 
-Estado Actual del Proyecto
-Sistemas implementados
+Mientras el gato conserve suerte:
 
-	Sistema de combate modular con fases:
+- el daño puede **reducirse**
+- algunas situaciones peligrosas pueden **evitarse**
 
-		Startup
-		Active
-		Recovery
+Cuando la suerte se agota, el daño comienza a ser **real**.
 
-	Combo básico 1-2-3 con reinicio por temporizador
-	Consumo de stamina en:
+---
 
-		Ataques
-		Sprint
-		Salto
+# Diseño del MVP
 
-	Sistema de agotamiento (exhaustion) con recuperación progresiva
-	Máquina de estados del jugador
-	Movimiento completo:
-		Caminar
-		Correr
-		Agacharse
-		Saltar
+El objetivo actual del proyecto es consolidar un **MVP jugable** que demuestre  
+el núcleo del sistema de combate.
 
-	Dummy de prueba que recibe daño
-	UI base (vida, postura preparada, sistema de vidas)
-	
-	Implementado sistema completo de Target Lock con cambio automático al morir enemigo
+Duración estimada de la experiencia:
 
-		Lock al enemigo más cercano dentro del radio
-		Cambio manual de objetivo (siguiente / anterior)
-		Rotación del jugador solo en eje Y hacia el target
-		Cambio automático al siguiente enemigo al eliminar el actual
-		Integración con Movement sin bloquear desplazamiento
-		Corrección de dash sin input (dirección frontal correcta)
+**5 – 10 minutos de gameplay**
 
-En desarrollo
+El MVP consiste en **un único nivel** diseñado para introducir progresivamente  
+las mecánicas del juego.
 
-	Combo basado en impacto real
-	Patadas aéreas
-	Sistema de parry y esquiva perfecta
-	Dash con ventana de invulnerabilidad activa
-	Sistema de postura
-	IA enemiga básica
+### Estructura del nivel
 
-Objetivo actual
+1 enemigo individual  
+2 enemigos simultáneos  
+grupo pequeño de enemigos  
+mini-boss final
 
-Consolidar un MVP sólido del sistema de combate antes de expandir mecánicas avanzadas o contenido adicional.
+Durante esta demo el jugador debería experimentar:
+
+- combate básico  
+- ruptura de postura  
+- captura de enemigos  
+- ejecución  
+- combate contra pequeños grupos  
+
+---
+
+# Estado Actual del Proyecto
+
+**PRE-ALPHA — Desarrollo activo**
+
+---
+
+## Sistemas Implementados
+
+### Jugador
+
+Movimiento completo
+
+- caminar  
+- correr  
+- agacharse  
+- saltar  
+- dash  
+
+Sistema de stamina
+
+- consumo en acciones  
+- regeneración  
+- agotamiento progresivo  
+
+Sistema de combate base
+
+- fases de ataque  
+  - startup  
+  - active  
+  - recovery  
+
+Combo básico **1-2-3**
+
+Máquina de estados del jugador.
+
+Sistema de **Target Lock**
+
+- selección del enemigo más cercano  
+- cambio manual de objetivo  
+- rotación del jugador hacia el target  
+- cambio automático al morir el enemigo  
+
+---
+
+### Enemigos
+
+- estructura base modular  
+- sistema de salud  
+- sistema de postura  
+- estados de stun  
+
+---
+
+### UI
+
+- barras flotantes de vida y postura  
+- UI base del jugador  
+
+---
+
+# En Desarrollo
+
+- sistema completo de **captura**
+- **ejecución** de enemigos
+- **parry** y esquiva perfecta
+- dash con ventana de **invulnerabilidad**
+- comportamiento básico de enemigos
+- mejoras en la UI del jugador
+
+---
+
+# Tecnologías
+
+**Motor**
+
+Godot Engine **4.5.1**
+
+**Lenguaje**
+
+GDScript
+
+**Arte**
+
+Assets **2D / 2.5D / 3D estilizados**
+
+---
+
+# Estructura del Proyecto
+
+El código está organizado de forma **modular** para que los sistemas principales  
+(movimiento, combate, enemigos, UI) puedan evolucionar sin romper el resto  
+del proyecto.
+
+La idea es mantener una base clara que permita añadir nuevas mecánicas  
+a medida que el juego crece.
+
+---
+
+# 💬 Sobre el Repositorio
+
+Este repositorio funciona también como un espacio de **aprendizaje y exploración**  
+dentro del desarrollo de videojuegos.
+
+Si encuentras errores, comportamientos extraños o tienes alguna sugerencia,  
+puedes abrir un **issue**.
+
+El proyecto está abierto a ideas y observaciones externas, siempre que  
+respeten la dirección general del juego.
+
+---
+
+# Licencia
+
+Por definir según avance del proyecto.
+
+---
+
+# Nota del Autor
+
+Gatete-Project es un proyecto personal en evolución.
+
+Nació como una idea sencilla: explorar cómo se sentiría un juego de combate  
+desde la perspectiva de un gato.
+
+Con el tiempo fue creciendo hasta convertirse en un pequeño mundo propio  
+que mezcla instinto, humor felino y algo de misterio.
+
+Si llegaste hasta aquí, gracias por tomarte el tiempo de mirar el proyecto.
+
+~ Wheeer
+
+Última actualización: **Marzo 2026**
