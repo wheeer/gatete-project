@@ -12,8 +12,8 @@ __________                   __               __
  |____|     |__|   \____/\__|  |\___  >\___  >__|  
                         \______|    \/     \/      
 
-![Godot](https://img.shields.io/badge/Engine-Godot_4.5-blue)
-![Status](https://img.shields.io/badge/Status-Prototype-orange)
+![Godot](https://img.shields.io/badge/Engine-Godot_4.5.1-blue)
+![Status](https://img.shields.io/badge/Status-Pre--Alpha-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-PC-lightgrey)
 
