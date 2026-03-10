@@ -7,7 +7,7 @@
 **Juego de acción 2.5D / 3D estilizado — tierno, feroz y narrado desde la mente  
 y los instintos de un gato negro adorable… pero peligrosamente depredador.**
 
-Motor: **Godot Engine 4.5.x**
+Motor: **Godot Engine 4.5.1**
 
 ---
 
