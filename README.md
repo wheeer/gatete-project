@@ -1,20 +1,22 @@
-   _____       _       _          
-  / ____|     | |     | |         
- | |  __  __ _| |_ ___| |_ ___    
- | | |_ |/ _` | __/ _ \ __/ _ \   
- | |__| | (_| | ||  __/ ||  __/   
-  \_____|\__,_|\__\___|\__\___|   
- |  __ \         (_)         | |  
- | |__) | __ ___  _  ___  ___| |_ 
- |  ___/ '__/ _ \| |/ _ \/ __| __|
- | |   | | | (_) | |  __/ (__| |_ 
- |_|   |_|  \___/| |\___|\___|\__|
-                _/ |              
-               |__/                                                    
+
+  ________        __          __                   
+ /  _____/_____ _/  |_  _____/  |_  ____           
+/   \  ___\__  \\   __\/ __ \   __\/ __ \          
+\    \_\  \/ __ \|  | \  ___/|  | \  ___/          
+ \______  (____  /__|  \___  >__|  \___  >         
+        \/     \/          \/          \/          
+__________                   __               __   
+\______   \_______  ____    |__| ____   _____/  |_ 
+ |     ___/\_  __ \/  _ \   |  |/ __ \_/ ___\   __\
+ |    |     |  | \(  <_> )  |  \  ___/\  \___|  |  
+ |____|     |__|   \____/\__|  |\___  >\___  >__|  
+                        \______|    \/     \/      
+
 ![Godot](https://img.shields.io/badge/Engine-Godot_4.5-blue)
 ![Status](https://img.shields.io/badge/Status-Prototype-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-PC-lightgrey)
+
 **Juego de acción 2.5D / 3D estilizado — tierno, feroz y narrado desde la mente  
 y los instintos de un gato negro adorable… pero peligrosamente depredador.**
 
