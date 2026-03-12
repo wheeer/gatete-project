@@ -1,0 +1,55 @@
+[gd_scene load_steps=11 format=3 uid="uid://dpesllgvfjakd"]
+
+[ext_resource type="Script" uid="uid://bngguphae3oav" path="res://Enemies/EnemyBase/enemy_base.gd" id="1_qv586"]
+[ext_resource type="Script" uid="uid://bf12g7a0jjl26" path="res://Enemies/EnemyBase/health_component.gd" id="2_8jh04"]
+[ext_resource type="Script" uid="uid://bi0c6xyto7xby" path="res://Enemies/EnemyBase/stun_component.gd" id="2_qfvqi"]
+[ext_resource type="Script" uid="uid://bvdkcwsofeh2i" path="res://Enemies/EnemyBase/posture_component.gd" id="3_wty2a"]
+[ext_resource type="Script" uid="uid://g1m8351ghe7k" path="res://Enemies/EnemyBase/enemy_movement_component.gd" id="5_ij683"]
+[ext_resource type="Script" uid="uid://c4dr5biai6c" path="res://Enemies/EnemyBase/enemy_combat_component.gd" id="6_8jh04"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ekoys"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qv586"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qfvqi"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_qv586"]
+
+[node name="EnemyBase" type="CharacterBody3D" groups=["enemigo", "targetable"]]
+collision_layer = 4
+script = ExtResource("1_qv586")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_8jh04")
+
+[node name="PostureComponent" type="Node" parent="."]
+script = ExtResource("3_wty2a")
+
+[node name="StunComponent" type="Node" parent="."]
+script = ExtResource("2_qfvqi")
+
+[node name="EnemyMovementComponent" type="Node" parent="."]
+script = ExtResource("5_ij683")
+
+[node name="EnemyCombatComponent" type="Node" parent="."]
+script = ExtResource("6_8jh04")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_ekoys")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_qv586")
+
+[node name="HurtBox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtBox" groups=["enemigo"]]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_qfvqi")
+
+[node name="TargetMarker" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 1.5, 0)
+visible = false
+mesh = SubResource("SphereMesh_qv586")

@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://2jvwk5ugwwi3"]
+
+[ext_resource type="Script" uid="uid://oeda00s2ain5" path="res://UI/EnemyUI/floating_health_bar.gd" id="1_8ug2n"]
+
+[node name="FloatingHealthBar" type="Node2D"]
+script = ExtResource("1_8ug2n")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VidaBar" type="ProgressBar" parent="VBoxContainer"]
+custom_minimum_size = Vector2(80, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="PostureBar" type="ProgressBar" parent="VBoxContainer"]
+custom_minimum_size = Vector2(80, 8)
+layout_mode = 2
+size_flags_vertical = 8
+show_percentage = false

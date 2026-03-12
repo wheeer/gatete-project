@@ -1,11 +1,11 @@
 [gd_scene load_steps=12 format=3 uid="uid://dkk3eeau0my6m"]
 
-[ext_resource type="Script" uid="uid://ckukmcew8rhwc" path="res://UI/ui.gd" id="1_p1pji"]
-[ext_resource type="Texture2D" uid="uid://2etpayvnbsxw" path="res://Imagenes/UI/FullH.png" id="2_0y31f"]
-[ext_resource type="Texture2D" uid="uid://d1lp0pvj4px77" path="res://Imagenes/UI/EmptyH.png" id="3_f5r2b"]
+[ext_resource type="Script" uid="uid://ckukmcew8rhwc" path="res://UI/PlayerUI/player_ui.gd" id="1_p1pji"]
+[ext_resource type="Texture2D" uid="uid://2etpayvnbsxw" path="res://Imagenes/PlayerUI/FullH.png" id="2_0y31f"]
+[ext_resource type="Texture2D" uid="uid://d1lp0pvj4px77" path="res://Imagenes/PlayerUI/EmptyH.png" id="3_f5r2b"]
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="4_t1j4r"]
 [ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://Camera/camera_ring.gd" id="8_a26sd"]
-[ext_resource type="PackedScene" uid="uid://dpesllgvfjakd" path="res://Enemies/Dummy/enemy_dummy.tscn" id="8_qhlrw"]
+[ext_resource type="PackedScene" uid="uid://dpesllgvfjakd" path="res://Enemies/EnemyBase/enemy_base.tscn" id="8_qhlrw"]
 [ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Player/DonGatoController.tscn" id="9_p1pji"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cttvy"]
@@ -112,11 +112,5 @@ shape = SubResource("SphereShape3D_63nh0")
 transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 0, 1.5, 0)
 collision_mask = 5
 
-[node name="EnemyDummy" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.5, 0)
-
-[node name="EnemyDummy2" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.638405, 1.5, 0)
-
-[node name="EnemyDummy3" parent="." groups=["Enemigo"] instance=ExtResource("8_qhlrw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.5, -5.446026)
+[node name="EnemyBase" parent="." instance=ExtResource("8_qhlrw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 1.5, 0)

@@ -4,7 +4,6 @@ class_name DonGatoCombat
 signal attack_started
 signal attack_finished
 
-@export var attack_damage: float = 25.0
 @export var startup_time: float = 0.08
 @export var active_time: float = 0.05
 @export var recovery_time: float = 0.15
@@ -17,12 +16,31 @@ var combo_index: int = 0
 @export var combo_reset_time: float = 0.6
 var combo_reset_timer: float = 0.0
 
+@export var light_damage_min: float = 10.0
+@export var light_damage_max: float = 20.0
+
+@export var medium_damage_min: float = 15.0
+@export var medium_damage_max: float = 25.0
+
+@export var heavy_damage_min: float = 20.0
+@export var heavy_damage_max: float = 30.0
+
+@export var crit_chance: float = 0.15
+@export var crit_multiplier: float = 2.0
+
 enum AttackPhase {
 	NONE,
 	STARTUP,
 	ACTIVE,
 	RECOVERY
 }
+enum HitStrength {
+	LIGHT,
+	MEDIUM,
+	HEAVY,
+	CRITICAL
+}
+
 var current_phase: AttackPhase = AttackPhase.NONE
 var stats: DonGatoStats
 
@@ -122,9 +140,13 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 		return
 	
 	var enemy = area.get_parent()
-	
+	var hit_data = {
+		"damage": _roll_damage(),
+		"strength": _get_hit_strength(),
+		"combo_index": combo_index
+	}
 	if enemy and enemy.has_method("take_damage"):
-		enemy.take_damage(attack_damage)
+		enemy.take_damage(hit_data)
 		already_hit = true
 
 func _end_attack() -> void:
@@ -141,3 +163,48 @@ func cancel_attack() -> void:
 	current_phase = AttackPhase.NONE
 	attack_area.monitoring = false
 	emit_signal("attack_finished")
+
+func _get_hit_strength() -> HitStrength:
+	match combo_index:
+		1:
+			return HitStrength.LIGHT
+		2:
+			return HitStrength.MEDIUM
+		3:
+			return HitStrength.HEAVY
+		_:
+			return HitStrength.LIGHT
+
+func _roll_damage() -> float:
+	var min_dmg: float
+	var max_dmg: float
+	var local_crit_chance: float = 0.0
+	var local_crit_multiplier: float = crit_multiplier
+	
+	match combo_index:
+		1:
+			min_dmg = light_damage_min
+			max_dmg = light_damage_max
+			local_crit_chance = 0.05
+			local_crit_multiplier = 1.4
+		2:
+			min_dmg = medium_damage_min
+			max_dmg = medium_damage_max
+			local_crit_chance = 0.12
+			local_crit_multiplier = 1.7
+		3:
+			min_dmg = heavy_damage_min
+			max_dmg = heavy_damage_max
+			local_crit_chance = 0.25
+			local_crit_multiplier = 2.2
+		_:
+			min_dmg = light_damage_min
+			max_dmg = light_damage_max
+	
+	var dmg = randf_range(min_dmg, max_dmg)
+	
+	if randf() <= local_crit_chance:
+		dmg *= local_crit_multiplier
+		print("CRIT x", local_crit_multiplier)
+	
+	return dmg

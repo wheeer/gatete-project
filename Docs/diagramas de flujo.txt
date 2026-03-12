@@ -1,0 +1,174 @@
+1. El Diagrama de "ADN" (Estructura de Datos)
+Su función es explicar cómo se construye un enemigo antes de que aparezca en pantalla. Evita que programar enemigos por separado y obliga a usar Resources.
+
+
+classDiagram
+    class RazaResource {
+        +String nombre_raza
+        +float vida_base
+        +float postura_base
+        +float velocidad_base
+        +Array capacidades_fisicas
+    }
+    note for RazaResource "Campos base. Ver catálogo completo en documentación interna"
+    
+    class IndividuoResource {
+        +String nombre_unico
+        +float mod_vida
+        +float mod_postura
+        +Color tinte_visual
+    }
+    
+    class PerfilPsicologico {
+        +Enum perfil_tipo
+        +float umbral_panico
+        +float agresividad
+        +Array decisiones_permitidas
+    }
+    
+    EnemyBase --> RazaResource : "Nivel 1"
+    EnemyBase --> IndividuoResource : "Nivel 2"
+    EnemyBase --> PerfilPsicologico : "Nivel 3"
+    
+    note for EnemyBase "Arquitectura data-driven. Los 3 Resources se combinan en runtime"
+2. El DamageResolver del JUGADOR (Supervivencia y Mitigación)
+Este diagrama es exclusivo para el Gatete. Implementa la Regla de Oro #8 (Time Stop), la #7 (Recuperación) y el Sistema de 9 Vidas (1.4 de la Biblia Definitiva).
+
+flowchart TD
+    A[Recibir hit_data] --> B{¿Es Empuje Fuerte?}
+    
+    %% Rama de Empuje Fuerte
+    B -- SÍ --> C{¿Está Bloqueando?}
+    C -- SÍ --> D[Mitigar Empuje / Daño a Postura]
+    C -- NO --> E[Activar TIME STOP]
+    E --> F{¿Input AIR_RECOVERY?}
+    F -- ÉXITO --> G[Estado: AIR_RECOVERY / Sin PENALIZACIÓN]
+    F -- FALLO --> H[PENALIZACIÓN: -1 Corazón + Daño Vida + Daño Postura + STUN]
+
+    %% Rama de Daño Normal
+    B -- NO --> I{¿Parry Exitoso?}
+    I -- SÍ --> J[EVT_PARRY_EXITOSO: 0 Daño + Daño Postura Atacante]
+    I -- NO --> K{¿Está Bloqueando?}
+    
+    K -- SÍ --> L[Reducir Postura / 0 Daño Vida]
+    K -- NO --> M{¿Quedan 9 Vidas?}
+    
+    M -- SÍ --> N[Daño Seguro: -1 Corazón / Daño a vida y Postura 'Reducido' ]
+    M -- NO --> O[PENALIZACIÓN 'DAÑO REAL': Daño Vida, Daño Postura Casi LETAL]
+    
+    L --> P{¿Postura <= 0?}
+    P -- SÍ --> Q[Estado: POSTURE_BROKEN / Vulnerable]
+    O --> R{¿Vida <= 0?}
+    R -- SÍ --> S[GAME OVER / REAPARECER]
+
+
+3. El Diagrama de "Consumo de Eventos" (Psicología)
+Este es el que te ayudará a que la "IA" no se sienta tonta.
+Define cómo un evento del mundo se convierte en una decisión del enemigo.
+
+Fragmento de código
+graph LR
+    E[Evento: EVT_RECIBIR_GOLPE] --> I[Impulso: IRA +20]
+    I --> P{¿Supera Umbral?}
+    P -- No --> M[Mantener Postura Actual]
+    P -- Sí --> C[Cambiar Postura: AGRESIVO_OPORTUNISTA]
+    C --> D[Decision: ATACAR_CUERPO_A_CUERPO]
+    D --> S[Script: EnemyCombatComponent.execute()]
+
+4. DamageResolver del ENEMIGO:
+
+flowchart TD
+    A[Recibir hit_data] --> B{¿Fuente del Daño?}
+    
+    %% Rama de Habilidades
+    B -- HABILIDAD --> C[Aplicar Daño Escalar a Vida/Postura]
+    C --> D[Aplicar Estados Especiales/Debuffs]
+    
+    %% Rama de Parry (Efecto en atacante/enemigo)
+    B -- PARRY_JUGADOR --> E[Daño Masivo a Postura + Mini-Stun]
+    
+    %% Rama de Golpes de Combo
+    B -- GOLPE_COMBO --> F{¿Combo Index == 3?}
+    
+    F -- SÍ: CRÍTICO --> G[GOLPE CRÍTICO: Daño xN + Mini-Stun]
+    G --> H[Habilitar Ventana de Caza Temporal]
+    
+    F -- NO --> I[Daño Normal a Vida/Postura]
+    
+    %% Resolución de Impacto (Común)
+    C & E & H & I --> J[Calcular Mitigación según Raza/ADN]
+    J --> K{¿Postura > 0?}
+    
+    K -- SÍ --> L[Reducir Postura]
+    K -- NO --> M[Estado: POSTURE_BROKEN]
+    M --> N[Habilitar Intento de CAZA / EJECUCIÓN]
+    
+    L --> O{¿Vida <= 15%?}
+    O -- SÍ --> N
+    O -- NO --> P[Disparar EVT_RECIBIR_GOLPE]
+    
+    %% Capa Mental (Exclusiva Enemigo)
+    P --> Q[Actualizar Impulso Psicológico: IRA o PANICO]
+    Q --> R{¿Muerte?}
+    R -- SÍ --> S[queue_free / Drop de Recursos]
+    R -- NO --> T[Reevaluar Decisión / Comportamiento]
+
+5. Diagrama de Orquestación de Escena (Nodos y Componentes)
+
+graph TD
+    subgraph Escena_Enemigo_Base [Escena: EnemyBase.tscn]
+        Root[CharacterBody3D: EnemyBase] --> ADN[Node: ADN_Handler]
+        Root --> FSM[Node: StateMachine]
+        
+        subgraph Componentes_Fisicos [Componentes de Datos]
+            Root --> Health[Node: HealthComponent]
+            Root --> Posture[Node: PostureComponent]
+            Root --> Stun[Node: StunComponent]
+        end
+        
+        subgraph Componentes_Logicos [Cerebro]
+            Root --> Combat[Node: CombatComponent]
+            Root --> Psych[Node: PsychologyComponent]
+        end
+    end
+
+    %% Inyección de Resources
+    Raza[(Resource: Raza)] -.-> ADN
+    Indiv[(Resource: Individuo)] -.-> ADN
+    Perfil[(Resource: PerfilPsic)] -.-> Psych
+
+    %% Comunicación
+    ADN -->|Reparte Stats| Health & Posture & Psych
+    Combat -->|Consulta Estado| FSM
+    Psych -->|Sugiere| Combat
+
+6. Diagrama de la Ventana de Oportunidad (Caza y Ejecución)
+
+flowchart TD
+    %% Disparadores
+    A[Evento: Postura Rota / Crítico Combo Index 3] --> B[Estado: VULNERABLE / Feedback Visual]
+    
+    %% Opciones del Jugador
+    B --> C{Decisión del Jugador}
+    
+    %% Opción 1: Seguir pegando
+    C -- SEGUIR COMBO --> D[Ataque Normal sobre Enemigo Indefenso]
+    D --> E{¿Termina tiempo Vulnerable?}
+    E -- SÍ --> F[Enemigo recupera Postura / Fin Ventana]
+    E -- NO --> D
+
+    %% Opción 2: Kill Rápido
+    C -- EJECUCIÓN INSTANTÁNEA --> G[Animación de Remate Rápido]
+    G --> H[Enemigo Muerto / Recompensa: Recursos básicos]
+    H --> I[queue_free]
+
+    %% Opción 3: Sistema de Caza (Riesgo/Recompensa)
+    C -- INICIAR CAZA --> J[Estado: DUELO DE ESTADOS]
+    J --> K{Forcejeo: Resiste la presa??}
+    
+    K -- SÍ / FALLO --> L[LIBERACIÓN FORZADA: Enemigo empuja al Gato]
+    L --> M[PENALIZACIÓN: Gato pierde Postura, vida, Stun y Corazón]
+    
+    K -- NO / ÉXITO --> N[ANIMACIÓN DE CAZA CINEMÁTICA]
+    N --> O[GRAN RECOMPENSA: +Vida, +Corazones, +Recursos Especiales]
+    O --> I

@@ -17,11 +17,17 @@ var is_exhausted: bool = false
 
 func _ready() -> void:
 	stamina = stamina_max
-	stamina_changed.connect(_debug_print)
+	if OS.is_debug_build():
+		stamina_changed.connect(_debug_print)
 	emit_signal("stamina_changed", stamina, stamina_max)
 
 func _debug_print(current: float, _max: float) -> void:
+	if abs(current - _last_debug_value) < 1.0:
+		return
+	_last_debug_value = current
 	print("Stamina:", snapped(current, 0.1))
+
+var _last_debug_value: float = -999.0
 
 func _physics_process(delta: float) -> void:
 	_regenerate(delta)
@@ -53,15 +59,17 @@ func _regenerate(delta: float) -> void:
 	
 	emit_signal("stamina_changed", stamina, stamina_max)
 
-func can_spend(_amount: float) -> bool:
-	return not is_exhausted
+func can_spend(amount: float) -> bool:
+	if is_exhausted:
+		return false
+	return stamina - amount >= - (stamina_max * 0.15)
 
 func spend(amount: float) -> bool:
 	if is_exhausted:
 		return false
 	
 	stamina -= amount
-	var min_stamina := - (stamina_max * 0.3)
+	var min_stamina := - (stamina_max * 0.15)
 	stamina = max(stamina, min_stamina)
 
 	if stamina < 0.0:
