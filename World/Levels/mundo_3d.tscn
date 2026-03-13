@@ -4,9 +4,9 @@
 [ext_resource type="Texture2D" uid="uid://2etpayvnbsxw" path="res://Imagenes/PlayerUI/FullH.png" id="2_0y31f"]
 [ext_resource type="Texture2D" uid="uid://d1lp0pvj4px77" path="res://Imagenes/PlayerUI/EmptyH.png" id="3_f5r2b"]
 [ext_resource type="Texture2D" uid="uid://bamonrnrob1hc" path="res://Imagenes/Mundo/Suelogrid.png" id="4_t1j4r"]
-[ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://Camera/camera_ring.gd" id="8_a26sd"]
-[ext_resource type="PackedScene" uid="uid://dpesllgvfjakd" path="res://Enemies/EnemyBase/enemy_base.tscn" id="8_qhlrw"]
-[ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Player/DonGatoController.tscn" id="9_p1pji"]
+[ext_resource type="Script" uid="uid://dm2nr21hbc30t" path="res://World/Camera/camera_ring.gd" id="8_a26sd"]
+[ext_resource type="PackedScene" uid="uid://dpesllgvfjakd" path="res://Actors/Enemies/EnemyBase/enemy_base.tscn" id="8_qhlrw"]
+[ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Actors/Player/DonGato.tscn" id="9_p1pji"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cttvy"]
 
