@@ -22,7 +22,7 @@ material = SubResource("StandardMaterial3D_8qaur")
 [sub_resource type="BoxShape3D" id="BoxShape3D_5sya5"]
 size = Vector3(0.5, 0.5, 1)
 
-[node name="DonGatoController" type="CharacterBody3D" groups=["Player"]]
+[node name="DonGato" type="CharacterBody3D" groups=["Player"]]
 collision_mask = 4
 script = ExtResource("1_diguv")
 

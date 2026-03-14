@@ -11,6 +11,7 @@ func initialize(_enemy: EnemyBase, _health: HealthComponent, _posture: PostureCo
 	posture = _posture
 
 func receive_hit(hit_data: Dictionary) -> void:
+	print("⚠ receive_hit() llamado directamente (debería usar CombatMediator)")
 	var damage = hit_data["damage"]
 	var strength = hit_data["strength"]
 

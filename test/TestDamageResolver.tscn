@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3fn7kbtrvmwv"]
+
+[ext_resource type="Script" uid="uid://dmvvxvlpqifqw" path="res://test/test_damage_resolver.gd" id="1_h4ij7"]
+[ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Actors/Player/DonGato.tscn" id="2_g5taf"]
+
+[node name="TestDamageResolver" type="Node"]
+script = ExtResource("1_h4ij7")
+
+[node name="DonGato" parent="." instance=ExtResource("2_g5taf")]

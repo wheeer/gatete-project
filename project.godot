@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Catalogo="*res://autoload/catalogo.gd"
+EventBus="*res://autoload/EventBus.gd"
 
 [dotnet]
 

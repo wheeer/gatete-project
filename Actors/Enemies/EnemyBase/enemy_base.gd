@@ -8,6 +8,7 @@ class_name EnemyBase
 @onready var combat: EnemyCombatComponent = $EnemyCombatComponent
 
 var floating_ui: Node2D
+var state_machine: EnemyStateMachine  # ← AÑADE ESTO
 
 func _ready():
 	add_to_group("targetable")
@@ -15,6 +16,10 @@ func _ready():
 	stun.initialize(self)
 	movement.initialize(self)
 	combat.initialize(self, health, posture)
+	
+	# ← AÑADE ESTO
+	state_machine = EnemyStateMachine.new()
+	state_machine.initialize(self)
 
 	health.died.connect(_on_died)
 

@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://bjtbipse3gads"]
+
+[ext_resource type="Script" uid="uid://dgxufv2cjcxi1" path="res://test/test_don_gato_snapshot.gd" id="1_fj0i3"]
+[ext_resource type="PackedScene" uid="uid://cmkwn2l00wewt" path="res://Actors/Player/DonGato.tscn" id="2_ugp2r"]
+
+[node name="TestDonGatoSnapshot" type="Node"]
+script = ExtResource("1_fj0i3")
+
+[node name="DonGato" parent="." instance=ExtResource("2_ugp2r")]
