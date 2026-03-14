@@ -8,10 +8,11 @@ class_name DonGatoController
 @onready var state_machine = $StateMachine
 @onready var movement_system = $MovementSystem
 @onready var combat_system = $CombatSystem
-@onready var posture_system = $PostureSystem
+@onready var posture_component = $PostureComponent
 @onready var lives_system = $LivesSystem
 @onready var stats_system = $PlayerStats
 @onready var targeting_system = $Targeting
+@onready var health_component = $HealthComponent
 
 func _ready() -> void:
 	

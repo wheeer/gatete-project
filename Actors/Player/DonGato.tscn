@@ -38,7 +38,7 @@ script = ExtResource("4_8qaur")
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource("3_ydhkc")
 
-[node name="PostureSystem" type="Node" parent="."]
+[node name="PostureComponent" type="Node" parent="."]
 script = ExtResource("4_hnpxo")
 
 [node name="LivesSystem" type="Node" parent="."]
@@ -47,7 +47,7 @@ script = ExtResource("5_70o2q")
 [node name="PlayerStats" type="Node" parent="."]
 script = ExtResource("2_70n47")
 
-[node name="Health" type="Node" parent="."]
+[node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_5sya5")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
