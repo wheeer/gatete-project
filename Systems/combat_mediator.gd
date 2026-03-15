@@ -60,6 +60,7 @@ func _build_damage_context_from_hit_data(hit_data: Dictionary, _player: Node) ->
 		"damage_base": damage_base,
 		"posture_damage_base": posture_damage_base,
 		"is_critical": is_critical,
+		"is_heavy_hit": false,
 		"crit_health_multiplier": crit_health_multiplier,
 		"crit_posture_multiplier": crit_posture_multiplier,
 		"combo_index": combo_index,
