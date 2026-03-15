@@ -73,8 +73,10 @@ func _on_health_changed(current: float, max_val: float) -> void:
 		life_bar.modulate = LIFE_WARN_COLOR
 	else:
 		life_bar.modulate = LIFE_DANGER_COLOR
-
-	# Disparar animaciones de daño
+		
+	# Solo disparar flash si la vida YA tenía un valor previo
+	# Si max_val == current significa que está iniciando — no flashear
+	if current < max_val:
 		life_flash_timer = LIFE_FLASH_DURATION
 		life_shake_timer = LIFE_SHAKE_DURATION
 
@@ -114,6 +116,15 @@ func _process(delta: float) -> void:
 	if life_flash_timer > 0.0:
 		life_flash_timer -= delta
 		life_bar.modulate = LIFE_FLASH_COLOR
+	else:
+		# restaurar color correcto cuando termina el flash
+		var ratio := life_bar.value / life_bar.max_value
+		if ratio > 0.6:
+			life_bar.modulate = LIFE_SAFE_COLOR
+		elif ratio > 0.3:
+			life_bar.modulate = LIFE_WARN_COLOR
+		else:
+			life_bar.modulate = LIFE_DANGER_COLOR
 	
 	# --- Flash de postura rota ---
 	if posture_flash_timer > 0.0:
