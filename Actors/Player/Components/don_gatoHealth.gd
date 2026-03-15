@@ -10,7 +10,7 @@ var current_health: float
 func _ready() -> void:
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
-
+	
 ## Mismo nombre que el enemigo — el CombatMediator y el SnapshotFactory
 ## buscan este método en cualquier actor
 func apply_damage(amount: float) -> void:
