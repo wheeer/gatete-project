@@ -58,3 +58,6 @@ func _change_state(new_state: PhysicalState) -> void:
 
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state
+
+func get_state_name() -> String:
+	return PhysicalState.keys()[current_state]

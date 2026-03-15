@@ -10,7 +10,7 @@ func _process(_delta: float) -> void:
 	if not OS.is_debug_build():
 		return
 	
-	var state = enemy.current_posture_state
+	var state: String = enemy.state_machine.get_state_name() if enemy.state_machine != null else "N/A"
 	var stun_state = stun.current_state
 	
 	print(

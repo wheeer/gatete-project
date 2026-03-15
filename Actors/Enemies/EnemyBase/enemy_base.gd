@@ -34,11 +34,13 @@ func _physics_process(delta: float) -> void:
 	if stun.is_stunned():
 		movement.stop()
 		return
-
+		
 	movement.physics_process(delta)
-
-func take_damage(hit_data: Dictionary) -> void:
-	combat.receive_hit(hit_data)
+func take_damage(_hit_data: Dictionary) -> void:
+	# DEPRECATED: Este método no debería usarse.
+	# Todo el daño debe pasar por CombatMediator → DamageResolver → EventBus.
+	# Si ves este warning, algo está usando el camino viejo.
+	push_warning("EnemyBase.take_damage() llamado directamente en: %s — usar CombatMediator" % name)
 
 func _on_died():
 	queue_free()
