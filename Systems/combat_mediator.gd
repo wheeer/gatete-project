@@ -1,119 +1,166 @@
-class_name CombatMediator
+class_name DamageResolver
 extends Node
 
-var damage_resolver: DamageResolver
-var snapshot_factory: SnapshotFactory
-
-## Inicialización manual (llamar esto en lugar de confiar en _ready)
-func initialize() -> void:
-	damage_resolver = DamageResolver.new()
-	snapshot_factory = SnapshotFactory.new()
-	print("CombatMediator inicializado")
+const DEFAULT_POSTURE_DAMAGE_RATIO = 0.5
 
 func _ready() -> void:
-	if damage_resolver == null:
-		initialize()
+	print("DamageResolver inicializado")
 
-## Procesa un ataque del jugador contra un enemigo
-func process_player_attack(player: Node, enemy: Node, hit_data: Dictionary) -> void:
-	if snapshot_factory == null:
-		initialize()
-	
-	print("\n=== COMBATE: Ataque del jugador ===")
-	
-	# Crear snapshot del enemigo ANTES del daño
-	var enemy_snapshot = snapshot_factory.create_snapshot(enemy)
-	
-	# Construir damage_context desde hit_data
-	var damage_context = _build_damage_context_from_hit_data(hit_data, player)
-	
-	# Resolver daño
-	var verdict = damage_resolver.resolve(damage_context, enemy_snapshot)
-	
-	#Asignar target_id a todos los eventos
-	for event_data in verdict.get("generated_events", []):
-		event_data["payload"]["target_id"] = enemy.name
-	
-	# Aplicar veredicto al enemigo
-	_apply_verdict_to_entity(enemy, verdict)
-	
-	# Emitir eventos (con el target_id ya asignado)
-	damage_resolver.emit_verdict_events(verdict)
-
-## Construye un damage_context desde hit_data del jugador
-func _build_damage_context_from_hit_data(hit_data: Dictionary, _player: Node) -> Dictionary:
-	var damage_base = float(hit_data.get("damage", 15.0))
-	var strength = hit_data.get("strength", 0)
-	var combo_index = hit_data.get("combo_index", 1)
-	
-	# Determinar si es crítico
-	var is_critical = combo_index == 3  # El tercer golpe del combo es crítico
-	
-	# Posture damage basado en strength
-	var posture_damage_base = _calculate_posture_damage_from_strength(strength)
-	
-	# Multiplicadores críticos
-	var crit_health_multiplier = 1.5 if combo_index == 3 else 1.0  # Era 2.2
-	var crit_posture_multiplier = 1.5 if combo_index == 3 else 1.0  # Era 2.0
-	
-	var context = {
-		"damage_base": damage_base,
-		"posture_damage_base": posture_damage_base,
-		"is_critical": is_critical,
-		"is_heavy_hit": false,
-		"crit_health_multiplier": crit_health_multiplier,
-		"crit_posture_multiplier": crit_posture_multiplier,
-		"combo_index": combo_index,
-		"source": "JUGADOR"
+## Método principal: resuelve daño según El Nuevo Testamento (sección 19.4)
+## Retorna un Dictionary con el veredicto de daño (DamageVerdict)
+func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary:
+	var verdict := {
+		"delta_health": 0.0,
+		"delta_posture": 0.0,
+		"delta_hearts": 0,
+		"generated_events": [],
+		"resulting_physical_state": "",
+		"delta_grab_stamina": 0.0,
+		"delta_capture_resistance": 0.0
 	}
-	
-	print("DEBUG: Damage Context creado:")
-	print("  - Base: %.1f | Posture: %.1f" % [damage_base, posture_damage_base])
-	print("  - Crítico: %s | Combo: %d" % [is_critical, combo_index])
-	
-	return context
 
+	if damage_context == null or snapshot == null:
+		push_error("DamageResolver: DamageContext o Snapshot es null")
+		return verdict
 
-## Calcula daño a postura según strength del golpe
-func _calculate_posture_damage_from_strength(strength: int) -> float:
-	match strength:
-		0:  # LIGHT
-			return randf_range(15, 25)  # Era 8-14
-		1:  # MEDIUM
-			return randf_range(25, 35)  # Era 15-22
-		2:  # HEAVY
-			return randf_range(40, 55)  # Era 25-35
-		3:  # CRITICAL
-			return randf_range(60, 80)  # Era 45-60
-	return 15.0
+	# La fuente es el primer discriminador del sistema — sección 19.1
+	var source: String = damage_context.get("source", "DESCONOCIDO")
 
-## Aplica el veredicto del DamageResolver a los componentes reales del enemigo
-func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
-	print("\n=== APLICANDO VEREDICTO ===")
-	
-	# Aplicar daño a salud
-	var delta_health = verdict.get("delta_health", 0.0)
-	if delta_health < 0.0:
-		var health_component = entity.get_node_or_null("HealthComponent")
-		if health_component and health_component.has_method("apply_damage"):
-			health_component.apply_damage(-delta_health)
-			print("✓ Daño a salud: %.1f" % (-delta_health))
+	# === PASO 1: Evaluar contexto de excepción ===
+	if snapshot.is_capturing or snapshot.is_captured:
+		# TODO: reglas especiales de captura (sección 17)
+		pass
+
+	# === PASO 2: Aplicar modificadores — críticos, bonificaciones ===
+	var damage_base: float = float(damage_context.get("damage_base", 0.0))
+	var is_critical: bool = bool(damage_context.get("is_critical", false))
+	var is_heavy_hit: bool = bool(damage_context.get("is_heavy_hit", false))
+	var crit_multiplier: float = float(damage_context.get("crit_health_multiplier", 1.5))
+
+	if is_critical:
+		damage_base *= crit_multiplier
+		print("DEBUG: Golpe crítico aplicado. Daño modificado a: %.1f" % damage_base)
+
+	# === PASO 3: Resolver daño a vida según quién recibe ===
+	# CRÍTICO: el sistema de 9 Vidas SOLO aplica cuando el enemigo golpea al jugador.
+	# Cuando el jugador golpea al enemigo, el daño va directo a vida sin corazones.
+	var health_damage: float = 0.0
+	var hearts_consumed: int = 0
+
+	if source == "ENEMIGO":
+		# El jugador está recibiendo daño — aplica lógica de 9 Vidas
+		var hearts_current: int = snapshot.hearts_current
+		if hearts_current > 0:
+			hearts_consumed = 1
+			# Con corazones: daño reducido (el corazón absorbe la mayor parte)
+			health_damage = damage_base * 0.15
+			print("DEBUG: Corazón consumido. Daño residual: %.1f | Corazones restantes: %d" % [health_damage, hearts_current - 1])
 		else:
-			print("✗ No se encontró HealthComponent")
-	
-	# Aplicar daño a postura
-	var delta_posture = verdict.get("delta_posture", 0.0)
-	if delta_posture < 0.0:
-		var posture_component = entity.get_node_or_null("PostureComponent")
-		if posture_component and posture_component.has_method("apply_posture_damage"):
-			posture_component.apply_posture_damage(-delta_posture)
-			print("✓ Daño a postura: %.1f" % (-delta_posture))
-		else:
-			print("✗ No se encontró PostureComponent")
-	
-	# Cambio de estado físico
-	var new_state = verdict.get("resulting_physical_state", "")
-	if new_state != "":
-		print("✓ Nuevo estado físico: %s" % new_state)
-	
-	print("=== FIN APLICACIÓN ===\n")
+			# Sin corazones: daño real completo
+			health_damage = damage_base
+			print("DEBUG: Sin corazones. Daño completo a vida: %.1f" % health_damage)
+	else:
+		# source == "JUGADOR" — el enemigo recibe daño sin sistema de vidas
+		health_damage = damage_base
+		print("DEBUG: Daño directo al enemigo: %.1f" % health_damage)
+
+	verdict["delta_health"] = -health_damage
+	verdict["delta_hearts"] = -hearts_consumed
+
+	# === PASO 4: Resolver daño a postura ===
+	var posture_damage_base: float = float(damage_context.get("posture_damage_base", damage_base * DEFAULT_POSTURE_DAMAGE_RATIO))
+
+	if is_critical:
+		var crit_posture_multiplier: float = float(damage_context.get("crit_posture_multiplier", 2.0))
+		posture_damage_base *= crit_posture_multiplier
+
+	verdict["delta_posture"] = -posture_damage_base
+	print("DEBUG: Daño a postura: %.1f" % posture_damage_base)
+
+	# === PASO 5: Evaluar estados físicos resultantes ===
+	var new_posture: float = snapshot.posture_current + verdict["delta_posture"]
+
+	if snapshot.posture_current > 0 and new_posture <= 0.0:
+		verdict["resulting_physical_state"] = "POSTURE_BROKEN"
+		verdict["generated_events"].append({
+			"event_id": "EVT_POSTURA_ROTA",
+			"payload": {
+				"target_id": snapshot.entity_id,
+				"remaining_posture": new_posture
+			}
+		})
+		print("DEBUG: POSTURA ROTA")
+
+	# === PASO 6: Impulsos psicológicos — SOLO para enemigos (sección 19.4) ===
+	# Solo se generan cuando el jugador golpea al enemigo
+	# TODO: implementar PsychologyComponent (Bloque 4 del MVP)
+
+	# === PASO 7: Emitir eventos según fuente ===
+
+	# EVT_RECIBIR_GOLPE: universal, siempre se emite
+	verdict["generated_events"].append({
+		"event_id": "EVT_RECIBIR_GOLPE",
+		"payload": {
+			"target_id": snapshot.entity_id,
+			"damage_dealt": health_damage,
+			"posture_damage_dealt": posture_damage_base,
+			"is_critical": is_critical,
+			"hearts_consumed": hearts_consumed,
+			"source": source
+		}
+	})
+
+	if source == "JUGADOR":
+		# Eventos exclusivos: jugador golpea a enemigo
+		if is_critical:
+			# EVT_GOLPE_CRITICO_RECIBIDO: feed al sistema psicológico del enemigo
+			verdict["generated_events"].append({
+				"event_id": "EVT_GOLPE_CRITICO_RECIBIDO",
+				"payload": {
+					"target_id": snapshot.entity_id,
+					"damage": damage_base
+				}
+			})
+
+	elif source == "ENEMIGO":
+		# Eventos exclusivos: enemigo golpea al jugador
+		if is_heavy_hit:
+			# EVT_GOLPE_FUERTE_RECIBIDO: activa TIME_STOP en el jugador (sección 13)
+			verdict["generated_events"].append({
+				"event_id": "EVT_GOLPE_FUERTE_RECIBIDO",
+				"payload": {
+					"target_id": snapshot.entity_id,
+					"health_damage": health_damage,
+					"impulse_strength": float(damage_context.get("impulse_strength", 0.0))
+				}
+			})
+		if hearts_consumed > 0:
+			verdict["generated_events"].append({
+				"event_id": "EVT_CORAZON_PERDIDO",
+				"payload": {
+					"target_id": snapshot.entity_id,
+					"hearts_remaining": snapshot.hearts_current - hearts_consumed
+				}
+			})
+
+	# === PASO 8: Recompensas y penalizaciones ===
+	# TODO: integrar con CaptureResolver (sección 17.5)
+
+	print("=== DamageVerdict ===")
+	print("  Source: %s" % source)
+	print("  Delta Health: %.1f" % verdict["delta_health"])
+	print("  Delta Posture: %.1f" % verdict["delta_posture"])
+	print("  Hearts Consumed: %d" % verdict["delta_hearts"])
+	print("  Events: %d" % verdict["generated_events"].size())
+	print("=====================\n")
+
+	return verdict
+
+## Método auxiliar: emitir todos los eventos del veredicto al EventBus
+func emit_verdict_events(verdict: Dictionary) -> void:
+	for event_data in verdict["generated_events"]:
+		var event_id: String = event_data.get("event_id", "")
+		var payload: Dictionary = event_data.get("payload", {})
+		if event_id != "":
+			EventBus.emit_event(event_id, payload, {"priority": 10})
+			print("Evento emitido al EventBus: %s" % event_id)

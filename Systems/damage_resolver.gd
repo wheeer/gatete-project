@@ -1,5 +1,3 @@
-## damage_resolver.gd — versión corregida
-
 class_name DamageResolver
 extends Node
 
@@ -8,6 +6,8 @@ const DEFAULT_POSTURE_DAMAGE_RATIO = 0.5
 func _ready() -> void:
 	print("DamageResolver inicializado")
 
+## Método principal: resuelve daño según El Nuevo Testamento (sección 19.4)
+## Retorna un Dictionary con el veredicto de daño (DamageVerdict)
 func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary:
 	var verdict := {
 		"delta_health": 0.0,
@@ -39,8 +39,11 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 
 	if is_critical:
 		damage_base *= crit_multiplier
+		print("DEBUG: Golpe crítico aplicado. Daño modificado a: %.1f" % damage_base)
 
 	# === PASO 3: Resolver daño a vida según quién recibe ===
+	# CRÍTICO: el sistema de 9 Vidas SOLO aplica cuando el enemigo golpea al jugador.
+	# Cuando el jugador golpea al enemigo, el daño va directo a vida sin corazones.
 	var health_damage: float = 0.0
 	var hearts_consumed: int = 0
 
@@ -49,14 +52,17 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		var hearts_current: int = snapshot.hearts_current
 		if hearts_current > 0:
 			hearts_consumed = 1
-			# Con corazones: daño reducido a vida (el corazón absorbe)
-			health_damage = damage_base * 0.15  # daño residual mínimo
+			# Con corazones: daño reducido (el corazón absorbe la mayor parte)
+			health_damage = damage_base * 0.15
+			print("DEBUG: Corazón consumido. Daño residual: %.1f | Corazones restantes: %d" % [health_damage, hearts_current - 1])
 		else:
 			# Sin corazones: daño real completo
 			health_damage = damage_base
+			print("DEBUG: Sin corazones. Daño completo a vida: %.1f" % health_damage)
 	else:
-		# El enemigo está recibiendo daño — sin sistema de vidas
+		# source == "JUGADOR" — el enemigo recibe daño sin sistema de vidas
 		health_damage = damage_base
+		print("DEBUG: Daño directo al enemigo: %.1f" % health_damage)
 
 	verdict["delta_health"] = -health_damage
 	verdict["delta_hearts"] = -hearts_consumed
@@ -69,6 +75,7 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		posture_damage_base *= crit_posture_multiplier
 
 	verdict["delta_posture"] = -posture_damage_base
+	print("DEBUG: Daño a postura: %.1f" % posture_damage_base)
 
 	# === PASO 5: Evaluar estados físicos resultantes ===
 	var new_posture: float = snapshot.posture_current + verdict["delta_posture"]
@@ -82,12 +89,13 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 				"remaining_posture": new_posture
 			}
 		})
+		print("DEBUG: POSTURA ROTA")
 
 	# === PASO 6: Impulsos psicológicos — SOLO para enemigos (sección 19.4) ===
 	# Solo se generan cuando el jugador golpea al enemigo
 	# TODO: implementar PsychologyComponent (Bloque 4 del MVP)
 
-	# === PASO 7: Emitir eventos según fuente — sección ENUM_EVENTS ===
+	# === PASO 7: Emitir eventos según fuente ===
 
 	# EVT_RECIBIR_GOLPE: universal, siempre se emite
 	verdict["generated_events"].append({
@@ -97,6 +105,7 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 			"damage_dealt": health_damage,
 			"posture_damage_dealt": posture_damage_base,
 			"is_critical": is_critical,
+			"hearts_consumed": hearts_consumed,
 			"source": source
 		}
 	})
@@ -137,11 +146,21 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 	# === PASO 8: Recompensas y penalizaciones ===
 	# TODO: integrar con CaptureResolver (sección 17.5)
 
+	print("=== DamageVerdict ===")
+	print("  Source: %s" % source)
+	print("  Delta Health: %.1f" % verdict["delta_health"])
+	print("  Delta Posture: %.1f" % verdict["delta_posture"])
+	print("  Hearts Consumed: %d" % verdict["delta_hearts"])
+	print("  Events: %d" % verdict["generated_events"].size())
+	print("=====================\n")
+
 	return verdict
 
+## Método auxiliar: emitir todos los eventos del veredicto al EventBus
 func emit_verdict_events(verdict: Dictionary) -> void:
 	for event_data in verdict["generated_events"]:
 		var event_id: String = event_data.get("event_id", "")
 		var payload: Dictionary = event_data.get("payload", {})
 		if event_id != "":
 			EventBus.emit_event(event_id, payload, {"priority": 10})
+			print("Evento emitido al EventBus: %s" % event_id)
