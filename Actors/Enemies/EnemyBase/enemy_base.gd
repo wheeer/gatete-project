@@ -8,7 +8,7 @@ class_name EnemyBase
 @onready var combat: EnemyCombatComponent = $EnemyCombatComponent
 
 var floating_ui: Node2D
-var state_machine: EnemyStateMachine  # ← AÑADE ESTO
+var state_machine: EnemyStateMachine
 
 func _ready():
 	add_to_group("targetable")
@@ -17,12 +17,9 @@ func _ready():
 	movement.initialize(self)
 	combat.initialize(self, health, posture)
 	
-	# ← AÑADE ESTO
 	state_machine = EnemyStateMachine.new()
 	state_machine.initialize(self)
-
-	health.died.connect(_on_died)
-
+	
 	_spawn_floating_ui()
 
 func set_targeted(value: bool) -> void:
@@ -42,12 +39,11 @@ func take_damage(_hit_data: Dictionary) -> void:
 	# Si ves este warning, algo está usando el camino viejo.
 	push_warning("EnemyBase.take_damage() llamado directamente en: %s — usar CombatMediator" % name)
 
-func _on_died():
+func die() -> void:
 	EventBus.emit_event("EVT_ENEMIGO_MUERTO", {
 		"target_id": name,
 		"position": global_position
 	}, {"priority": 10})
-	print("Evento emitido al EventBus: EVT_ENEMIGO_MUERTO")
 	queue_free()
 
 func _spawn_floating_ui() -> void:

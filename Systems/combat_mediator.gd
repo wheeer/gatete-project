@@ -90,29 +90,25 @@ func _calculate_posture_damage_from_strength(strength: int) -> float:
 func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
 	print("\n=== APLICANDO VEREDICTO ===")
 
-	# Aplicar daño a salud
 	var delta_health = verdict.get("delta_health", 0.0)
 	if delta_health < 0.0:
 		var health_component = entity.get_node_or_null("HealthComponent")
 		if health_component and health_component.has_method("apply_damage"):
 			health_component.apply_damage(-delta_health)
 			print("✓ Daño a salud: %.1f" % (-delta_health))
-		else:
-			push_warning("CombatMediator: %s no tiene HealthComponent" % entity.name)
 
-	# Aplicar daño a postura
 	var delta_posture = verdict.get("delta_posture", 0.0)
 	if delta_posture < 0.0:
 		var posture_component = entity.get_node_or_null("PostureComponent")
 		if posture_component and posture_component.has_method("apply_posture_damage"):
 			posture_component.apply_posture_damage(-delta_posture)
 			print("✓ Daño a postura: %.1f" % (-delta_posture))
-		else:
-			push_warning("CombatMediator: %s no tiene PostureComponent" % entity.name)
 
-	# Cambio de estado físico
+	# Al final — DESPUÉS de aplicar todo — manejar el estado resultante
 	var new_state = verdict.get("resulting_physical_state", "")
 	if new_state != "":
 		print("✓ Nuevo estado físico: %s" % new_state)
+		if new_state == "DEAD" and entity.has_method("die"):
+			entity.die()
 
 	print("=== FIN APLICACIÓN ===\n")

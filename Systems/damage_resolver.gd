@@ -78,16 +78,18 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 	print("DEBUG: Daño a postura: %.1f" % posture_damage_base)
 
 	# === PASO 5: Evaluar estados físicos resultantes ===
+	var new_health: float = snapshot.health_current + verdict["delta_health"]
 	var new_posture: float = snapshot.posture_current + verdict["delta_posture"]
 
-	if snapshot.posture_current > 0 and new_posture <= 0.0:
+	# Muerte tiene prioridad sobre POSTURE_BROKEN
+	if new_health <= 0:
+		verdict["resulting_physical_state"] = "DEAD"
+		print("DEBUG: Vida llegó a 0 → estado DEAD")
+	elif snapshot.posture_current > 0 and new_posture <= 0.0:
 		verdict["resulting_physical_state"] = "POSTURE_BROKEN"
 		verdict["generated_events"].append({
 			"event_id": "EVT_POSTURA_ROTA",
-			"payload": {
-				"target_id": snapshot.entity_id,
-				"remaining_posture": new_posture
-			}
+			"payload": {"target_id": snapshot.entity_id, "remaining_posture": new_posture}
 		})
 		print("DEBUG: POSTURA ROTA")
 
@@ -163,4 +165,4 @@ func emit_verdict_events(verdict: Dictionary) -> void:
 		var payload: Dictionary = event_data.get("payload", {})
 		if event_id != "":
 			EventBus.emit_event(event_id, payload, {"priority": 10})
-			print("Evento emitido al EventBus: %s" % event_id)
+			print("→ EventBus: %s | target: %s" % [event_id, payload.get("target_id", "?")])
