@@ -47,6 +47,7 @@ func _on_died():
 		"target_id": name,
 		"position": global_position
 	}, {"priority": 10})
+	print("Evento emitido al EventBus: EVT_ENEMIGO_MUERTO")
 	queue_free()
 
 func _spawn_floating_ui() -> void:

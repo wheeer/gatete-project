@@ -25,7 +25,7 @@ func apply_damage(amount: float) -> void:
 		call_deferred("emit_signal", "died")
 
 func _emit_died() -> void:
-	emit_signal("died")
+	emit_signal("_emit_died")
 
 func heal(amount: float) -> void:
 	if amount <= 0:
