@@ -62,8 +62,8 @@ El jugador se mueve como un gato: rápido, flexible y reactivo.
 
 El combate está centrado en presión constante y control del enemigo.
 
-- Sistema de **combo básico**
-- **Daño por impacto**
+- Sistema de **combo básico** (1-2-3, con golpe crítico en el tercer hit)
+- **Daño por impacto** con fases `startup / active / recovery`
 - **Ruptura de postura enemiga**
 - **Captura de enemigos debilitados**
 - **Ejecución tras captura**
@@ -77,53 +77,49 @@ Los enemigos poseen una barra de **postura**.
 Cuando la postura se rompe:
 
 - el enemigo queda vulnerable  
-- el jugador puede **capturarlo**
+- el jugador puede **capturarlo** o **ejecutarlo directamente**
 
 ---
 
 ### Sistema de Captura
 
-Cuando un enemigo está debilitado:
+Cuando un enemigo está debilitado (postura rota o vida ≤ 15%):
 
-- el gato puede **atraparlo como presa**
-- ocurre un **forcejeo**
-- si el jugador gana, puede **ejecutarlo**
+- el gato puede **atraparlo como presa** (hold botón derecho del mouse)
+- ocurre un **forcejeo** — duelo de estados
+- si el jugador gana, puede **ejecutarlo** con gran recompensa
+- si el enemigo resiste, el gato recibe penalización
 
 ---
 
-## Sistema de “9 Vidas”
+## Sistema de "9 Vidas"
 
 Las vidas no funcionan como en juegos tradicionales.
 
 Representan la **suerte del gato**.
 
-Mientras el gato conserve suerte:
+Mientras el gato conserve corazones:
 
-- el daño puede **reducirse**
-- algunas situaciones peligrosas pueden **evitarse**
+- el daño recibido se **reduce drásticamente** (el corazón absorbe el impacto)
+- se consume **1 corazón** por golpe recibido
 
-Cuando la suerte se agota, el daño comienza a ser **real**.
+Cuando los corazones se agotan, el daño comienza a ser **real y casi letal**.
 
 ---
 
 ## Diseño del MVP
 
-El objetivo actual del proyecto es consolidar un **MVP jugable** que demuestre  
+El objetivo actual es consolidar un **MVP jugable** que demuestre  
 el núcleo del sistema de combate.
 
-Duración estimada de la experiencia:
-
-**5 – 10 minutos de gameplay**
-
-El MVP consiste en **un único nivel** diseñado para introducir progresivamente  
-las mecánicas del juego.
+Duración estimada de la experiencia: **5 – 10 minutos de gameplay**
 
 ### Estructura del nivel
 
-1 enemigo individual  
-2 enemigos simultáneos  
-grupo pequeño de enemigos  
-mini-boss final
+1. 1 enemigo individual  
+2. 2 enemigos simultáneos  
+3. Grupo pequeño de enemigos  
+4. Mini-boss final
 
 Durante esta demo el jugador debería experimentar:
 
@@ -143,9 +139,23 @@ Durante esta demo el jugador debería experimentar:
 
 ## Sistemas Implementados
 
-### Jugador
+### Arquitectura Core (Bloque 0 — Fundación)
 
-Movimiento completo
+Pipeline de combate completo basado en el patrón **Resolver**:
+
+- **EventBus** — sistema global de eventos desacoplado; todos los sistemas se comunican mediante `emit_event()` sin referencias directas
+- **SnapshotFactory** — captura el estado inmutable de una entidad antes de que el daño sea aplicado; garantiza que el `DamageResolver` opere sobre datos congelados
+- **DamageResolver** — cerebro del combate; resuelve todo el daño según la fuente (`JUGADOR` / `ENEMIGO`), aplica modificadores críticos, lógica de 9 Vidas y genera el `DamageVerdict`
+- **CombatMediator** — orquestador; conecta el ataque del jugador con el `DamageResolver` y aplica el veredicto a los componentes reales del enemigo
+
+> Todo el daño del juego fluye por: `CombatMediator → SnapshotFactory → DamageResolver → EventBus`  
+> Los métodos directos como `take_damage()` están marcados como **deprecated**.
+
+---
+
+### Jugador (Don Gato)
+
+**Movimiento completo**
 
 - caminar  
 - correr  
@@ -153,24 +163,36 @@ Movimiento completo
 - saltar  
 - dash  
 
-Sistema de stamina
+**Sistema de stamina**
 
 - consumo en acciones  
 - regeneración  
 - agotamiento progresivo  
 
-Sistema de combate base
+**Sistema de combate**
 
-- fases de ataque  
-  - startup  
-  - active  
-  - recovery  
+- fases de ataque: `startup / active / recovery`
+- combo básico **1-2-3** con escala de daño (`LIGHT → MEDIUM → HEAVY`)
+- el tercer hit del combo tiene probabilidad de golpe crítico (crit_chance, base 15% en producción, escalable por stats, buffs y habilidades)
+- detección de golpe por `Area3D` — un solo hit por fase activa (`already_hit`)
+- daño delegado al `CombatMediator`, no aplicado directamente
 
-Combo básico **1-2-3**
+**Sistema de 9 Vidas (implementado en DamageResolver)**
 
-Máquina de estados del jugador.
+- mientras quedan corazones: cada golpe recibido consume 1 corazón y aplica solo el 15% del daño base a la vida
+- sin corazones: daño real completo
 
-Sistema de **Target Lock**
+**Componentes del jugador**
+
+- `HealthComponent` (DonGatoHealth)
+- `PostureComponent`
+- `LivesSystem` (corazones)
+- `CombatSystem` (DonGatoCombat)
+- `MovementSystem`
+- `PlayerStats`
+- `StateMachine` del jugador
+
+**Sistema de Target Lock**
 
 - selección del enemigo más cercano  
 - cambio manual de objetivo  
@@ -181,28 +203,55 @@ Sistema de **Target Lock**
 
 ### Enemigos
 
-- estructura base modular  
-- sistema de salud  
-- sistema de postura  
-- estados de stun  
+**EnemyBase — estructura modular**
+
+- `HealthComponent`  
+- `PostureComponent`  
+- `StunComponent`  
+- `EnemyMovementComponent`  
+- `EnemyCombatComponent`  
+
+**EnemyStateMachine — estados físicos**
+
+- `NORMAL`  
+- `STUNNED`  
+- `POSTURE_BROKEN` — detiene movimiento, habilita ventana de captura  
+- `CAPTURED`  
+- `DEAD` — emite `EVT_ENEMIGO_MUERTO` y llama `queue_free()`  
+
+La máquina de estados escucha el `EventBus` y filtra eventos por `target_id`  
+para evitar reacciones cruzadas entre enemigos.
+
+**Eventos implementados**
+
+- `EVT_RECIBIR_GOLPE`  
+- `EVT_POSTURA_ROTA`  
+- `EVT_GOLPE_CRITICO_RECIBIDO`  
+- `EVT_ENEMIGO_MUERTO`  
+- `EVT_GOLPE_FUERTE_RECIBIDO` (para activar TIME STOP en el jugador)  
+- `EVT_CORAZON_PERDIDO`  
 
 ---
 
 ### UI
 
-- barras flotantes de vida y postura  
+- barras flotantes de **vida y postura** por enemigo (se instancian dinámicamente en `_ready`)
 - UI base del jugador  
 
 ---
 
 ## En Desarrollo
 
-- sistema completo de **captura**
-- **ejecución** de enemigos
-- **parry** y esquiva perfecta
-- dash con ventana de **invulnerabilidad**
-- comportamiento básico de enemigos
-- mejoras en la UI del jugador
+- **CaptureResolver** — sistema completo de captura y forcejeo (Bloque 2 del MVP)
+- **Ejecución** de enemigos tras captura
+- **Parry** y esquiva perfecta
+- **AIR_RECOVERY** — ventana de recuperación ante golpes fuertes (TIME STOP)
+- **Dash** con ventana de invulnerabilidad
+- **Comportamiento básico de enemigos** (AI: patrulla, persecución, ataque)
+- **PsychologyComponent** — impulsos de IRA y PÁNICO según eventos recibidos (Bloque 4 del MVP)
+- **ADN_Handler** — inyección de `RazaResource` + `IndividuoResource` + `PerfilPsicologico` en runtime
+- Animaciones de combate y feedback visual (POSTURE_BROKEN, stun, ejecución)
+- Mejoras en la UI del jugador
 
 ---
 
@@ -214,7 +263,7 @@ Godot Engine **4.5.1**
 
 **Lenguaje**
 
-GDScript
+GDScript — tipado estático
 
 **Arte**
 
@@ -224,12 +273,44 @@ Assets **2D / 2.5D / 3D estilizados**
 
 ## Estructura del Proyecto
 
-El código está organizado de forma **modular** para que los sistemas principales  
-(movimiento, combate, enemigos, UI) puedan evolucionar sin romper el resto  
-del proyecto.
+```
+Actors/
+  Player/
+	don_gatoController.gd
+	Components/
+	  don_gatoCombat.gd
+	  don_gatoHealth.gd
+	  ...
+  Enemies/
+	EnemyBase/
+	  enemy_base.gd / .tscn
+	  enemy_state_machine.gd
+	  Components/
+		health_component.gd
+		posture_component.gd
+		stun_component.gd
+		enemy_movement_component.gd
+		enemy_combat_component.gd
 
-La idea es mantener una base clara que permita añadir nuevas mecánicas  
-a medida que el juego crece.
+Systems/
+  event_bus.gd            ← Autoload global
+  damage_resolver.gd      ← Cerebro del daño
+  snapshot_factory.gd     ← Congelado de estado
+  combat_mediator.gd      ← Orquestador
+
+UI/
+  EnemyUI/
+	floating_health_bar.tscn
+
+Resources/              ← (pendiente: ADN data-driven)
+  RazaResource
+  IndividuoResource
+  PerfilPsicologico
+```
+
+El código sigue el patrón **Componente + Resolver + EventBus**.  
+Los actores no se comunican directamente entre sí — todo pasa por el bus de eventos.  
+Esta arquitectura permite añadir nuevas mecánicas sin romper los sistemas existentes.
 
 ---
 
@@ -259,11 +340,4 @@ Gatete-Project es un proyecto personal en evolución.
 Nació como una idea sencilla: explorar cómo se sentiría un juego de combate  
 desde la perspectiva de un gato.
 
-Con el tiempo fue creciendo hasta convertirse en un pequeño mundo propio  
-que mezcla instinto, humor felino y algo de misterio.
-
-Si llegaste hasta aquí, gracias por tomarte el tiempo de mirar el proyecto.
-
-~ Wheeer
-
-Última actualización: **Marzo 2026**
+Y se convirtió en algo mucho más interesante.
