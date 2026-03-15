@@ -17,14 +17,14 @@ func initialize(_target: Node3D, _health: HealthComponent, _posture: PostureComp
 	posture_component.posture_changed.connect(_on_posture_changed)
 
 func _process(_delta: float) -> void:
-	if target == null:
+	if not is_instance_valid(target):
 		queue_free()
 		return
-
+		
 	var camera = get_viewport().get_camera_3d()
 	if camera == null:
 		return
-
+		
 	var screen_pos = camera.unproject_position(target.global_position + Vector3(0.5, 1.5, 0))
 	global_position = screen_pos
 
