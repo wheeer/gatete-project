@@ -15,7 +15,7 @@ class_name DonGatoController
 @onready var health_component = $HealthComponent
 
 func _ready() -> void:
-	
+	add_to_group("Player")
 	combat_system.setup(self, $AttackArea, stats_system)
 	movement_system.setup(self, $MeshInstance3D, stats_system, targeting_system)
 	targeting_system.setup(self)

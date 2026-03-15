@@ -27,6 +27,7 @@ var life_shake_timer: float = 0.0
 var life_flash_timer: float = 0.0
 var posture_flash_timer: float = 0.0
 var shake_base_position: Vector2
+var _was_flashing: bool = false
 
 func _ready() -> void:
 	shake_base_position = shake_container.position
@@ -111,13 +112,13 @@ func _on_hearts_changed(current: int, max_val: int) -> void:
 # =============================================
 
 func _process(delta: float) -> void:
-	
 	# --- Flash de vida ---
 	if life_flash_timer > 0.0:
 		life_flash_timer -= delta
 		life_bar.modulate = LIFE_FLASH_COLOR
-	else:
-		# restaurar color correcto cuando termina el flash
+		_was_flashing = true
+	elif _was_flashing:
+		_was_flashing = false
 		var ratio := life_bar.value / life_bar.max_value
 		if ratio > 0.6:
 			life_bar.modulate = LIFE_SAFE_COLOR

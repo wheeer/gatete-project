@@ -108,7 +108,13 @@ func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
 	var new_state = verdict.get("resulting_physical_state", "")
 	if new_state != "":
 		print("✓ Nuevo estado físico: %s" % new_state)
-
+		
+	var delta_hearts: int = verdict.get("delta_hearts", 0)
+	if delta_hearts < 0:
+		var lives_node = entity.get_node_or_null("LivesSystem")
+		if lives_node and lives_node.has_method("consume_heart"):
+			lives_node.consume_heart()
+			print("✓ Corazón consumido")
 	print("=== FIN APLICACIÓN ===\n")
 
 	# Ejecutar muerte DESPUÉS del cierre
