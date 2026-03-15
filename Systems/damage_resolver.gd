@@ -89,7 +89,10 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		verdict["resulting_physical_state"] = "POSTURE_BROKEN"
 		verdict["generated_events"].append({
 			"event_id": "EVT_POSTURA_ROTA",
-			"payload": {"target_id": snapshot.entity_id, "remaining_posture": new_posture}
+			"payload": {
+				"target_id": snapshot.entity_id,
+				"remaining_posture": maxf(0.0, new_posture)
+			}
 		})
 		print("DEBUG: POSTURA ROTA")
 

@@ -48,14 +48,15 @@ func _build_damage_context_from_hit_data(hit_data: Dictionary, _player: Node) ->
 
 	# Determinar si es crítico
 	var crit_chance: float = float(hit_data.get("crit_chance", 0.15))
+	var crit_multiplier: float = float(hit_data.get("crit_multiplier", 1.5))
 	var is_critical: bool = (combo_index == 3) and (randf() < crit_chance)
 
 	# Posture damage basado en strength
 	var posture_damage_base = _calculate_posture_damage_from_strength(strength)
 
 	# Multiplicadores críticos
-	var crit_health_multiplier: float = 1.5 if is_critical else 1.0
-	var crit_posture_multiplier: float = 1.5 if is_critical else 1.0
+	var crit_health_multiplier: float = crit_multiplier if is_critical else 1.0
+	var crit_posture_multiplier: float = crit_multiplier if is_critical else 1.0
 
 	var context = {
 		"damage_base": damage_base,
@@ -83,8 +84,7 @@ func _calculate_posture_damage_from_strength(strength: int) -> float:
 			return randf_range(25, 35)
 		2:  # HEAVY
 			return randf_range(40, 55)
-		3:  # CRITICAL
-			return randf_range(60, 80)
+		#3:  # CRITICAL reservado para habilidades (no alcanzable desde combo)
 	return 15.0
 
 ## Aplica el veredicto del DamageResolver a los componentes reales del enemigo

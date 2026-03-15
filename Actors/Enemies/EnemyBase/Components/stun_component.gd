@@ -19,8 +19,8 @@ var posture: PostureComponent
 func initialize(_enemy: EnemyBase) -> void:
 	enemy = _enemy
 	posture = enemy.posture
-
 	posture.posture_broken.connect(_on_posture_broken)
+	posture.posture_recovered.connect(_on_posture_recovered)
 
 func _change_state(new_state: StunState) -> void:
 	if new_state == current_state:
@@ -37,6 +37,9 @@ func _change_state(new_state: StunState) -> void:
 
 func _on_posture_broken() -> void:
 	_change_state(StunState.BROKEN)
+
+func _on_posture_recovered() -> void:  # ← NUEVO
+	_change_state(StunState.NONE)
 
 func is_stunned() -> bool:
 	return current_state != StunState.NONE

@@ -26,7 +26,7 @@ var combo_reset_timer: float = 0.0
 @export var heavy_damage_max: float = 30.0
 
 @export var crit_chance: float = 0.15
-@export var crit_multiplier: float = 2.0
+@export var crit_multiplier: float = 1.5
 
 var combat_mediator: CombatMediator
 
@@ -150,7 +150,8 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 		"damage": _roll_damage(),
 		"strength": _get_hit_strength(),
 		"combo_index": combo_index,
-		"crit_chance": crit_chance
+		"crit_chance": crit_chance,
+		"crit_multiplier": crit_multiplier
 	}
 	
 	if enemy:
