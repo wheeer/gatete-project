@@ -35,7 +35,11 @@ func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Diction
 		"EVT_GOLPE_CRITICO_RECIBIDO":
 			# Impulso de PANICO o IRA
 			pass
-
+			
+		"EVT_ENEMIGO_MUERTO":
+			_change_state(PhysicalState.DEAD)
+			print("💀 %s entra en DEAD" % enemy.name)
+			
 func _change_state(new_state: PhysicalState) -> void:
 	if current_state == new_state:
 		return
@@ -55,7 +59,13 @@ func _change_state(new_state: PhysicalState) -> void:
 		PhysicalState.NORMAL:
 			# TODO: Recuperación
 			pass
-
+			
+		PhysicalState.DEAD:
+			enemy.movement.stop()
+			if EventBus.event_emitted.is_connected(_on_event_emitted):
+				EventBus.event_emitted.disconnect(_on_event_emitted)
+			# queue_free ya fue llamado por enemy_base._on_died()
+			
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state
 

@@ -43,6 +43,10 @@ func take_damage(_hit_data: Dictionary) -> void:
 	push_warning("EnemyBase.take_damage() llamado directamente en: %s — usar CombatMediator" % name)
 
 func _on_died():
+	EventBus.emit_event("EVT_ENEMIGO_MUERTO", {
+		"target_id": name,
+		"position": global_position
+	}, {"priority": 10})
 	queue_free()
 
 func _spawn_floating_ui() -> void:

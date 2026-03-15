@@ -119,3 +119,10 @@ func _unlock():
 	
 	is_locked = false
 	current_target = null
+	
+func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
+	if event_id != "EVT_ENEMIGO_MUERTO":
+		return
+	var dead_id = payload.get("target_id", "")
+	if current_target != null and current_target.name == dead_id:
+		_switch_to_next_available_target()
