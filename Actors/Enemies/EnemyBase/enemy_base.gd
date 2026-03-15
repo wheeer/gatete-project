@@ -44,6 +44,7 @@ func die() -> void:
 		"target_id": name,
 		"position": global_position
 	}, {"priority": 10})
+	print("→ EventBus: EVT_ENEMIGO_MUERTO | target: %s" % name)
 	queue_free()
 
 func _spawn_floating_ui() -> void:

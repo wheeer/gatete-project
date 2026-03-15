@@ -105,11 +105,12 @@ func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
 			posture_component.apply_posture_damage(-delta_posture)
 			print("✓ Daño a postura: %.1f" % (-delta_posture))
 
-	# Al final — DESPUÉS de aplicar todo — manejar el estado resultante
 	var new_state = verdict.get("resulting_physical_state", "")
 	if new_state != "":
 		print("✓ Nuevo estado físico: %s" % new_state)
-		if new_state == "DEAD" and entity.has_method("die"):
-			entity.die()
 
 	print("=== FIN APLICACIÓN ===\n")
+
+	# Ejecutar muerte DESPUÉS del cierre
+	if new_state == "DEAD" and entity.has_method("die"):
+		entity.die()
