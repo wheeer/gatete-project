@@ -30,36 +30,32 @@ var shake_base_position: Vector2
 
 func _ready() -> void:
 	shake_base_position = shake_container.position
-
-	# Buscamos al jugador en el grupo "player"
-	var player := get_tree().get_first_node_in_group("player") as DonGatoController
+	
+	var player := get_tree().get_first_node_in_group("Player") as DonGatoController
 	if player == null:
-		push_error("PlayerUI: no se encontró al jugador en el grupo 'player'")
+		push_error("PlayerUI: no se encontró al jugador en el grupo 'Player'")
 		return
 
 	# === CONECTAR SEÑALES DE COMPONENTES ===
-	# Así la UI reacciona a cambios, en lugar de preguntar cada frame
-	
-	# Vida — conectamos a la señal de DonGatoHealth
-	var health_comp := player.health_component as DonGatoHealth
+	# Usamos get_node() directamente en lugar de las variables @onready del jugador
+	# porque @onready solo está disponible después del _ready() del jugador
+
+	# Vida
+	var health_comp := player.get_node("HealthComponent") as DonGatoHealth
 	health_comp.health_changed.connect(_on_health_changed)
-	# Pedimos los valores iniciales para que la barra no empiece en 0
 	_on_health_changed(health_comp.current_health, health_comp.max_health)
-	
-	# Postura — conectamos a las señales de DonGatoPosture
-	var posture_comp := player.posture_component as DonGatoPosture
+
+	# Postura
+	var posture_comp := player.get_node("PostureComponent") as DonGatoPosture
 	posture_comp.posture_changed.connect(_on_posture_changed)
 	posture_comp.posture_broken.connect(_on_posture_broken)
-	# Valores iniciales
 	_on_posture_changed(posture_comp.current_posture, posture_comp.max_posture)
-	
-	# Corazones — conectamos a la señal nueva de DonGatoLives
-	var lives_comp := player.lives_system as DonGatoLives
+
+	# Corazones
+	var lives_comp := player.get_node("LivesSystem") as DonGatoLives
 	lives_comp.hearts_changed.connect(_on_hearts_changed)
-	# Valores iniciales
 	_on_hearts_changed(lives_comp.hearts, lives_comp.max_hearts)
-
-
+	
 # =============================================
 # === CALLBACKS — solo se llaman cuando hay cambio real
 # =============================================

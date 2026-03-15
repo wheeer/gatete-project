@@ -38,7 +38,7 @@ script = ExtResource("4_8qaur")
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource("3_ydhkc")
 
-[node name="PostureComponent" type="Node" parent="."]
+[node name="PostureComponent" type="Node" parent="." groups=["Player"]]
 script = ExtResource("4_hnpxo")
 
 [node name="LivesSystem" type="Node" parent="."]
