@@ -47,14 +47,15 @@ func _build_damage_context_from_hit_data(hit_data: Dictionary, _player: Node) ->
 	var combo_index = hit_data.get("combo_index", 1)
 
 	# Determinar si es crítico
-	var is_critical = combo_index == 3  # El tercer golpe del combo es crítico
+	var crit_chance: float = float(hit_data.get("crit_chance", 0.15))
+	var is_critical: bool = (combo_index == 3) and (randf() < crit_chance)
 
 	# Posture damage basado en strength
 	var posture_damage_base = _calculate_posture_damage_from_strength(strength)
 
 	# Multiplicadores críticos
-	var crit_health_multiplier = 1.5 if combo_index == 3 else 1.0
-	var crit_posture_multiplier = 1.5 if combo_index == 3 else 1.0
+	var crit_health_multiplier: float = 1.5 if is_critical else 1.0
+	var crit_posture_multiplier: float = 1.5 if is_critical else 1.0
 
 	var context = {
 		"damage_base": damage_base,

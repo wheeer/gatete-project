@@ -149,7 +149,8 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 	var hit_data = {
 		"damage": _roll_damage(),
 		"strength": _get_hit_strength(),
-		"combo_index": combo_index
+		"combo_index": combo_index,
+		"crit_chance": crit_chance
 	}
 	
 	if enemy:
