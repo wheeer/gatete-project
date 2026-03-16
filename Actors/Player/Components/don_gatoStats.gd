@@ -14,6 +14,7 @@ var stamina: float
 var in_combat: bool = false
 var recovery_timer: float = 0.0
 var is_exhausted: bool = false
+var _last_debug_value: float = -999.0
 
 func _ready() -> void:
 	stamina = stamina_max
@@ -26,8 +27,6 @@ func _debug_print(current: float, _max: float) -> void:
 		return
 	_last_debug_value = current
 	print("Stamina:", snapped(current, 0.1))
-
-var _last_debug_value: float = -999.0
 
 func _physics_process(delta: float) -> void:
 	_regenerate(delta)
