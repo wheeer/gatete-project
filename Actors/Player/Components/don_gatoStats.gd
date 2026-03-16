@@ -20,7 +20,7 @@ func _ready() -> void:
 	stamina = stamina_max
 	if OS.is_debug_build():
 		stamina_changed.connect(_debug_print)
-		stamina_changed.emit(stamina, stamina_max)
+	stamina_changed.emit(stamina, stamina_max)
 
 func _debug_print(current: float, _max: float) -> void:
 	if abs(current - _last_debug_value) < 1.0:
@@ -86,5 +86,6 @@ func recover(amount: float) -> void:
 	stamina += amount
 	stamina = clamp(stamina, 0.0, stamina_max)
 	stamina_changed.emit(stamina, stamina_max)
+	
 func set_combat_state(value: bool) -> void:
 	in_combat = value
