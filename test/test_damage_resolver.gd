@@ -50,7 +50,7 @@ func _ready() -> void:
 		"is_critical": true,
 		"crit_health_multiplier": 1.5,
 		"crit_posture_multiplier": 2.0,
-		"source": "JUGADOR"  # ← AÑADIR
+		"source": "JUGADOR"
 	}
 	var snapshot_2 = snapshot_factory.create_snapshot(don_gato)
 	var verdict_2 = damage_resolver.resolve(damage_context_2, snapshot_2)

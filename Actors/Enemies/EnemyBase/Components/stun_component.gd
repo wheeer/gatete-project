@@ -47,7 +47,7 @@ func _change_state(new_state: StunState) -> void:
 func _on_posture_broken() -> void:
 	_change_state(StunState.BROKEN)
 
-func _on_posture_recovered() -> void:  # ← NUEVO
+func _on_posture_recovered() -> void:
 	_change_state(StunState.NONE)
 
 func is_stunned() -> bool:
