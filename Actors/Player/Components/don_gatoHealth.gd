@@ -32,7 +32,7 @@ func heal(amount: float) -> void:
 	current_health += amount
 	current_health = minf(current_health, max_health)
 	
-	emit_signal("health_changed", current_health, max_health)
+	health_changed.emit(current_health, max_health)
 
 ## Mantenemos get_health() y get_health_max() porque el SnapshotFactory los usa
 func get_health() -> float:

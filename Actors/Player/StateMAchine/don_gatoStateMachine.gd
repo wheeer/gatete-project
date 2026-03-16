@@ -63,3 +63,6 @@ func handle_input(event: InputEvent) -> void:
 				
 			if event.is_action_pressed("agacharse"):
 				combat_system.cancel_attack()
+				
+		CatState.DASHING:
+			pass

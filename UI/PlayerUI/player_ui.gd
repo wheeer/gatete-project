@@ -27,8 +27,8 @@ var life_shake_timer: float = 0.0
 var life_flash_timer: float = 0.0
 var posture_flash_timer: float = 0.0
 var shake_base_position: Vector2
-var _was_flashing: bool = false
-var _was_posture_flashing: bool = false
+var was_flashing: bool = false
+var was_posture_flashing: bool = false
 
 func _ready() -> void:
 	shake_base_position = shake_container.position
@@ -114,12 +114,13 @@ func _on_hearts_changed(current: int, max_val: int) -> void:
 
 func _process(delta: float) -> void:
 	# --- Flash de vida ---
-	if life_flash_timer > 0.0:
-		life_flash_timer -= delta
-		life_bar.modulate = LIFE_FLASH_COLOR
-		_was_flashing = true
-	elif _was_flashing:
-		_was_flashing = false
+	if posture_flash_timer > 0.0:
+		posture_flash_timer -= delta
+		posture_bar.modulate = POSTURE_BREAK_COLOR
+		was_posture_flashing = true
+	elif was_posture_flashing:
+		was_posture_flashing = false
+		posture_bar.modulate = Color.WHITE
 		
 		var ratio := life_bar.value / life_bar.max_value
 		if ratio > 0.6:
@@ -133,9 +134,9 @@ func _process(delta: float) -> void:
 	if posture_flash_timer > 0.0:
 		posture_flash_timer -= delta
 		posture_bar.modulate = POSTURE_BREAK_COLOR
-		_was_posture_flashing = true
-	elif _was_posture_flashing:
-		_was_posture_flashing = false
+		was_posture_flashing = true
+	elif was_posture_flashing:
+		was_posture_flashing = false
 		posture_bar.modulate = Color.WHITE
 		
 	# --- Shake de la UI al recibir daño ---
