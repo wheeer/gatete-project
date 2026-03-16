@@ -10,6 +10,7 @@ const TARGET_RADIUS := 25.0
 
 func setup(_body: CharacterBody3D) -> void:
 	body = _body
+	EventBus.event_emitted.connect(_on_event_emitted)
 
 func physics_update() -> void:
 	if not is_locked:

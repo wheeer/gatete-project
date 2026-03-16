@@ -18,7 +18,7 @@ var broken_timer: float = 0.0
 
 func _ready() -> void:
 	current_posture = max_posture
-	emit_signal("posture_changed", current_posture, max_posture)
+	posture_changed.emit(current_posture, max_posture)
 
 func _process(delta: float) -> void:
 	if broken:
@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 	if current_posture < max_posture:
 		current_posture += recovery_rate * delta
 		current_posture = minf(current_posture, max_posture)
-		emit_signal("posture_changed", current_posture, max_posture)
+		posture_changed.emit(current_posture, max_posture)
 
 ## Mismo nombre que el enemigo
 func apply_posture_damage(amount: float) -> void:
@@ -49,12 +49,12 @@ func apply_posture_damage(amount: float) -> void:
 	current_posture -= amount
 	current_posture = maxf(0.0, current_posture)
 	
-	emit_signal("posture_changed", current_posture, max_posture)
+	posture_changed.emit(current_posture, max_posture)
 	
 	if current_posture <= 0:
 		broken = true
 		broken_timer = 0.0
-		emit_signal("posture_broken")
+		posture_broken.emit()
 
 func is_broken() -> bool:
 	return broken
@@ -73,6 +73,5 @@ func _trigger_recovery() -> void:
 	current_posture = max_posture * instant_recovery_ratio
 	broken = false
 	broken_timer = 0.0
-	emit_signal("posture_changed", current_posture, max_posture)
-	emit_signal("posture_recovered")
-	
+	posture_changed.emit(current_posture, max_posture)
+	posture_recovered.emit()

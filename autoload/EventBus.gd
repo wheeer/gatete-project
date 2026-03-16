@@ -7,4 +7,4 @@ func emit_event(event_id: String, payload := {}, metadata := {}) -> void:
 		metadata = {}
 
 	var payload_copy = payload.duplicate(true)
-	emit_signal("event_emitted", event_id, payload_copy, metadata)
+	event_emitted.emit(event_id, payload_copy, metadata)

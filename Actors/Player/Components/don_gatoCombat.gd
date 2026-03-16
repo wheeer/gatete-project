@@ -124,7 +124,7 @@ func _start_attack() -> void:
 	cooldown_timer = attack_cooldown
 	already_hit = false
 	combo_flow_timer = combo_flow_duration
-	emit_signal("attack_started")
+	attack_started.emit()
 
 func setup(_body: CharacterBody3D, _attack_area: Area3D, _stats: DonGatoStats) -> void:
 	body = _body
@@ -167,7 +167,7 @@ func _end_attack() -> void:
 	is_attacking = false
 	current_phase = AttackPhase.NONE
 	attack_area.monitoring = false
-	emit_signal("attack_finished")
+	attack_finished.emit()
 
 func cancel_attack() -> void:
 	if not is_attacking:
@@ -176,7 +176,7 @@ func cancel_attack() -> void:
 	is_attacking = false
 	current_phase = AttackPhase.NONE
 	attack_area.monitoring = false
-	emit_signal("attack_finished")
+	attack_finished.emit()
 
 func _get_hit_strength() -> HitStrength:
 	match combo_index:

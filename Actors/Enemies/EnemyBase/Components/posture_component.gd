@@ -19,7 +19,7 @@ var broken: bool = false
 
 func _ready() -> void:
 	current_posture = max_posture
-	emit_signal("posture_changed", current_posture, max_posture)
+	posture_changed.emit(current_posture, max_posture)
 
 func _process(delta: float) -> void:
 	if broken:
@@ -36,7 +36,7 @@ func _process(delta: float) -> void:
 	if current_posture < max_posture:
 		current_posture += recovery_rate * delta
 		current_posture = min(current_posture, max_posture)
-		emit_signal("posture_changed", current_posture, max_posture)
+		posture_changed.emit(current_posture, max_posture)
 
 func apply_posture_damage(amount: float) -> void:
 	if amount <= 0:
@@ -50,13 +50,13 @@ func apply_posture_damage(amount: float) -> void:
 
 	current_posture -= amount
 	current_posture = max(current_posture, 0)
-	emit_signal("posture_changed", current_posture, max_posture)
+	posture_changed.emit(current_posture, max_posture)
 
 	if current_posture <= 0:
 		broken = true
 		recovering = false
 		broken_timer = 0.0
-		emit_signal("posture_broken")
+		posture_broken.emit()
 
 func is_regenerating() -> bool:
 	return regen_delay_timer <= 0 and not broken
@@ -75,5 +75,5 @@ func _trigger_instant_recovery() -> void:
 	broken = false
 	recovering = false
 	broken_timer = 0.0
-	emit_signal("posture_changed", current_posture, max_posture)
-	emit_signal("posture_recovered")
+	posture_changed.emit(current_posture, max_posture)
+	posture_recovered.emit()

@@ -36,13 +36,13 @@ func _change_state(new_state: StunState) -> void:
 		return
 
 	current_state = new_state
-	emit_signal("state_changed", new_state)
+	state_changed.emit(new_state)
 
 	match new_state:
 		StunState.STUNNED, StunState.BROKEN:
-			emit_signal("stun_started")
+			stun_started.emit()
 		StunState.NONE:
-			emit_signal("stun_ended")
+			stun_ended.emit()
 
 func _on_posture_broken() -> void:
 	_change_state(StunState.BROKEN)

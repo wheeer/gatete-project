@@ -113,7 +113,7 @@ func _attempt_dash() -> void:
 	else:
 		dash_direction = -body.transform.basis.z.normalized()
 	
-	emit_signal("dash_started")
+	dash_started.emit()
 
 func _apply_gravity(delta: float) -> void:
 	if not body.is_on_floor():
@@ -130,7 +130,7 @@ func _apply_movement(delta: float, speed_multiplier: float) -> void:
 		
 		if dash_timer <= 0:
 			is_dashing = false
-			emit_signal("dash_finished")
+			dash_finished.emit()
 		
 		return
 	# Prioridad absoluta: agotado
@@ -196,4 +196,4 @@ func handle_input(event: InputEvent) -> void:
 	if event.is_action_pressed("saltar") and body.is_on_floor():
 		if stats and stats.spend(15.0):
 			body.velocity.y = JUMP_VELOCITY
-			emit_signal("jumped")
+			jumped.emit()

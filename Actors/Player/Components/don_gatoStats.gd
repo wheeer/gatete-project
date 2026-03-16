@@ -20,7 +20,7 @@ func _ready() -> void:
 	stamina = stamina_max
 	if OS.is_debug_build():
 		stamina_changed.connect(_debug_print)
-	emit_signal("stamina_changed", stamina, stamina_max)
+		stamina_changed.emit(stamina, stamina_max)
 
 func _debug_print(current: float, _max: float) -> void:
 	if abs(current - _last_debug_value) < 1.0:
@@ -56,7 +56,7 @@ func _regenerate(delta: float) -> void:
 	stamina += regen_rate * delta
 	stamina = min(stamina, stamina_max)
 	
-	emit_signal("stamina_changed", stamina, stamina_max)
+	stamina_changed.emit(stamina, stamina_max)
 
 func can_spend(amount: float) -> bool:
 	if is_exhausted:
@@ -74,17 +74,17 @@ func spend(amount: float) -> bool:
 	if stamina < 0.0:
 		_trigger_exhaustion()
 	
-	emit_signal("stamina_changed", stamina, stamina_max)
+	stamina_changed.emit(stamina, stamina_max)
 	return true
 
 func _trigger_exhaustion() -> void:
 	is_exhausted = true
 	recovery_timer = stamina_recovery_delay
-	emit_signal("stamina_depleted")
+	stamina_depleted.emit()
 
 func recover(amount: float) -> void:
 	stamina += amount
 	stamina = clamp(stamina, 0.0, stamina_max)
-	emit_signal("stamina_changed", stamina, stamina_max)
+	stamina_changed.emit(stamina, stamina_max)
 func set_combat_state(value: bool) -> void:
 	in_combat = value
