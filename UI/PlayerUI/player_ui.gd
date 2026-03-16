@@ -114,14 +114,12 @@ func _on_hearts_changed(current: int, max_val: int) -> void:
 
 func _process(delta: float) -> void:
 	# --- Flash de vida ---
-	if posture_flash_timer > 0.0:
-		posture_flash_timer -= delta
-		posture_bar.modulate = POSTURE_BREAK_COLOR
-		was_posture_flashing = true
-	elif was_posture_flashing:
-		was_posture_flashing = false
-		posture_bar.modulate = Color.WHITE
-		
+	if life_flash_timer > 0.0:
+		life_flash_timer -= delta
+		life_bar.modulate = LIFE_FLASH_COLOR
+		was_flashing = true
+	elif was_flashing:
+		was_flashing = false
 		var ratio := life_bar.value / life_bar.max_value
 		if ratio > 0.6:
 			life_bar.modulate = LIFE_SAFE_COLOR
@@ -129,7 +127,7 @@ func _process(delta: float) -> void:
 			life_bar.modulate = LIFE_WARN_COLOR
 		else:
 			life_bar.modulate = LIFE_DANGER_COLOR
-	
+			
 	# --- Flash de postura rota ---
 	if posture_flash_timer > 0.0:
 		posture_flash_timer -= delta
