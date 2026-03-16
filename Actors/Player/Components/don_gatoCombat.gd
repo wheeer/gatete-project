@@ -137,7 +137,6 @@ func setup(_body: CharacterBody3D, _attack_area: Area3D, _stats: DonGatoStats) -
 	attack_area.monitoring = false
 	attack_area.area_entered.connect(_on_attack_area_area_entered)
 
-# Reemplaza la función completa:
 func _on_attack_area_area_entered(area: Area3D) -> void:
 	if current_phase != AttackPhase.ACTIVE:
 		return
@@ -145,8 +144,15 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 	if already_hit:
 		return
 	
-	var enemy = area.get_parent()
-	var hit_data = {
+	var enemy: Node = area.get_parent()
+	
+	if not is_instance_valid(enemy):
+		return
+	
+	if not enemy.is_in_group("enemigo"):
+		return
+	
+	var hit_data: Dictionary = {
 		"damage": _roll_damage(),
 		"strength": _get_hit_strength(),
 		"combo_index": combo_index,
@@ -154,10 +160,8 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 		"crit_multiplier": crit_multiplier
 	}
 	
-	if enemy:
-		# Usar CombatMediator para procesar el ataque
-		combat_mediator.process_player_attack(body, enemy, hit_data)
-		already_hit = true
+	combat_mediator.process_player_attack(body, enemy, hit_data)
+	already_hit = true
 
 func _end_attack() -> void:
 	is_attacking = false

@@ -8,11 +8,11 @@ class_name DonGatoController
 @onready var state_machine = $StateMachine
 @onready var movement_system = $MovementSystem
 @onready var combat_system = $CombatSystem
-@onready var posture_component = $PostureComponent
-@onready var lives_system = $LivesSystem
 @onready var stats_system = $PlayerStats
 @onready var targeting_system = $Targeting
-@onready var health_component = $HealthComponent
+@onready var posture_component: DonGatoPosture = $PostureComponent
+@onready var lives_system: DonGatoLives = $LivesSystem
+@onready var health_component: DonGatoHealth = $HealthComponent
 
 func _ready() -> void:
 	add_to_group("Player")
@@ -21,11 +21,12 @@ func _ready() -> void:
 	targeting_system.setup(self)
 	combat_system.attack_finished.connect(_on_attack_finished)
 	combat_system.attack_started.connect(_on_attack_started)
-	
-	# Conexiones de señales Movement
 	movement_system.jumped.connect(_on_jumped)
 	movement_system.dash_started.connect(_on_dash_started)
 	movement_system.dash_finished.connect(_on_dash_finished)
+	
+	# Conectar muerte del jugador
+	health_component.died.connect(_on_player_died)
 	
 	print("Don Gato inicializado correctamente ")
 
@@ -56,3 +57,8 @@ func _on_dash_started() -> void:
 func _on_dash_finished() -> void:
 	state_machine.change_state(state_machine.CatState.NORMAL)
 	
+func _on_player_died() -> void:
+	# TODO: Bloque 3 del MVP — implementar Game Over / Respawn completo
+	# Por ahora bloqueamos inputs para evitar estado indefinido
+	state_machine.change_state(state_machine.CatState.STUNNED)
+	print("Don Gato ha muerto — pendiente: Game Over / Respawn")

@@ -20,8 +20,8 @@ func initialize(_enemy: EnemyBase) -> void:
 
 func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
 	# Solo procesar eventos para este enemigo
-	var target_id = payload.get("target_id", "")
-	if target_id != enemy.name and target_id != "":
+	var target_id: String = payload.get("target_id", "")
+	if target_id != enemy.name:
 		return
 	
 	match event_id:
@@ -71,7 +71,7 @@ func _change_state(new_state: PhysicalState) -> void:
 			enemy.movement.stop()
 			if EventBus.event_emitted.is_connected(_on_event_emitted):
 				EventBus.event_emitted.disconnect(_on_event_emitted)
-			# queue_free ya fue llamado por enemy_base._on_died()
+			# queue_free es llamado por enemy_base.die()
 			
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state

@@ -1,5 +1,5 @@
 class_name CombatMediator
-extends Node
+extends RefCounted
 
 var damage_resolver: DamageResolver
 var snapshot_factory: SnapshotFactory
@@ -9,10 +9,6 @@ func initialize() -> void:
 	damage_resolver = DamageResolver.new()
 	snapshot_factory = SnapshotFactory.new()
 	print("CombatMediator inicializado")
-
-func _ready() -> void:
-	if damage_resolver == null:
-		initialize()
 
 ## Procesa un ataque del jugador contra un enemigo
 func process_player_attack(player: Node, enemy: Node, hit_data: Dictionary) -> void:

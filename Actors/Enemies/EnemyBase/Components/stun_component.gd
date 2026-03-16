@@ -5,6 +5,15 @@ signal state_changed(new_state: StunState)
 signal stun_started
 signal stun_ended
 
+## NOTA DE ARQUITECTURA:
+# Este componente maneja el estado FÍSICO-INTERNO del enemigo (StunState).
+# En paralelo, EnemyStateMachine maneja el estado FÍSICO-EXTERNO (PhysicalState).
+# Cuando la postura se rompe:
+#   → StunComponent cambia a StunState.BROKEN (detiene movimiento internamente)
+#   → EnemyStateMachine cambia a PhysicalState.POSTURE_BROKEN (via EVT_POSTURA_ROTA)
+# Ambos son necesarios. El StunComponent es la fuente de verdad para el movimiento.
+# La StateMachine es la fuente de verdad para la ventana de captura y el EventBus.
+
 enum StunState {
 	NONE,
 	STUNNED,

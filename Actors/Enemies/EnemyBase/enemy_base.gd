@@ -51,4 +51,4 @@ func _spawn_floating_ui() -> void:
 	var ui_scene = preload("res://UI/EnemyUI/floating_health_bar.tscn")
 	floating_ui = ui_scene.instantiate()
 	get_tree().current_scene.call_deferred("add_child", floating_ui)
-	floating_ui.initialize(self, health, posture)
+	floating_ui.call_deferred("initialize", self, health, posture)
