@@ -16,7 +16,7 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		"generated_events": [],
 		"resulting_physical_state": "",
 		"delta_grab_stamina": 0.0,
-		"delta_capture_stamina": 0.00
+		"delta_capture_stamina": 0.0
 	}
 
 	if damage_context == null or snapshot == null:
