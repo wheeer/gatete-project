@@ -10,20 +10,13 @@ func create_snapshot(entity: Node) -> EntitySnapshot:
 
 	snap.entity_id = str(entity.name)
 	snap.timestamp = Time.get_ticks_msec()
-
-	# === GRAB STAMINA — exclusivo del jugador durante captura ===
-	var grab = entity.get_node_or_null("GrabStaminaComponent")
-	if grab:
-		snap.grab_stamina_current = grab.get_grab_stamina() if grab.has_method("get_grab_stamina") else grab.current_grab_stamina
-		snap.grab_stamina_max     = grab.get_grab_stamina_max() if grab.has_method("get_grab_stamina_max") else grab.max_grab_stamina
-
-	# === CAPTURE STAMINA — exclusivo del enemigo durante captura ===
-	var cap = entity.get_node_or_null("CaptureStaminaComponent")
+	# === CAPTURE STAMINA — voluntad de resistir / energía de agarre (jugador y presa) ===
+	var cap := entity.get_node_or_null("CaptureStaminaComponent")
 	if cap:
 		snap.capture_stamina_current = cap.get_capture_stamina() if cap.has_method("get_capture_stamina") else cap.current_capture_stamina
 		snap.capture_stamina_max     = cap.get_capture_stamina_max() if cap.has_method("get_capture_stamina_max") else cap.max_capture_stamina
 		snap.capture_resistance      = cap.get_capture_resistance() if cap.has_method("get_capture_resistance") else cap.capture_resistance
-
+	
 	# === SALUD — mismo nombre en todos los actores ===
 	var health = entity.get_node_or_null("HealthComponent")
 	if health:
