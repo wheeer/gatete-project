@@ -24,7 +24,9 @@ func _ready() -> void:
 	movement_system.jumped.connect(_on_jumped)
 	movement_system.dash_started.connect(_on_dash_started)
 	movement_system.dash_finished.connect(_on_dash_finished)
-	
+	posture_component.posture_broken.connect(_on_posture_broken)
+	posture_component.posture_recovered.connect(_on_posture_recovered)
+	combat_system.capture_resolver.capture_resolved.connect(_on_capture_resolved)
 	# Conectar muerte del jugador
 	health_component.died.connect(_on_player_died)
 	
@@ -62,3 +64,20 @@ func _on_player_died() -> void:
 	# Por ahora bloqueamos inputs para evitar estado indefinido
 	state_machine.change_state(state_machine.CatState.STUNNED)
 	print("Don Gato ha muerto — pendiente: Game Over / Respawn")
+	
+func _on_posture_broken() -> void:
+	state_machine.change_state(state_machine.CatState.POSTURE_BROKEN)
+	print("Don Gato — POSTURA ROTA")
+
+func _on_posture_recovered() -> void:
+	state_machine.change_state(state_machine.CatState.NORMAL)
+	print("Don Gato — postura recuperada")
+
+func is_capturing() -> bool:
+	return combat_system.is_capturing
+
+func is_captured() -> bool:
+	return false
+
+func _on_capture_resolved(_result: String) -> void:
+	state_machine.change_state(state_machine.CatState.NORMAL)

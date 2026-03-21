@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cmkwn2l00wewt"]
+[gd_scene load_steps=16 format=3 uid="uid://cmkwn2l00wewt"]
 
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://Actors/Player/don_gatoController.gd" id="1_diguv"]
 [ext_resource type="Script" uid="uid://b17toxwfhdrjw" path="res://Actors/Player/Components/don_gatoStats.gd" id="2_70n47"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://dr0t1llk8svc8" path="res://Actors/Player/Components/don_gatoPosture.gd" id="4_hnpxo"]
 [ext_resource type="Script" uid="uid://ojvqn6b3r8e" path="res://Actors/Player/Components/don_gatoLives.gd" id="5_70o2q"]
 [ext_resource type="Texture2D" uid="uid://bu2smtf18ujs1" path="res://icon.svg" id="9_s40ee"]
+[ext_resource type="Script" uid="uid://c1ud5btv60546" path="res://Actors/Player/capture_stamina_component.gd" id="10_20mup"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8qaur"]
 albedo_texture = ExtResource("9_s40ee")
@@ -49,6 +50,9 @@ script = ExtResource("2_70n47")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_5sya5")
+
+[node name="CaptureStaminaComponent" type="Node" parent="."]
+script = ExtResource("10_20mup")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.010320306, 0, 0)

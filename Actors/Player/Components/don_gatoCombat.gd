@@ -29,6 +29,8 @@ var combo_reset_timer: float = 0.0
 @export var crit_multiplier: float = 1.5
 
 var combat_mediator: CombatMediator
+var capture_resolver: CaptureResolver
+var is_capturing: bool = false
 
 enum AttackPhase {
 	NONE,
@@ -136,7 +138,11 @@ func setup(_body: CharacterBody3D, _attack_area: Area3D, _stats: DonGatoStats) -
 	
 	attack_area.monitoring = false
 	attack_area.area_entered.connect(_on_attack_area_area_entered)
-
+	
+	capture_resolver = CaptureResolver.new()
+	capture_resolver.capture_resolved.connect(_on_capture_resolved)
+	add_child(capture_resolver)
+	
 func _on_attack_area_area_entered(area: Area3D) -> void:
 	if current_phase != AttackPhase.ACTIVE:
 		return
@@ -177,6 +183,57 @@ func cancel_attack() -> void:
 	current_phase = AttackPhase.NONE
 	attack_area.monitoring = false
 	attack_finished.emit()
+
+func try_capture(target_override: Node = null) -> bool:
+	if is_capturing:
+		return false
+
+	# Buscar presa — target override o buscar en el grupo
+	var prey: Node = target_override
+	if prey == null:
+		prey = _find_capturable_enemy()
+
+	if prey == null:
+		return false
+
+	is_capturing = true
+	capture_resolver.start_capture(body, prey)
+	return true
+
+func update_capture(delta: float) -> void:
+	if not is_capturing:
+		return
+	capture_resolver.update(delta)
+
+func cancel_capture_attempt() -> void:
+	if not is_capturing:
+		return
+	capture_resolver.cancel_capture()
+
+func _find_capturable_enemy() -> Node:
+	# Busca el enemigo en POSTURE_BROKEN más cercano dentro de rango
+	const CAPTURE_RANGE := 2.5
+	var closest: Node = null
+	var closest_dist := CAPTURE_RANGE
+
+	for node in get_tree().get_nodes_in_group("enemigo"):
+		if not is_instance_valid(node):
+			continue
+		var state_machine := node.get_node_or_null("StateMachine") as EnemyStateMachine
+		if state_machine == null:
+			continue
+		if not state_machine.is_in_state(EnemyStateMachine.PhysicalState.POSTURE_BROKEN):
+			continue
+		var dist := body.global_position.distance_to(node.global_position)
+		if dist < closest_dist:
+			closest_dist = dist
+			closest = node
+
+	return closest
+
+func _on_capture_resolved(result: String) -> void:
+	is_capturing = false
+	print("Captura terminó: %s" % result)
 
 func _get_hit_strength() -> HitStrength:
 	match combo_index:

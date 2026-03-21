@@ -11,7 +11,8 @@ enum CatState {
 	DASHING,
 	STUNNED,
 	POSTURE_BROKEN,
-	TIMESTOP
+	TIMESTOP,
+	CAPTURING
 }
 
 var current_state: CatState = CatState.NORMAL
@@ -36,6 +37,9 @@ func physics_update(delta: float) -> void:
 			movement_system.physics_update(delta)
 		CatState.STUNNED:
 			pass
+		CatState.CAPTURING:
+			movement_system.physics_update(delta, 0.0)
+			combat_system.update_capture(delta)
 		CatState.POSTURE_BROKEN:
 			pass
 		CatState.TIMESTOP:
@@ -48,6 +52,12 @@ func handle_input(event: InputEvent) -> void:
 			
 			if event.is_action_pressed("atacar"):
 				combat_system.try_attack()
+			
+			if event.is_action_pressed("Capturar"):
+				combat_system.try_capture()
+				if combat_system.is_capturing:
+					change_state(CatState.CAPTURING)
+							
 		CatState.ATTACKING:
 			movement_system.handle_input(event)
 			
@@ -63,6 +73,11 @@ func handle_input(event: InputEvent) -> void:
 				
 			if event.is_action_pressed("agacharse"):
 				combat_system.cancel_attack()
+		
+		CatState.CAPTURING:
+			if event.is_action_just_released("Capturar"):
+				combat_system.cancel_capture_attempt()
+				change_state(CatState.NORMAL)
 				
 		CatState.DASHING:
 			pass

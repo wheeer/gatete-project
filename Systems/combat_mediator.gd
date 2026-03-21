@@ -116,3 +116,41 @@ func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
 	# Ejecutar muerte DESPUÉS del cierre
 	if new_state == "DEAD" and entity.has_method("die"):
 		entity.die()
+## Procesa un ataque del enemigo contra el jugador
+func process_enemy_attack(_enemy: Node, player: Node, hit_data: Dictionary) -> void:
+	if snapshot_factory == null:
+		initialize()
+
+	print("\n=== COMBATE: Ataque del enemigo ===")
+
+	# Snapshot del JUGADOR antes del daño
+	var player_snapshot = snapshot_factory.create_snapshot(player)
+
+	# Construir damage_context desde hit_data del enemigo
+	var damage_context := _build_damage_context_from_enemy_hit(hit_data)
+
+	# Resolver daño
+	var verdict = damage_resolver.resolve(damage_context, player_snapshot)
+
+	# Asignar target_id — el objetivo es el jugador
+	for event_data in verdict.get("generated_events", []):
+		event_data["payload"]["target_id"] = player.name
+
+	# Aplicar veredicto al jugador
+	_apply_verdict_to_entity(player, verdict)
+
+	# Emitir eventos
+	damage_resolver.emit_verdict_events(verdict)
+
+## Construye damage_context ddesde un hit del enemigo
+func _build_damage_context_from_enemy_hit(hit_data: Dictionary) -> Dictionary:
+	return {
+		"damage_base":           float(hit_data.get("damage_base", 20.0)),
+		"posture_damage_base":   float(hit_data.get("posture_damage_base", 10.0)),
+		"is_critical":           false,
+		"is_heavy_hit":          bool(hit_data.get("is_heavy_hit", false)),
+		"impulse_strength":      float(hit_data.get("impulse_strength", 0.0)),
+		"crit_health_multiplier": 1.0,
+		"crit_posture_multiplier": 1.0,
+		"source":                "ENEMIGO"
+	}

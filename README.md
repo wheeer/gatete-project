@@ -275,38 +275,38 @@ Assets **2D / 2.5D / 3D estilizados**
 
 ```
 Actors/
-  Player/
-	don_gatoController.gd
+	Player/
+		don_gatoController.gd
 	Components/
-	  don_gatoCombat.gd
-	  don_gatoHealth.gd
-	  ...
-  Enemies/
-	EnemyBase/
-	  enemy_base.gd / .tscn
-	  enemy_state_machine.gd
-	  Components/
-		health_component.gd
-		posture_component.gd
-		stun_component.gd
-		enemy_movement_component.gd
-		enemy_combat_component.gd
-
+		don_gatoCombat.gd
+		don_gatoHealth.gd
+		...
+	Enemies/
+		EnemyBase/
+			enemy_base.gd / .tscn
+			enemy_state_machine.gd
+		Components/
+			health_component.gd
+			posture_component.gd
+			stun_component.gd
+			enemy_movement_component.gd
+			enemy_combat_component.gd
+			...
 Systems/
-  event_bus.gd            ← Autoload global
-  damage_resolver.gd      ← Cerebro del daño
-  snapshot_factory.gd     ← Congelado de estado
-  combat_mediator.gd      ← Orquestador
-
+	event_bus.gd            ← Autoload global
+	damage_resolver.gd      ← Cerebro del daño
+	snapshot_factory.gd     ← Congelado de estado
+	combat_mediator.gd      ← Orquestador
+	...
 UI/
-  EnemyUI/
+	EnemyUI/
 	floating_health_bar.tscn
 
 Resources/              ← (pendiente: ADN data-driven)
-  RazaResource
-  IndividuoResource
-  PerfilPsicologico
-```
+	RazaResource
+	IndividuoResource
+	PerfilPsicologico
+	```
 
 El código sigue el patrón **Componente + Resolver + EventBus**.  
 Los actores no se comunican directamente entre sí — todo pasa por el bus de eventos.  
