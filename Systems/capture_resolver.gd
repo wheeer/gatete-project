@@ -54,8 +54,10 @@ func start_capture(_captor: Node, _prey: Node) -> bool:
 	}, {"priority": 10})
 
 	print("🐱 Captura iniciada: %s → %s" % [captor.name, prey.name])
+	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
+	if prey_state:
+		prey_state._change_state(EnemyStateMachine.PhysicalState.CAPTURED)
 	return true
-
 
 func update(delta: float) -> void:
 	if not is_active:
@@ -172,7 +174,6 @@ func _apply_minor_penalty() -> void:
 	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
 	if prey_state:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.NORMAL)
-
 
 func _cleanup() -> void:
 	captor = null

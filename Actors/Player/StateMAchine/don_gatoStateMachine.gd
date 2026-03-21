@@ -38,7 +38,7 @@ func physics_update(delta: float) -> void:
 		CatState.STUNNED:
 			pass
 		CatState.CAPTURING:
-			movement_system.physics_update(delta, 0.0)
+			movement_system.physics_update(delta, 0.2)
 			combat_system.update_capture(delta)
 		CatState.POSTURE_BROKEN:
 			pass
@@ -53,10 +53,11 @@ func handle_input(event: InputEvent) -> void:
 			if event.is_action_pressed("atacar"):
 				combat_system.try_attack()
 			
-			if event.is_action_pressed("Capturar"):
-				combat_system.try_capture()
-				if combat_system.is_capturing:
-					change_state(CatState.CAPTURING)
+			if event is InputEventMouseButton:
+				if event.is_action_pressed("Capturar"):
+					combat_system.try_capture()
+					if combat_system.is_capturing:
+						change_state(CatState.CAPTURING)
 							
 		CatState.ATTACKING:
 			movement_system.handle_input(event)
@@ -75,9 +76,10 @@ func handle_input(event: InputEvent) -> void:
 				combat_system.cancel_attack()
 		
 		CatState.CAPTURING:
-			if event.is_action_just_released("Capturar"):
-				combat_system.cancel_capture_attempt()
-				change_state(CatState.NORMAL)
+			if event is InputEventMouseButton:
+				if event.is_action_released("Capturar"):
+					combat_system.cancel_capture_attempt()
+					change_state(CatState.NORMAL)
 				
 		CatState.DASHING:
 			pass

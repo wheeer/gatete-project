@@ -185,21 +185,25 @@ func cancel_attack() -> void:
 	attack_finished.emit()
 
 func try_capture(target_override: Node = null) -> bool:
+	print("🔍 try_capture() llamado | is_capturing: %s" % is_capturing)
 	if is_capturing:
 		return false
 
-	# Buscar presa — target override o buscar en el grupo
 	var prey: Node = target_override
 	if prey == null:
 		prey = _find_capturable_enemy()
-
+		
+	var prey_name: String = "NINGUNA"
+	if prey != null:
+		prey_name = prey.name
+	print("🔍 Presa encontrada: %s" % prey_name)
+	
 	if prey == null:
 		return false
 
 	is_capturing = true
 	capture_resolver.start_capture(body, prey)
 	return true
-
 func update_capture(delta: float) -> void:
 	if not is_capturing:
 		return

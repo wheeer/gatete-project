@@ -18,6 +18,8 @@ func _ready():
 	combat.initialize(self, health, posture)
 	
 	state_machine = EnemyStateMachine.new()
+	state_machine.name = "StateMachine"
+	add_child(state_machine) 
 	state_machine.initialize(self)
 	
 	_spawn_floating_ui()

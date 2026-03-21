@@ -64,7 +64,7 @@ func _change_state(new_state: PhysicalState) -> void:
 			# TODO: Stun visual
 		
 		PhysicalState.NORMAL:
-			# TODO: Recuperación
+			enemy.posture.set_process(true)
 			pass
 			
 		PhysicalState.DEAD:
@@ -72,6 +72,10 @@ func _change_state(new_state: PhysicalState) -> void:
 			if EventBus.event_emitted.is_connected(_on_event_emitted):
 				EventBus.event_emitted.disconnect(_on_event_emitted)
 			# queue_free es llamado por enemy_base.die()
+		
+		PhysicalState.CAPTURED:
+			enemy.movement.stop()
+			enemy.posture.set_process(false)
 			
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state
