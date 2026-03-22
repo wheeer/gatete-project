@@ -140,7 +140,6 @@ func try_attack_during_capture(target: Node) -> bool:
 		"crit_multiplier": 1.0
 	}
 
-	print("⚠️ Ataque torpe durante captura → %s" % target.name)
 	combat_mediator.process_player_attack(body, target, hit_data)
 	return true
 
@@ -213,37 +212,20 @@ func cancel_attack() -> void:
 	attack_finished.emit()
 
 func try_capture(target_override: Node = null) -> bool:
-	print("🔍 try_capture() llamado | is_capturing: %s" % is_capturing)
 	if is_capturing:
 		return false
-
 	var prey: Node = target_override
 	if prey == null:
 		prey = _find_capturable_enemy()
-		
-	var prey_name: String = "NINGUNA"
-	if prey != null:
-		prey_name = prey.name
-	print("🔍 Presa encontrada: %s" % prey_name)
-	
 	if prey == null:
+		print("⚠️ try_capture: no hay presa capturable en rango")
 		return false
-
+	print("🐱 Iniciando captura → %s" % prey.name)
 	is_capturing = true
 	capture_resolver.start_capture(body, prey)
 	return true
-func update_capture(delta: float) -> void:
-	if not is_capturing:
-		return
-	capture_resolver.update(delta)
-
-func cancel_capture_attempt() -> void:
-	if not is_capturing:
-		return
-	capture_resolver.cancel_capture()
 
 func _find_capturable_enemy() -> Node:
-	# Busca el enemigo en POSTURE_BROKEN más cercano dentro de rango
 	const CAPTURE_RANGE := 2.5
 	var closest: Node = null
 	var closest_dist := CAPTURE_RANGE
@@ -251,7 +233,8 @@ func _find_capturable_enemy() -> Node:
 	for node in get_tree().get_nodes_in_group("enemigo"):
 		if not is_instance_valid(node):
 			continue
-		var state_machine := node.get_node_or_null("StateMachine") as EnemyStateMachine
+		# ← CORREGIDO: el nodo ahora se llama "EnemyStateMachine", no "StateMachine"
+		var state_machine := node.get_node_or_null("EnemyStateMachine") as EnemyStateMachine
 		if state_machine == null:
 			continue
 		if not state_machine.is_in_state(EnemyStateMachine.PhysicalState.POSTURE_BROKEN):
@@ -263,9 +246,18 @@ func _find_capturable_enemy() -> Node:
 
 	return closest
 
-func _on_capture_resolved(result: String) -> void:
+func update_capture(delta: float) -> void:
+	if not is_capturing:
+		return
+	capture_resolver.update(delta)
+
+func cancel_capture_attempt() -> void:
+	if not is_capturing:
+		return
+	capture_resolver.cancel_capture()
+
+func _on_capture_resolved(_result: String) -> void:
 	is_capturing = false
-	print("Captura terminó: %s" % result)
 
 func _get_hit_strength() -> HitStrength:
 	match combo_index:

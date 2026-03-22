@@ -132,7 +132,7 @@ func start_capture(_captor: Node, _prey: Node) -> bool:
 	}, {"priority":	10})
 
 	print("🐱 Captura iniciada: %s → %s" % [captor.name, prey.name])
-	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
+	var prey_state := prey.get_node_or_null("EnemyStateMachine") as EnemyStateMachine
 	if prey_state:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.CAPTURED)
 	return true
@@ -259,7 +259,7 @@ func _apply_penalties() -> void:
 	print("💔 Penalización aplicada — liberación forzada")
 
 	# Liberar presa → volver a NORMAL
-	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
+	var prey_state := prey.get_node_or_null("EnemyStateMachine") as EnemyStateMachine
 	if prey_state:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.NORMAL)
 
@@ -274,7 +274,7 @@ func _apply_minor_penalty() -> void:
 		posture_comp.apply_posture_damage(PENALTY_POSTURE * 0.5)
 	print("⚠️ Penalización menor por cancelación")
 
-	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
+	var prey_state := prey.get_node_or_null("EnemyStateMachine") as EnemyStateMachine
 	if prey_state:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.NORMAL)
 

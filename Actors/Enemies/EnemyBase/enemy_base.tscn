@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://bvdkcwsofeh2i" path="res://Actors/Enemies/EnemyBase/Components/posture_component.gd" id="3_wty2a"]
 [ext_resource type="Script" uid="uid://g1m8351ghe7k" path="res://Actors/Enemies/EnemyBase/Components/enemy_movement_component.gd" id="5_ij683"]
 [ext_resource type="Script" uid="uid://c4dr5biai6c" path="res://Actors/Enemies/EnemyBase/Components/enemy_combat_component.gd" id="6_8jh04"]
-[ext_resource type="Script" uid="uid://c1ud5btv60546" path="res://Actors/Player/capture_stamina_component.gd" id="7_4e1ja"]
+[ext_resource type="Script" uid="uid://c1ud5btv60546" path="res://Systems/capture_stamina_component.gd" id="7_4e1ja"]
 [ext_resource type="Script" uid="uid://s76wa007dy8u" path="res://Actors/Enemies/EnemyBase/enemy_state_machine.gd" id="8_42hri"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ekoys"]
@@ -37,11 +37,11 @@ script = ExtResource("5_ij683")
 [node name="EnemyCombatComponent" type="Node" parent="."]
 script = ExtResource("6_8jh04")
 
-[node name="CaptureStaminaComponent" type="Node" parent="."]
-script = ExtResource("7_4e1ja")
-
 [node name="EnemyStateMachine" type="Node" parent="."]
 script = ExtResource("8_42hri")
+
+[node name="CaptureStaminaComponent" type="Node" parent="."]
+script = ExtResource("7_4e1ja")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_ekoys")

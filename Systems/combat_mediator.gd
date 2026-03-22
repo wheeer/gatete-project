@@ -8,7 +8,6 @@ var snapshot_factory: SnapshotFactory
 func initialize() -> void:
 	damage_resolver = DamageResolver.new()
 	snapshot_factory = SnapshotFactory.new()
-	print("CombatMediator inicializado")
 
 ## Procesa un ataque del jugador contra un enemigo
 func process_player_attack(player: Node, enemy: Node, hit_data: Dictionary) -> void:
@@ -93,9 +92,7 @@ func _apply_verdict_to_entity(entity: Node, verdict: Dictionary) -> void:
 			posture_component.apply_posture_damage(-delta_posture)
 
 	var new_state = verdict.get("resulting_physical_state", "")
-	if new_state != "":
-		print("✓ Nuevo estado físico: %s" % new_state)
-		
+	
 	var delta_hearts: int = verdict.get("delta_hearts", 0)
 	if delta_hearts < 0:
 		var lives_node = entity.get_node_or_null("LivesSystem")

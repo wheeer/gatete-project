@@ -48,282 +48,183 @@ Algunos enemigos parecen… distintos.
 
 ### Movimiento
 
-El jugador se mueve como un gato: rápido, flexible y reactivo.
-
-- Movimiento en **cuatro patas**
+- Caminar / Correr / Agacharse
 - **Salto**
 - **Sprint**
-- **Dash**
-- **Recompostura felina** al caer
-
----
+- **Dash** (toque corto de Shift)
 
 ### Combate
 
-El combate está centrado en presión constante y control del enemigo.
+- Sistema de **combo básico 1-2-3** con escala de daño (LIGHT → MEDIUM → HEAVY)
+- Golpe crítico probabilístico en el **tercer hit** del combo
+- Fases de ataque: `startup / active / recovery`
+- **Ruptura de postura enemiga** → estado POSTURE_BROKEN
+- **Captura de enemigos** debilitados (hold botón derecho del mouse)
+- **Ejecución tras captura exitosa**
 
-- Sistema de **combo básico** (1-2-3, con golpe crítico en el tercer hit)
-- **Daño por impacto** con fases `startup / active / recovery`
-- **Ruptura de postura enemiga**
-- **Captura de enemigos debilitados**
-- **Ejecución tras captura**
+### Sistema de Captura (Forcejeo)
 
----
+Cuando el enemigo está en POSTURE_BROKEN:
+- El jugador lo agarra manteniendo el botón derecho del mouse
+- Ocurre un **duelo de barras**: CAPTURE_STAMINA del jugador vs. de la presa
+- La presa forcejea activamente, drenando la stamina del jugador
+- El jugador golpea a la presa con un **combo 1-2-3 exclusivo de captura**
+- El golpe 3 es siempre crítico y remata si la presa está agotada
+- Moverse durante el combo lo reinicia
+- **Éxito** → recompensa de vida y corazones, enemigo muere
+- **Fallo** → penalización de postura, vida, corazón y STUNNED
+- **Cancelación voluntaria** → penalización menor
 
-### Sistema de Postura/Compostura
+### Sistema de "9 Vidas"
 
-Los enemigos poseen una barra de **postura**.
+Las vidas representan la **suerte del gato**, no vidas tradicionales.
 
-Cuando la postura se rompe:
-
-- el enemigo queda vulnerable  
-- el jugador puede **capturarlo** o **ejecutarlo directamente**
-
----
-
-### Sistema de Captura
-
-Cuando un enemigo está debilitado (postura rota o vida ≤ 15%):
-
-- el gato puede **atraparlo como presa** (hold botón derecho del mouse)
-- ocurre un **forcejeo** — duelo de estados
-- si el jugador gana, puede **ejecutarlo** con gran recompensa
-- si el enemigo resiste, el gato recibe penalización
+- Mientras quedan corazones: cada golpe consume 1 corazón y aplica solo el 15% del daño
+- Sin corazones: el daño es real y casi letal
+- Los corazones se recuperan mediante capturas exitosas
 
 ---
 
-## Sistema de "9 Vidas"
+## Arquitectura del Sistema de Combate
 
-Las vidas no funcionan como en juegos tradicionales.
+Todo el daño del juego fluye por un pipeline estricto e inalterable:
+```
+CombatMediator → SnapshotFactory → DamageResolver → apply(components) → EventBus
+```
 
-Representan la **suerte del gato**.
-
-Mientras el gato conserve corazones:
-
-- el daño recibido se **reduce drásticamente** (el corazón absorbe el impacto)
-- se consume **1 corazón** por golpe recibido
-
-Cuando los corazones se agotan, el daño comienza a ser **real y casi letal**.
-
----
-
-## Diseño del MVP
-
-El objetivo actual es consolidar un **MVP jugable** que demuestre  
-el núcleo del sistema de combate.
-
-Duración estimada de la experiencia: **5 – 10 minutos de gameplay**
-
-### Estructura del nivel
-
-1. 1 enemigo individual  
-2. 2 enemigos simultáneos  
-3. Grupo pequeño de enemigos  
-4. Mini-boss final
-
-Durante esta demo el jugador debería experimentar:
-
-- combate básico  
-- ruptura de postura  
-- captura de enemigos  
-- ejecución  
-- combate contra pequeños grupos  
-
----
-
-## Estado Actual del Proyecto
-
-**PRE-ALPHA — Desarrollo activo**
+Los actores nunca se comunican directamente entre sí.  
+Todo pasa por el **EventBus** como canal único de eventos.  
+Los métodos directos como `take_damage()` están marcados como **deprecated**.
 
 ---
 
 ## Sistemas Implementados
 
-### Arquitectura Core (Bloque 0 — Fundación)
+### Bloque 0 — Fundación
+- **EventBus** — canal global desacoplado de eventos
+- **EntitySnapshot** — foto inmutable del estado de una entidad antes del daño
+- **SnapshotFactory** — construye snapshots genéricamente para cualquier actor
+- **DamageResolver** — única autoridad para calcular daño, críticos y 9 Vidas
+- **CombatMediator** — orquestador del pipeline de combate
 
-Pipeline de combate completo basado en el patrón **Resolver**:
+### Bloque 1 — Jugador
+- Movimiento completo con stamina (caminar, correr, agacharse, saltar, dash)
+- Sistema de combo 1-2-3 con fases startup/active/recovery
+- Sistema de 9 Vidas con corazones
+- Target Lock con cambio manual y automático al morir el objetivo
+- UI completa: barras de vida, postura, corazones y stamina flotante
 
-- **EventBus** — sistema global de eventos desacoplado; todos los sistemas se comunican mediante `emit_event()` sin referencias directas
-- **SnapshotFactory** — captura el estado inmutable de una entidad antes de que el daño sea aplicado; garantiza que el `DamageResolver` opere sobre datos congelados
-- **DamageResolver** — cerebro del combate; resuelve todo el daño según la fuente (`JUGADOR` / `ENEMIGO`), aplica modificadores críticos, lógica de 9 Vidas y genera el `DamageVerdict`
-- **CombatMediator** — orquestador; conecta el ataque del jugador con el `DamageResolver` y aplica el veredicto a los componentes reales del enemigo
-
-> Todo el daño del juego fluye por: `CombatMediator → SnapshotFactory → DamageResolver → EventBus`  
-> Los métodos directos como `take_damage()` están marcados como **deprecated**.
-
----
-
-### Jugador (Don Gato)
-
-**Movimiento completo**
-
-- caminar  
-- correr  
-- agacharse  
-- saltar  
-- dash  
-
-**Sistema de stamina**
-
-- consumo en acciones  
-- regeneración  
-- agotamiento progresivo  
-
-**Sistema de combate**
-
-- fases de ataque: `startup / active / recovery`
-- combo básico **1-2-3** con escala de daño (`LIGHT → MEDIUM → HEAVY`)
-- el tercer hit del combo tiene probabilidad de golpe crítico (crit_chance, base 15% en producción, escalable por stats, buffs y habilidades)
-- detección de golpe por `Area3D` — un solo hit por fase activa (`already_hit`)
-- daño delegado al `CombatMediator`, no aplicado directamente
-
-**Sistema de 9 Vidas (implementado en DamageResolver)**
-
-- mientras quedan corazones: cada golpe recibido consume 1 corazón y aplica solo el 15% del daño base a la vida
-- sin corazones: daño real completo
-
-**Componentes del jugador**
-
-- `HealthComponent` (DonGatoHealth)
-- `PostureComponent`
-- `LivesSystem` (corazones)
-- `CombatSystem` (DonGatoCombat)
-- `MovementSystem`
-- `PlayerStats`
-- `StateMachine` del jugador
-
-**Sistema de Target Lock**
-
-- selección del enemigo más cercano  
-- cambio manual de objetivo  
-- rotación del jugador hacia el target  
-- cambio automático al morir el enemigo  
-
----
+### Bloque 2 — Captura
+- **CaptureResolver** — duelo de barras con forcejeo activo de la presa
+- Combo de captura exclusivo (1-2-3), reinicio al moverse
+- Parámetros configurables por enemigo: `capture_weight`, `capacidad_forcejeo`, `forcejeo_damage`
+- UI de captura con barras de stamina para captor y presa
+- Recompensas y penalizaciones según resultado
 
 ### Enemigos
+- **EnemyBase** — arquitectura modular con componentes independientes
+- **EnemyStateMachine** — estados: NORMAL, STUNNED, POSTURE_BROKEN, CAPTURED, DEAD
+- IA básica: detección, persecución y ataque con cooldown
+- Barras flotantes de vida y postura por enemigo
 
-**EnemyBase — estructura modular**
-
-- `HealthComponent`  
-- `PostureComponent`  
-- `StunComponent`  
-- `EnemyMovementComponent`  
-- `EnemyCombatComponent`  
-
-**EnemyStateMachine — estados físicos**
-
-- `NORMAL`  
-- `STUNNED`  
-- `POSTURE_BROKEN` — detiene movimiento, habilita ventana de captura  
-- `CAPTURED`  
-- `DEAD` — emite `EVT_ENEMIGO_MUERTO` y llama `queue_free()`  
-
-La máquina de estados escucha el `EventBus` y filtra eventos por `target_id`  
-para evitar reacciones cruzadas entre enemigos.
-
-**Eventos implementados**
-
-- `EVT_RECIBIR_GOLPE`  
-- `EVT_POSTURA_ROTA`  
-- `EVT_GOLPE_CRITICO_RECIBIDO`  
-- `EVT_ENEMIGO_MUERTO`  
-- `EVT_GOLPE_FUERTE_RECIBIDO` (para activar TIME STOP en el jugador)  
-- `EVT_CORAZON_PERDIDO`  
+### Eventos canónicos implementados
+`EVT_RECIBIR_GOLPE`, `EVT_POSTURA_ROTA`, `EVT_GOLPE_CRITICO_RECIBIDO`,
+`EVT_ENEMIGO_MUERTO`, `EVT_GOLPE_FUERTE_RECIBIDO`, `EVT_CORAZON_PERDIDO`,
+`EVT_INTENTO_CAPTURA`, `EVT_CAPTURA_EXITOSA`, `EVT_INTENTO_CAPTURA_FALLIDO`,
+`EVT_LIBERACION_FORZADA`, `EVT_LIBERACION_FORZADA_CAPTOR`, `EVT_JUGADOR_CANCELA_CAZA`
 
 ---
 
-### UI
+## En Desarrollo — Bloque 3
 
-- barras flotantes de **vida y postura** por enemigo (se instancian dinámicamente en `_ready`)
-- UI base del jugador  
+- **EnemyMouse** — primer enemigo canónico con hitbox real y parámetros de ADN base
+- Tipos de enemigo del MVP: estándar y mini-boss
+
+## Pendiente (post-Bloque 3)
+
+- **PsychologyComponent** — impulsos IRA y PÁNICO según eventos
+- **ADN_Handler** — inyección de RazaResource + IndividuoResource + PerfilPsicologico
+- **AIR_RECOVERY** y TIME STOP
+- Parry y esquiva perfecta
+- Sistema de recompensas escaladas por contexto de combate
+- Animaciones y feedback visual (POSTURE_BROKEN, stun, ejecución)
 
 ---
 
-## En Desarrollo
+## Estructura del Proyecto
+```
+autoload/
+	EventBus.gd				← canal único de eventos (Autoload)
+	catalogo.gd				← cargador de datos JSON
 
-- **CaptureResolver** — sistema completo de captura y forcejeo (Bloque 2 del MVP)
-- **Ejecución** de enemigos tras captura
-- **Parry** y esquiva perfecta
-- **AIR_RECOVERY** — ventana de recuperación ante golpes fuertes (TIME STOP)
-- **Dash** con ventana de invulnerabilidad
-- **Comportamiento básico de enemigos** (AI: patrulla, persecución, ataque)
-- **PsychologyComponent** — impulsos de IRA y PÁNICO según eventos recibidos (Bloque 4 del MVP)
-- **ADN_Handler** — inyección de `RazaResource` + `IndividuoResource` + `PerfilPsicologico` en runtime
-- Animaciones de combate y feedback visual (POSTURE_BROKEN, stun, ejecución)
-- Mejoras en la UI del jugador
+Systems/
+	entity_snapshot.gd				← snapshot inmutable
+	snapshot_factory.gd				← construye snapshots genéricamente
+	damage_resolver.gd				← única autoridad del daño
+	combat_mediator.gd				← orquestador del combate
+	capture_resolver.gd				← cerebro del forcejeo
+	capture_stamina_component.gd 	← componente compartido jugador/enemigo
+
+Actors/
+	Player/
+		don_gatoController.gd
+		Components/
+			don_gatoCombat.gd
+			don_gatoMovement_system.gd
+			don_gatoHealth.gd
+			don_gatoPosture.gd
+			don_gatoLives.gd
+			don_gatoStaminaComponent.gd
+			don_gatoTargeting.gd
+		StateMachine/
+			don_gatoStateMachine.gd
+
+	Enemies/
+		EnemyBase/
+			enemy_base.gd
+			enemy_state_machine.gd
+			Components/
+				health_component.gd
+				posture_component.gd
+				stun_component.gd
+				enemy_movement_component.gd
+				enemy_combat_component.gd
+				enemy_debug_component.gd
+
+UI/
+	PlayerUI/
+		player_ui.gd
+		player_stamina_bar.gd
+	EnemyUI/
+		floating_health_bar.gd
+	CaptureUI/
+		capture_ui.gd
+
+World/
+	Levels/mundo_3d.tscn
+	Camera/camera_ring.gd
+
+data/
+	catalogo_datos.json
+```
 
 ---
 
 ## Tecnologías
 
-**Motor**
-
-Godot Engine **4.5.1**
-
-**Lenguaje**
-
-GDScript — tipado estático
-
-**Arte**
-
-Assets **2D / 2.5D / 3D estilizados**
+- **Motor**: Godot Engine 4.5.1
+- **Lenguaje**: GDScript con tipado estático
+- **Patrón**: Componente + Resolver + EventBus
 
 ---
 
-## Estructura del Proyecto
-
-```
-Actors/
-	Player/
-		don_gatoController.gd
-	Components/
-		don_gatoCombat.gd
-		don_gatoHealth.gd
-		...
-	Enemies/
-		EnemyBase/
-			enemy_base.gd / .tscn
-			enemy_state_machine.gd
-		Components/
-			health_component.gd
-			posture_component.gd
-			stun_component.gd
-			enemy_movement_component.gd
-			enemy_combat_component.gd
-			...
-Systems/
-	event_bus.gd            ← Autoload global
-	damage_resolver.gd      ← Cerebro del daño
-	snapshot_factory.gd     ← Congelado de estado
-	combat_mediator.gd      ← Orquestador
-	...
-UI/
-	EnemyUI/
-	floating_health_bar.tscn
-
-Resources/              ← (pendiente: ADN data-driven)
-	RazaResource
-	IndividuoResource
-	PerfilPsicologico
-	```
-
-El código sigue el patrón **Componente + Resolver + EventBus**.  
-Los actores no se comunican directamente entre sí — todo pasa por el bus de eventos.  
-Esta arquitectura permite añadir nuevas mecánicas sin romper los sistemas existentes.
-
----
-
-## 💬 Sobre el Repositorio
+## Sobre el Repositorio
 
 Este repositorio funciona también como un espacio de **aprendizaje y exploración**  
 dentro del desarrollo de videojuegos.
 
 Si encuentras errores, comportamientos extraños o tienes alguna sugerencia,  
 puedes abrir un **issue**.
-
-El proyecto está abierto a ideas y observaciones externas, siempre que  
-respeten la dirección general del juego.
 
 ---
 

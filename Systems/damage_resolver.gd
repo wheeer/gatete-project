@@ -1,10 +1,7 @@
 class_name DamageResolver
-extends Node
+extends RefCounted
 
 const DEFAULT_POSTURE_DAMAGE_RATIO = 0.5
-
-func _ready() -> void:
-	print("DamageResolver inicializado")
 
 ## Método principal: resuelve daño según El Nuevo Testamento (sección 19.4)
 ## Retorna un Dictionary con el veredicto de daño (DamageVerdict)
@@ -155,4 +152,6 @@ func emit_verdict_events(verdict: Dictionary) -> void:
 		var payload: Dictionary = event_data.get("payload", {})
 		if event_id != "":
 			EventBus.emit_event(event_id, payload, {"priority": 10})
-			print("→ EventBus: %s | target: %s" % [event_id, payload.get("target_id", "?")])
+			# Solo imprimir eventos importantes, no el spam de EVT_RECIBIR_GOLPE
+			if event_id != "EVT_RECIBIR_GOLPE":
+				print("→ EventBus: %s | target: %s" % [event_id, payload.get("target_id", "?")])
