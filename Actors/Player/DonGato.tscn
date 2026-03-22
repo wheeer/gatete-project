@@ -1,8 +1,8 @@
 [gd_scene load_steps=16 format=3 uid="uid://cmkwn2l00wewt"]
 
 [ext_resource type="Script" uid="uid://bjv42lx1df16v" path="res://Actors/Player/don_gatoController.gd" id="1_diguv"]
-[ext_resource type="Script" uid="uid://b17toxwfhdrjw" path="res://Actors/Player/Components/don_gatoStats.gd" id="2_70n47"]
-[ext_resource type="Script" uid="uid://b5nl7vl2jnraa" path="res://Actors/Player/StateMAchine/don_gatoStateMachine.gd" id="2_lnpoi"]
+[ext_resource type="Script" uid="uid://b17toxwfhdrjw" path="res://Actors/Player/Components/don_gatoStaminaComponent.gd" id="2_70n47"]
+[ext_resource type="Script" uid="uid://b5nl7vl2jnraa" path="res://Actors/Player/StateMachine/don_gatoStateMachine.gd" id="2_lnpoi"]
 [ext_resource type="Script" uid="uid://5bth6bkghft5" path="res://Actors/Player/Components/don_gatoHealth.gd" id="3_5sya5"]
 [ext_resource type="Script" uid="uid://c7t1s3o6ny8qu" path="res://Actors/Player/Components/don_gatoMovement_system.gd" id="3_lnpoi"]
 [ext_resource type="Script" uid="uid://b3stjrf3nmxhu" path="res://Actors/Player/Components/don_gatoCombat.gd" id="3_ydhkc"]
@@ -45,7 +45,7 @@ script = ExtResource("4_hnpxo")
 [node name="LivesSystem" type="Node" parent="."]
 script = ExtResource("5_70o2q")
 
-[node name="PlayerStats" type="Node" parent="."]
+[node name="StaminaComponent" type="Node" parent="."]
 script = ExtResource("2_70n47")
 
 [node name="HealthComponent" type="Node" parent="."]

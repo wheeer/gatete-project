@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6nu8hhx1ra58"]
+
+[ext_resource type="Script" uid="uid://dpstbmhr7f6sa" path="res://player_stamina_bar.gd" id="1_7xsi1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7xsi1"]
+bg_color = Color(0.87058824, 0.8509804, 0.03137255, 1)
+
+[node name="PlayerStaminaBar" type="Node2D"]
+script = ExtResource("1_7xsi1")
+
+[node name="StaminaBar" type="ProgressBar" parent="."]
+anchors_preset = -1
+offset_left = -65.0
+offset_right = 66.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/fill = SubResource("StyleBoxFlat_7xsi1")

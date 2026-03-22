@@ -65,7 +65,9 @@ func _change_state(new_state: PhysicalState) -> void:
 		
 		PhysicalState.NORMAL:
 			enemy.posture.set_process(true)
-			pass
+			var col := enemy.get_node_or_null("CollisionShape3D")
+			if col:
+				col.disabled = false
 			
 		PhysicalState.DEAD:
 			enemy.movement.stop()

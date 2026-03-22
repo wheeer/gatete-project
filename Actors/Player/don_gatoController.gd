@@ -8,7 +8,7 @@ class_name DonGatoController
 @onready var state_machine = $StateMachine
 @onready var movement_system = $MovementSystem
 @onready var combat_system = $CombatSystem
-@onready var stats_system = $PlayerStats
+@onready var stats_system = $StaminaComponent
 @onready var targeting_system = $Targeting
 @onready var posture_component: DonGatoPosture = $PostureComponent
 @onready var lives_system: DonGatoLives = $LivesSystem
@@ -27,9 +27,14 @@ func _ready() -> void:
 	posture_component.posture_broken.connect(_on_posture_broken)
 	posture_component.posture_recovered.connect(_on_posture_recovered)
 	combat_system.capture_resolver.capture_resolved.connect(_on_capture_resolved)
+	EventBus.event_emitted.connect(_on_event_emitted)
 	# Conectar muerte del jugador
 	health_component.died.connect(_on_player_died)
-	
+	# Barra de stamina flotante
+	var stamina_bar_scene := preload("res://UI/PlayerUI/player_stamina_bar.tscn")
+	var stamina_bar_ui := stamina_bar_scene.instantiate()
+	get_tree().current_scene.call_deferred("add_child", stamina_bar_ui)
+	stamina_bar_ui.call_deferred("initialize", self, stats_system)
 	print("Don Gato inicializado correctamente ")
 
 func _physics_process(delta: float) -> void:
@@ -86,3 +91,12 @@ func is_captured() -> bool:
 
 func _on_capture_resolved(_result: String) -> void:
 	state_machine.change_state(state_machine.CatState.NORMAL)
+
+func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
+	if event_id != "EVT_LIBERACION_FORZADA_CAPTOR":
+		return
+	if payload.get("target_id", "") != name:
+		return
+	# NT sección 3.8: fallo de captura → STUNNED
+	state_machine.change_state(state_machine.CatState.STUNNED)
+	print("Don Gato — STUNNED por liberación forzada")

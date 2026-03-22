@@ -106,7 +106,6 @@ func _on_hearts_changed(current: int, max_val: int) -> void:
 	if current < max_val:
 		_trigger_heart_loss_animation(current)
 
-
 # =============================================
 # === _process — SOLO para animaciones de tiempo
 # Nada de leer datos del jugador aquí

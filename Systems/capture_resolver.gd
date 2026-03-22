@@ -240,13 +240,24 @@ func _apply_penalties() -> void:
 	if lives_comp and lives_comp.has_method("consume_heart"):
 		lives_comp.consume_heart()
 
-	print("💔 Penalización aplicada al captor")
+	# Empuje en dirección contraria a la presa (el golpe de liberación)
+	var captor_body := captor as CharacterBody3D
+	if captor_body and is_instance_valid(prey):
+		var push_dir: Vector3 = (captor.global_position - prey.global_position).normalized()
+		push_dir.y = 0.2  # leve componente vertical
+		captor_body.velocity = push_dir * 8.0
 
-	# Liberar a la presa
+	print("💔 Penalización aplicada — liberación forzada")
+
+	# Liberar presa → volver a NORMAL
 	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
 	if prey_state:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.NORMAL)
 
+	# Jugador transiciona a STUNNED según NT sección 3.8
+	EventBus.emit_event("EVT_LIBERACION_FORZADA_CAPTOR", {
+		"target_id": captor.name
+	}, {"priority": 10})
 
 func _apply_minor_penalty() -> void:
 	var posture_comp := captor.get_node_or_null("PostureComponent")
