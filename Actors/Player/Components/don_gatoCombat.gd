@@ -119,6 +119,33 @@ func try_attack() -> bool:
 	_start_attack()
 	return true
 
+func try_attack_during_capture(target: Node) -> bool:
+	# Verificar rango — misma distancia que el ataque normal
+	const CAPTURE_ATTACK_RANGE := 2.0
+	var dist: float = body.global_position.distance_to(target.global_position)
+	if dist > CAPTURE_ATTACK_RANGE:
+		return false
+	# Daño reducido 50%, alto consumo stamina y capture_stamina
+	if not stats.spend(attack_stamina_cost * 2.0):
+		return false
+
+	# Drenar capture_stamina del jugador por el esfuerzo
+	var cap_stamina := body.get_node_or_null("CaptureStaminaComponent") as CaptureStaminaComponent
+	if cap_stamina:
+		cap_stamina.apply_drain(15.0)
+
+	var hit_data: Dictionary = {
+		"damage": _roll_damage() * 0.5,	# 50% daño
+		"strength": 0,					# siempre LIGHT
+		"combo_index": 1,				# no avanza combo
+		"crit_chance": 0.0,				# sin críticos
+		"crit_multiplier": 1.0
+	}
+
+	print("⚠️ Ataque torpe durante captura → %s" % target.name)
+	combat_mediator.process_player_attack(body, target, hit_data)
+	return true
+
 func _start_attack() -> void:
 	is_attacking = true
 	current_phase = AttackPhase.STARTUP
@@ -156,6 +183,9 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 		return
 	
 	if not enemy.is_in_group("enemigo"):
+		return
+	
+	if is_capturing and capture_resolver.prey == enemy:
 		return
 	
 	var hit_data: Dictionary = {

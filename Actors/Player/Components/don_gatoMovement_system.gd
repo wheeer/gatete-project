@@ -124,6 +124,12 @@ func _apply_gravity(delta: float) -> void:
 func _apply_movement(delta: float, speed_multiplier: float) -> void:
 	var speed := WALK_SPEED
 	
+	# Al inicio de _apply_movement(), antes del bloque del dash:
+	if speed_multiplier == 0.0 and body.is_on_floor():
+		body.velocity.x = move_toward(body.velocity.x, 0.0, 8.0)
+		body.velocity.z = move_toward(body.velocity.z, 0.0, 8.0)
+		return
+	
 	if is_dashing:
 		dash_timer -= delta
 		

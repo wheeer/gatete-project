@@ -38,7 +38,6 @@ func _ready() -> void:
 	print("Don Gato inicializado correctamente ")
 
 func _physics_process(delta: float) -> void:
-	
 	# El controller delega la lógica de estado
 	state_machine.physics_update(delta)
 	targeting_system.physics_update()
@@ -90,13 +89,16 @@ func is_captured() -> bool:
 	return false
 
 func _on_capture_resolved(_result: String) -> void:
-	state_machine.change_state(state_machine.CatState.NORMAL)
+	# Solo volver a NORMAL si fue éxito o cancelación
+	# En FALLO el estado ya fue puesto a STUNNED por EVT_LIBERACION_FORZADA_CAPTOR
+	if _result != "FALLO":
+		state_machine.change_state(state_machine.CatState.NORMAL)
 
 func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
 	if event_id != "EVT_LIBERACION_FORZADA_CAPTOR":
 		return
 	if payload.get("target_id", "") != name:
 		return
-	# NT sección 3.8: fallo de captura → STUNNED
+	# fallo de captura → STUNNED
 	state_machine.change_state(state_machine.CatState.STUNNED)
 	print("Don Gato — STUNNED por liberación forzada")

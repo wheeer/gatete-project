@@ -245,7 +245,7 @@ func _apply_penalties() -> void:
 	if captor_body and is_instance_valid(prey):
 		var push_dir: Vector3 = (captor.global_position - prey.global_position).normalized()
 		push_dir.y = 0.2  # leve componente vertical
-		captor_body.velocity = push_dir * 8.0
+		captor_body.velocity = push_dir * 20.0
 
 	print("💔 Penalización aplicada — liberación forzada")
 
