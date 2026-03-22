@@ -5,6 +5,10 @@ signal capture_stamina_changed(current: float, max_val: float)
 
 @export var max_capture_stamina: float = 100.0
 @export var capture_resistance: float = 1.0
+@export var capture_weight: String = "MEDIO"  # LIVIANO / MEDIO / PESADO
+@export var capacidad_forcejeo: String = "MEDIA"  # BAJA / MEDIA / ALTA
+## Daño por golpe de forcejeo — será sobreescrito por ADN_Handler en el futuro
+@export var forcejeo_damage: float = 8.0
 
 var current_capture_stamina: float
 

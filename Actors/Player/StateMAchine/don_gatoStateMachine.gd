@@ -43,15 +43,21 @@ func physics_update(delta: float) -> void:
 			movement_system.physics_update(delta, speed_multiplier)
 		CatState.ATTACKING:
 			movement_system.physics_update(delta, 0.5)
+			
 		CatState.DASHING:
 			movement_system.physics_update(delta)
+			
 		CatState.STUNNED:
 			pass
+			
 		CatState.CAPTURING:
-			movement_system.physics_update(delta, 0.6)
+			var multiplier : float = combat_system.capture_resolver.speed_multiplier
+			movement_system.physics_update(delta, multiplier)
 			combat_system.update_capture(delta)
+			
 		CatState.POSTURE_BROKEN:
 			pass
+			
 		CatState.TIMESTOP:
 			pass
 
@@ -86,10 +92,13 @@ func handle_input(event: InputEvent) -> void:
 				combat_system.cancel_attack()
 		
 		CatState.CAPTURING:
+			if event.is_action_pressed("atacar"):
+				combat_system.capture_resolver.register_hit_on_prey()
+			
 			if event is InputEventMouseButton:
 				if event.is_action_released("Capturar"):
 					combat_system.cancel_capture_attempt()
 					change_state(CatState.NORMAL)
-				
+						
 		CatState.DASHING:
 			pass

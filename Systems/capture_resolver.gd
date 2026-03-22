@@ -27,8 +27,51 @@ var prey: Node   = null
 
 var captor_stamina: CaptureStaminaComponent = null
 var prey_stamina: CaptureStaminaComponent   = null
+var speed_multiplier: float = 0.6
+
+# === Forcejeo — rangos de intervalo por capacidad ===
+var struggle_timer: float = 0.0
+var struggle_interval_min: float = 0.4
+var struggle_interval_max: float = 0.9
+var capture_combo_index: int = 0
+var prey_stamina_depleted: bool = false
+
+func update(delta: float) -> void:
+	if not is_active:
+		return
+
+	# La presa queda anclada frente al hocico del jugador
+	if is_instance_valid(prey) and is_instance_valid(captor):
+		var prey_body := prey as CharacterBody3D
+		if prey_body:
+			# Offset frente al captor en la dirección que mira
+			var forward: Vector3 = -captor.global_transform.basis.z.normalized()
+			var anchor_pos: Vector3 = captor.global_position + forward * 0.8
+			anchor_pos.y = captor.global_position.y
+			prey_body.global_position = anchor_pos
+	
+	# Forcejeo activo de la presa
+	struggle_timer -= delta
+	if struggle_timer <= 0.0:
+		struggle_timer = randf_range(struggle_interval_min, struggle_interval_max)
+		_apply_struggle_hit()
+	
+	# Drenaje pasivo por tiempo
+	captor_stamina.apply_drain(DRAIN_PER_SECOND_CAPTOR * delta)
+	prey_stamina.apply_drain(DRAIN_PER_SECOND_PREY * prey_stamina.capture_resistance * delta)
+
+	# Evaluar condiciones de fin (orden del NT §17.5.1)
+# Evaluar condiciones de fin
+	if captor_stamina.is_depleted():
+		_resolve_verdict("FALLO")
+	elif prey_stamina.is_depleted():
+		prey_stamina_depleted = true
+		# NO resolvemos aquí — esperamos el golpe 3
+
 
 func start_capture(_captor: Node, _prey: Node) -> bool:
+	capture_combo_index = 0
+	prey_stamina_depleted = false
 	if is_active:
 		return false
 
@@ -47,11 +90,37 @@ func start_capture(_captor: Node, _prey: Node) -> bool:
 
 	is_active = true
 
+	# Leer peso de la presa
+	var weight: String = prey_stamina.capture_weight
+	match weight:
+		"LIVIANO":	speed_multiplier = 0.8
+		"MEDIO":	speed_multiplier = 0.6
+		"PESADO":	speed_multiplier = 0.4
+		_:			speed_multiplier = 0.6
+		
+		# Leer capacidad de forcejeo
+	match prey_stamina.capacidad_forcejeo:
+		"BAJA":
+			struggle_interval_min = 1.2
+			struggle_interval_max = 2.5
+		"MEDIA":
+			struggle_interval_min = 0.6
+			struggle_interval_max = 1.4
+		"ALTA":
+			struggle_interval_min = 0.3
+			struggle_interval_max = 0.8
+		_:
+			struggle_interval_min = 0.6
+			struggle_interval_max = 1.4
+
+		# Primer golpe con retardo aleatorio
+	struggle_timer = randf_range(struggle_interval_min, struggle_interval_max)
+	
 	# Transiciones de estado físico
 	EventBus.emit_event("EVT_INTENTO_CAPTURA", {
-		"captor_id": captor.name,
-		"prey_id":   prey.name
-	}, {"priority": 10})
+		"captor_id":captor.name,
+		"prey_id":	prey.name
+	}, {"priority":	10})
 
 	print("🐱 Captura iniciada: %s → %s" % [captor.name, prey.name])
 	var prey_state := prey.get_node_or_null("StateMachine") as EnemyStateMachine
@@ -59,30 +128,34 @@ func start_capture(_captor: Node, _prey: Node) -> bool:
 		prey_state._change_state(EnemyStateMachine.PhysicalState.CAPTURED)
 	return true
 
-func update(delta: float) -> void:
+func register_hit_on_prey() -> void:
 	if not is_active:
 		return
 
-	# La presa queda anclada frente al hocico del jugador
-	if is_instance_valid(prey) and is_instance_valid(captor):
-		var prey_body := prey as CharacterBody3D
-		if prey_body:
-			# Offset frente al captor en la dirección que mira
-			var forward: Vector3 = -captor.global_transform.basis.z.normalized()
-			var anchor_pos: Vector3 = captor.global_position + forward * 0.8
-			anchor_pos.y = captor.global_position.y
-			prey_body.global_position = anchor_pos
+	if capture_combo_index >= 3:
+		capture_combo_index = 1
+	else:
+		capture_combo_index += 1
 
-	# Drenaje pasivo por tiempo
-	captor_stamina.apply_drain(DRAIN_PER_SECOND_CAPTOR * delta)
-	prey_stamina.apply_drain(DRAIN_PER_SECOND_PREY * prey_stamina.capture_resistance * delta)
+	var is_heavy: bool = capture_combo_index == 3
+	print("Combo Captura: %d | Crítico: %s" % [capture_combo_index, is_heavy])
 
-	# Evaluar condiciones de fin (orden del NT §17.5.1)
-	if captor_stamina.is_depleted():
-		_resolve_verdict("FALLO")
-	elif prey_stamina.is_depleted():
+	notify_player_hit_prey(is_heavy)
+
+	# Golpe 3 — verificar si la presa ya estaba lista para rematar
+	if capture_combo_index == 3 and prey_stamina_depleted:
 		_resolve_verdict("EXITO")
 
+func _apply_struggle_hit() -> void:
+	# Daño definido por ADN (via export en CaptureStaminaComponent)
+	var damage: float = prey_stamina.forcejeo_damage
+	captor_stamina.apply_drain(damage)
+	print("🐾 Forcejeo: -%.1f capture_stamina (jugador)" % damage)
+
+	# Micro daño de postura — presión, no letal
+	var posture_comp := captor.get_node_or_null("PostureComponent")
+	if posture_comp and posture_comp.has_method("apply_posture_damage"):
+		posture_comp.apply_posture_damage(2.0)
 
 func notify_player_hit_prey(is_heavy_hit: bool = false) -> void:
 	if not is_active:
@@ -190,3 +263,5 @@ func _cleanup() -> void:
 	prey   = null
 	captor_stamina = null
 	prey_stamina   = null
+	prey_stamina_depleted = false
+	capture_combo_index = 0
