@@ -20,7 +20,17 @@ var current_state: CatState = CatState.NORMAL
 func change_state(new_state: CatState) -> void:
 	if current_state == new_state:
 		return
-	
+
+	# Saliendo de CAPTURING — restaurar movimiento normal
+	if current_state == CatState.CAPTURING:
+		movement_system.force_free_look = false
+
+	current_state = new_state
+
+	# Entrando en CAPTURING — liberar rotación
+	if current_state == CatState.CAPTURING:
+		movement_system.force_free_look = true
+
 	current_state = new_state
 func physics_update(delta: float) -> void:
 	match current_state:
@@ -38,7 +48,7 @@ func physics_update(delta: float) -> void:
 		CatState.STUNNED:
 			pass
 		CatState.CAPTURING:
-			movement_system.physics_update(delta, 0.2)
+			movement_system.physics_update(delta, 0.6)
 			combat_system.update_capture(delta)
 		CatState.POSTURE_BROKEN:
 			pass

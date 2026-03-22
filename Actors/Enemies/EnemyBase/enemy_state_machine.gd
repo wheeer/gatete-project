@@ -69,6 +69,9 @@ func _change_state(new_state: PhysicalState) -> void:
 			
 		PhysicalState.DEAD:
 			enemy.movement.stop()
+			var col := enemy.get_node_or_null("CollisionShape3D")
+			if col:
+				col.disabled = true
 			if EventBus.event_emitted.is_connected(_on_event_emitted):
 				EventBus.event_emitted.disconnect(_on_event_emitted)
 			# queue_free es llamado por enemy_base.die()
@@ -76,6 +79,10 @@ func _change_state(new_state: PhysicalState) -> void:
 		PhysicalState.CAPTURED:
 			enemy.movement.stop()
 			enemy.posture.set_process(false)
+			# Desactivar colisión para que no empuje al jugador
+			var col := enemy.get_node_or_null("CollisionShape3D")
+			if col:
+				col.disabled = true
 			
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state

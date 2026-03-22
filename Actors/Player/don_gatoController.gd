@@ -54,9 +54,14 @@ func _on_attack_finished() -> void:
 	state_machine.change_state(state_machine.CatState.NORMAL)
 	
 func _on_dash_started() -> void:
+	# Si estamos capturando, el dash no interrumpe la captura
+	if state_machine.current_state == state_machine.CatState.CAPTURING:
+		return
 	state_machine.change_state(state_machine.CatState.DASHING)
 	
 func _on_dash_finished() -> void:
+	if state_machine.current_state == state_machine.CatState.CAPTURING:
+		return
 	state_machine.change_state(state_machine.CatState.NORMAL)
 	
 func _on_player_died() -> void:

@@ -13,13 +13,13 @@ enum LocomotionState {
 
 var original_mesh_y: float = 0.0
 var body: CharacterBody3D
-var mesh_root: Node3D   # Nodo que contiene Mesh + hijos visuales
+var mesh_root: Node3D
 var stats: DonGatoStats
 var current_state: LocomotionState = LocomotionState.IDLE
 var input_dir: Vector3 = Vector3.ZERO
-var is_crouching: bool = false
-var is_sprinting: bool = false
 var targeting_system: DonGatoTargeting
+var force_free_look: bool = false
+
 # Movimiento
 const WALK_SPEED := 8.0
 const CROUCH_SPEED := 4.0
@@ -28,6 +28,8 @@ const GRAVITY := 20.0
 const SPRINT_SPEED := 12.0
 const SPRINT_COST_PER_SECOND := 20.0
 const EXHAUSTED_SPEED := 4.0
+var is_crouching: bool = false
+var is_sprinting: bool = false
 
 # Escala visual
 const NORMAL_SCALE_Y := 1.0
@@ -153,7 +155,7 @@ func _apply_movement(delta: float, speed_multiplier: float) -> void:
 
 	if input_dir != Vector3.ZERO:
 		
-		if not targeting_system.is_locked_on():
+		if not targeting_system.is_locked_on() or force_free_look:
 			var look_dir = input_dir.normalized()
 			body.look_at(body.global_position + look_dir, Vector3.UP)
 		

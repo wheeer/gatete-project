@@ -63,6 +63,16 @@ func update(delta: float) -> void:
 	if not is_active:
 		return
 
+	# La presa queda anclada frente al hocico del jugador
+	if is_instance_valid(prey) and is_instance_valid(captor):
+		var prey_body := prey as CharacterBody3D
+		if prey_body:
+			# Offset frente al captor en la dirección que mira
+			var forward: Vector3 = -captor.global_transform.basis.z.normalized()
+			var anchor_pos: Vector3 = captor.global_position + forward * 0.8
+			anchor_pos.y = captor.global_position.y
+			prey_body.global_position = anchor_pos
+
 	# Drenaje pasivo por tiempo
 	captor_stamina.apply_drain(DRAIN_PER_SECOND_CAPTOR * delta)
 	prey_stamina.apply_drain(DRAIN_PER_SECOND_PREY * prey_stamina.capture_resistance * delta)
