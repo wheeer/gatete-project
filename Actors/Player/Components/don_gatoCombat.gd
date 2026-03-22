@@ -113,9 +113,7 @@ func try_attack() -> bool:
 		combo_index = 1
 	
 	combo_reset_timer = combo_reset_time
-	
-	print("Combo:", combo_index)
-	
+		
 	_start_attack()
 	return true
 

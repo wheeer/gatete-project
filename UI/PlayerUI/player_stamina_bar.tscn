@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b6nu8hhx1ra58"]
 
-[ext_resource type="Script" uid="uid://dpstbmhr7f6sa" path="res://player_stamina_bar.gd" id="1_7xsi1"]
+[ext_resource type="Script" uid="uid://cr6xhl5gxxlud" path="res://UI/PlayerUI/player_stamina_bar.gd" id="1_7xsi1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7xsi1"]
 bg_color = Color(0.87058824, 0.8509804, 0.03137255, 1)

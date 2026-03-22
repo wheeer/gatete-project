@@ -38,8 +38,7 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 
 	if is_critical:
 		damage_base *= crit_multiplier
-		print("DEBUG: Golpe crítico aplicado. Daño modificado a: %.1f" % damage_base)
-
+	
 	# === PASO 3: Resolver daño a vida según quién recibe ===
 	# CRÍTICO: el sistema de 9 Vidas SOLO aplica cuando el enemigo golpea al jugador.
 	# Cuando el jugador golpea al enemigo, el daño va directo a vida sin corazones.
@@ -53,15 +52,13 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 			hearts_consumed = 1
 			# Con corazones: daño reducido (el corazón absorbe la mayor parte)
 			health_damage = damage_base * 0.15
-			print("DEBUG: Corazón consumido. Daño residual: %.1f | Corazones restantes: %d" % [health_damage, hearts_current - 1])
+	
 		else:
 			# Sin corazones: daño real completo
 			health_damage = damage_base
-			print("DEBUG: Sin corazones. Daño completo a vida: %.1f" % health_damage)
 	else:
 		# source == "JUGADOR" — el enemigo recibe daño sin sistema de vidas
 		health_damage = damage_base
-		print("DEBUG: Daño directo al enemigo: %.1f" % health_damage)
 
 	verdict["delta_health"] = -health_damage
 	verdict["delta_hearts"] = -hearts_consumed
@@ -74,7 +71,6 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		posture_damage_base *= crit_posture_multiplier
 
 	verdict["delta_posture"] = -posture_damage_base
-	print("DEBUG: Daño a postura: %.1f" % posture_damage_base)
 
 	# === PASO 5: Evaluar estados físicos resultantes ===
 	var new_health: float = snapshot.health_current + verdict["delta_health"]
@@ -83,7 +79,7 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 	# Muerte tiene prioridad sobre POSTURE_BROKEN
 	if new_health <= 0:
 		verdict["resulting_physical_state"] = "DEAD"
-		print("DEBUG: Vida llegó a 0 → estado DEAD")
+
 	elif snapshot.posture_current > 0 and new_posture <= 0.0:
 		verdict["resulting_physical_state"] = "POSTURE_BROKEN"
 		verdict["generated_events"].append({
@@ -93,7 +89,6 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 				"remaining_posture": maxf(0.0, new_posture)
 			}
 		})
-		print("DEBUG: POSTURA ROTA")
 
 	# === PASO 6: Impulsos psicológicos — SOLO para enemigos (sección 19.4) ===
 	# Solo se generan cuando el jugador golpea al enemigo
@@ -147,16 +142,9 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 				}
 			})
 
-	# === PASO 8: Recompensas y penalizaciones ===
-	# TODO: integrar con CaptureResolver (sección 17.5)
-
-	print("=== DamageVerdict ===")
-	print("  Source: %s" % source)
-	print("  Delta Health: %.1f" % verdict["delta_health"])
-	print("  Delta Posture: %.1f" % verdict["delta_posture"])
-	print("  Hearts Consumed: %d" % verdict["delta_hearts"])
-	print("  Events: %d" % verdict["generated_events"].size())
-	print("=====================\n")
+# === PASO 8: Recompensas y penalizaciones de combate normal ===
+# TODO Bloque 4: bonus por parry, recuperación por combo perfecto, etc.
+# NOTA: Las recompensas de captura son responsabilidad del CaptureResolver
 
 	return verdict
 
