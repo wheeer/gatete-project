@@ -56,36 +56,31 @@ func _change_state(new_state: PhysicalState) -> void:
 	match current_state:
 		PhysicalState.POSTURE_BROKEN:
 			enemy.movement.stop()
-			# TODO: Iniciar animación de caída
-			# TODO: Abrir ventana de captura
 		
 		PhysicalState.STUNNED:
 			enemy.movement.stop()
-			# TODO: Stun visual
 		
 		PhysicalState.NORMAL:
 			enemy.posture.set_process(true)
 			var col := enemy.get_node_or_null("CollisionShape3D")
 			if col:
-				col.disabled = false
+				col.set_deferred("disabled", false)
 			
 		PhysicalState.DEAD:
 			enemy.movement.stop()
 			var col := enemy.get_node_or_null("CollisionShape3D")
 			if col:
-				col.disabled = true
+				col.set_deferred("disabled", true)
 			if EventBus.event_emitted.is_connected(_on_event_emitted):
 				EventBus.event_emitted.disconnect(_on_event_emitted)
-			# queue_free es llamado por enemy_base.die()
 		
 		PhysicalState.CAPTURED:
 			enemy.movement.stop()
 			enemy.posture.set_process(false)
-			# Desactivar colisión para que no empuje al jugador
 			var col := enemy.get_node_or_null("CollisionShape3D")
 			if col:
-				col.disabled = true
-			
+				col.set_deferred("disabled", true)
+				
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state
 
