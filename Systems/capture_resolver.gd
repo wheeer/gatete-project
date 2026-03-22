@@ -50,6 +50,15 @@ func update(delta: float) -> void:
 			anchor_pos.y = captor.global_position.y
 			prey_body.global_position = anchor_pos
 	
+	# Si el jugador se mueve durante el combo → reiniciar
+	if capture_combo_index > 0 and is_instance_valid(captor):
+		var captor_body := captor as CharacterBody3D
+		if captor_body:
+			var horizontal_speed := Vector2(captor_body.velocity.x, captor_body.velocity.z).length()
+			if horizontal_speed > 0.5:
+				capture_combo_index = 0
+				print("↩️ Combo captura reiniciado — jugador se movió")
+	
 	# Forcejeo activo de la presa
 	struggle_timer -= delta
 	if struggle_timer <= 0.0:
@@ -276,3 +285,9 @@ func _cleanup() -> void:
 	prey_stamina   = null
 	prey_stamina_depleted = false
 	capture_combo_index = 0
+
+func reset_capture_combo() -> void:
+	if capture_combo_index == 0:
+		return
+	capture_combo_index = 0
+	print("↩️ Combo captura reiniciado")
