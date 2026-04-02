@@ -1,7 +1,7 @@
 1. El Diagrama de "ADN" (Estructura de Datos)
 Su función es explicar cómo se construye un enemigo antes de que aparezca en pantalla. Evita que programar enemigos por separado y obliga a usar Resources.
 
-
+```mermaid
 classDiagram
     class RazaResource {
         +String nombre_raza
@@ -29,11 +29,16 @@ classDiagram
     EnemyBase --> RazaResource : "Nivel 1"
     EnemyBase --> IndividuoResource : "Nivel 2"
     EnemyBase --> PerfilPsicologico : "Nivel 3"
-    
+
     note for EnemyBase "Arquitectura data-driven. Los 3 Resources se combinan en runtime"
+```
+
+---
+
 2. El DamageResolver del JUGADOR (Supervivencia y Mitigación)
 Este diagrama es exclusivo para el Gatete. Implementa la Regla de Oro #8 (Time Stop), la #7 (Recuperación) y el Sistema de 9 Vidas (1.4 de la Biblia Definitiva).
 
+```mermaid
 flowchart TD
     A[Recibir hit_data] --> B{¿Es Empuje Fuerte?}
     
@@ -60,13 +65,15 @@ flowchart TD
     P -- SÍ --> Q[Estado: POSTURE_BROKEN / Vulnerable]
     O --> R{¿Vida <= 0?}
     R -- SÍ --> S[GAME OVER / REAPARECER]
+```
 
+---
 
 3. El Diagrama de "Consumo de Eventos" (Psicología)
 Este es el que te ayudará a que la "IA" no se sienta tonta.
 Define cómo un evento del mundo se convierte en una decisión del enemigo.
 
-Fragmento de código
+```mermaid
 graph LR
     E[Evento: EVT_RECIBIR_GOLPE] --> I[Impulso: IRA +20]
     I --> P{¿Supera Umbral?}
@@ -74,9 +81,13 @@ graph LR
     P -- Sí --> C[Cambiar Postura: AGRESIVO_OPORTUNISTA]
     C --> D[Decision: ATACAR_CUERPO_A_CUERPO]
     D --> S[Script: EnemyCombatComponent.execute()]
+```
+
+---
 
 4. DamageResolver del ENEMIGO:
 
+```mermaid
 flowchart TD
     A[Recibir hit_data] --> B{¿Fuente del Daño?}
     
@@ -112,9 +123,13 @@ flowchart TD
     Q --> R{¿Muerte?}
     R -- SÍ --> S[queue_free / Drop de Recursos]
     R -- NO --> T[Reevaluar Decisión / Comportamiento]
+```
+
+---
 
 5. Diagrama de Orquestación de Escena (Nodos y Componentes)
 
+```mermaid
 graph TD
     subgraph Escena_Enemigo_Base [Escena: EnemyBase.tscn]
         Root[CharacterBody3D: EnemyBase] --> ADN[Node: ADN_Handler]
@@ -141,9 +156,13 @@ graph TD
     ADN -->|Reparte Stats| Health & Posture & Psych
     Combat -->|Consulta Estado| FSM
     Psych -->|Sugiere| Combat
+```
+
+---
 
 6. Diagrama de la Ventana de Oportunidad (Caza y Ejecución)
 
+```mermaid
 flowchart TD
     %% Disparadores
     A[Evento: Postura Rota / Crítico Combo Index 3] --> B[Estado: VULNERABLE / Feedback Visual]
@@ -172,3 +191,4 @@ flowchart TD
     K -- NO / ÉXITO --> N[ANIMACIÓN DE CAZA CINEMÁTICA]
     N --> O[GRAN RECOMPENSA: +Vida, +Corazones, +Recursos Especiales]
     O --> I
+```
