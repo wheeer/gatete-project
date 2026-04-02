@@ -36,7 +36,8 @@ classDiagram
 ---
 
 2. El DamageResolver del JUGADOR (Supervivencia y Mitigación)
-Este diagrama es exclusivo para el Gatete. Implementa la Regla de Oro #8 (Time Stop), la #7 (Recuperación) y el Sistema de 9 Vidas (1.4 de la Biblia Definitiva).
+Este diagrama es exclusivo para el Gatete.
+Implementa la Regla de Oro #8 (Time Stop), la #7 (Recuperación) y el Sistema de 9 Vidas (EL NUEVO TESTAMENTO).
 
 ```mermaid
 flowchart TD
@@ -70,7 +71,7 @@ flowchart TD
 ---
 
 3. El Diagrama de "Consumo de Eventos" (Psicología)
-Este es el que te ayudará a que la "IA" no se sienta tonta.
+Este es el que ayudará a que la "IA" no se sienta tonta.
 Define cómo un evento del mundo se convierte en una decisión del enemigo.
 
 ```mermaid
