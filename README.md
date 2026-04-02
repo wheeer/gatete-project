@@ -75,6 +75,41 @@ Cuando el enemigo está en POSTURE_BROKEN:
 - **Fallo** → penalización de postura, vida, corazón y STUNNED
 - **Cancelación voluntaria** → penalización menor
 
+### Diagrama de la Ventana de Oportunidad (Caza y Ejecución)
+
+```mermaid
+flowchart TD
+    %% Disparadores
+    A[Evento: Postura Rota / Crítico Combo Index 3] --> B[Estado: VULNERABLE / Feedback Visual]
+    
+    %% Opciones del Jugador
+    B --> C{Decisión del Jugador}
+    
+    %% Opción 1: Seguir pegando
+    C -- SEGUIR COMBO --> D[Ataque Normal sobre Enemigo Indefenso]
+    D --> E{¿Termina tiempo Vulnerable?}
+    E -- SÍ --> F[Enemigo recupera Postura / Fin Ventana]
+    E -- NO --> D
+
+    %% Opción 2: Kill Rápido
+    C -- EJECUCIÓN INSTANTÁNEA --> G[Animación de Remate Rápido]
+    G --> H[Enemigo Muerto / Recompensa: Recursos básicos]
+    H --> I[queue_free]
+
+    %% Opción 3: Sistema de Caza (Riesgo/Recompensa)
+    C -- INICIAR CAZA --> J[Estado: DUELO DE ESTADOS]
+    J --> K{Forcejeo: Resiste la presa??}
+    
+    K -- SÍ / FALLO --> L[LIBERACIÓN FORZADA: Enemigo empuja al Gato]
+    L --> M[PENALIZACIÓN: Gato pierde Postura, vida, Stun y Corazón]
+    
+    K -- NO / ÉXITO --> N[ANIMACIÓN DE CAZA CINEMÁTICA]
+    N --> O[GRAN RECOMPENSA: +Vida, +Corazones, +Recursos Especiales]
+    O --> I
+```
+
+---
+
 ### Sistema de "9 Vidas"
 
 Las vidas representan la **suerte del gato**, no vidas tradicionales.
@@ -82,6 +117,40 @@ Las vidas representan la **suerte del gato**, no vidas tradicionales.
 - Mientras quedan corazones: cada golpe consume 1 corazón y aplica solo el 15% del daño
 - Sin corazones: el daño es real y casi letal
 - Los corazones se recuperan mediante capturas exitosas
+
+---
+
+## DamageResolver del JUGADOR (Supervivencia y Mitigación)
+Este diagrama es exclusivo para el Gatete. Implementa la Regla de Oro #8 (Time Stop), la #7 (Recuperación) y el Sistema de 9 Vidas (1.4 de la Biblia Definitiva).
+
+```mermaid
+flowchart TD
+    A[Recibir hit_data] --> B{¿Es Empuje Fuerte?}
+    
+    %% Rama de Empuje Fuerte
+    B -- SÍ --> C{¿Está Bloqueando?}
+    C -- SÍ --> D[Mitigar Empuje / Daño a Postura]
+    C -- NO --> E[Activar TIME STOP]
+    E --> F{¿Input AIR_RECOVERY?}
+    F -- ÉXITO --> G[Estado: AIR_RECOVERY / Sin PENALIZACIÓN]
+    F -- FALLO --> H[PENALIZACIÓN: -1 Corazón + Daño Vida + Daño Postura + STUN]
+
+    %% Rama de Daño Normal
+    B -- NO --> I{¿Parry Exitoso?}
+    I -- SÍ --> J[EVT_PARRY_EXITOSO: 0 Daño + Daño Postura Atacante]
+    I -- NO --> K{¿Está Bloqueando?}
+    
+    K -- SÍ --> L[Reducir Postura / 0 Daño Vida]
+    K -- NO --> M{¿Quedan 9 Vidas?}
+    
+    M -- SÍ --> N[Daño Seguro: -1 Corazón / Daño a vida y Postura 'Reducido' ]
+    M -- NO --> O[PENALIZACIÓN 'DAÑO REAL': Daño Vida, Daño Postura Casi LETAL]
+    
+    L --> P{¿Postura <= 0?}
+    P -- SÍ --> Q[Estado: POSTURE_BROKEN / Vulnerable]
+    O --> R{¿Vida <= 0?}
+    R -- SÍ --> S[GAME OVER / REAPARECER]
+```
 
 ---
 
@@ -95,6 +164,39 @@ CombatMediator → SnapshotFactory → DamageResolver → apply(components) → 
 Los actores nunca se comunican directamente entre sí.  
 Todo pasa por el **EventBus** como canal único de eventos.  
 Los métodos directos como `take_damage()` están marcados como **deprecated**.
+
+---
+
+## Diagrama de Orquestación de Escena (Nodos y Componentes)
+
+```mermaid
+graph TD
+    subgraph Escena_Enemigo_Base [Escena: EnemyBase.tscn]
+        Root[CharacterBody3D: EnemyBase] --> ADN[Node: ADN_Handler]
+        Root --> FSM[Node: StateMachine]
+        
+        subgraph Componentes_Fisicos [Componentes de Datos]
+            Root --> Health[Node: HealthComponent]
+            Root --> Posture[Node: PostureComponent]
+            Root --> Stun[Node: StunComponent]
+        end
+        
+        subgraph Componentes_Logicos [Cerebro]
+            Root --> Combat[Node: CombatComponent]
+            Root --> Psych[Node: PsychologyComponent]
+        end
+    end
+
+    %% Inyección de Resources
+    Raza[(Resource: Raza)] -.-> ADN
+    Indiv[(Resource: Individuo)] -.-> ADN
+    Perfil[(Resource: PerfilPsic)] -.-> Psych
+
+    %% Comunicación
+    ADN -->|Reparte Stats| Health & Posture & Psych
+    Combat -->|Consulta Estado| FSM
+    Psych -->|Sugiere| Combat
+```
 
 ---
 
@@ -148,6 +250,36 @@ Los métodos directos como `take_damage()` están marcados como **deprecated**.
 - Parry y esquiva perfecta
 - Sistema de recompensas escaladas por contexto de combate
 - Animaciones y feedback visual (POSTURE_BROKEN, stun, ejecución)
+
+## Diagrama de "ADN" (Estructura de Datos)
+Su función es explicar cómo se construye un enemigo antes de que aparezca en pantalla. Evita que programar enemigos por separado y obliga a usar Resources.
+
+```mermaid
+classDiagram
+    class RazaResource {
+        +String nombre_raza
+        +float vida_base
+        +float postura_base
+        +float velocidad_base
+        +Array capacidades_fisicas
+    }
+    class IndividuoResource {
+        +String nombre_unico
+        +float mod_vida
+        +float mod_postura
+        +Color tinte_visual
+    }
+    class PerfilPsicologico {
+        +Enum perfil_tipo
+        +float umbral_panico
+        +float agresividad
+        +Array decisiones_permitidas
+    }
+    
+    EnemyBase --> RazaResource : "Nivel 1"
+    EnemyBase --> IndividuoResource : "Nivel 2"
+    EnemyBase --> PerfilPsicologico : "Nivel 3"
+```
 
 ---
 
