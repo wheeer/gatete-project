@@ -80,7 +80,7 @@ graph LR
     P -- No --> M[Mantener Postura Actual]
     P -- Sí --> C[Cambiar Postura: AGRESIVO_OPORTUNISTA]
     C --> D[Decision: ATACAR_CUERPO_A_CUERPO]
-    D --> S[Script: EnemyCombatComponent.execute()]
+    D --> S["Script: EnemyCombatComponent.execute()"]
 ```
 
 ---
