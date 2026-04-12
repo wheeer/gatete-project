@@ -92,11 +92,11 @@ func _physics_process(delta: float) -> void:
 	if combo_reset_timer > 0:
 		combo_reset_timer -= delta
 		
-	if _whiff_timer > 0:
-		_whiff_timer -= delta
-		
 	else:
 		combo_index = 0
+	
+	if _whiff_timer > 0:
+		_whiff_timer -= delta
 
 func is_in_combo_flow() -> bool:
 	return combo_flow_timer > 0
