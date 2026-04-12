@@ -58,6 +58,9 @@ var already_hit: bool = false
 
 var combo_flow_timer: float = 0.0
 
+var _whiff_timer: float = 0.0
+const WHIFF_VULNERABILITY_DURATION: float = 0.25
+
 func _ready() -> void:
 	pass
 
@@ -88,6 +91,10 @@ func _physics_process(delta: float) -> void:
 	
 	if combo_reset_timer > 0:
 		combo_reset_timer -= delta
+		
+	if _whiff_timer > 0:
+		_whiff_timer -= delta
+		
 	else:
 		combo_index = 0
 
@@ -197,10 +204,20 @@ func _on_attack_area_area_entered(area: Area3D) -> void:
 	already_hit = true
 
 func _end_attack() -> void:
+	if not already_hit:
+		_whiff_timer = WHIFF_VULNERABILITY_DURATION
 	is_attacking = false
 	current_phase = AttackPhase.NONE
 	attack_area.monitoring = false
 	attack_finished.emit()
+
+## Devuelve true si el jugador está en fase RECOVERY de un ataque
+func is_in_attack_recovery() -> bool:
+	return current_phase == AttackPhase.RECOVERY
+
+## Devuelve true si el último ataque no conectó (whiff) y sigue en ventana vulnerable
+func is_in_whiff() -> bool:
+	return _whiff_timer > 0.0
 
 func cancel_attack() -> void:
 	if not is_attacking:

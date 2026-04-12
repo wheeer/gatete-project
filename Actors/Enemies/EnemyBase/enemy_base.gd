@@ -29,7 +29,7 @@ func set_targeted(value: bool) -> void:
 	var marker = $TargetMarker
 	if marker:
 		marker.visible = value
-
+		
 func _physics_process(_delta: float) -> void:
 	if stun.is_stunned():
 		movement.stop()

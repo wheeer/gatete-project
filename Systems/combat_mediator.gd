@@ -129,12 +129,13 @@ func process_enemy_attack(_enemy: Node, player: Node, hit_data: Dictionary) -> v
 ## Construye damage_context ddesde un hit del enemigo
 func _build_damage_context_from_enemy_hit(hit_data: Dictionary) -> Dictionary:
 	return {
-		"damage_base":           float(hit_data.get("damage_base", 20.0)),
-		"posture_damage_base":   float(hit_data.get("posture_damage_base", 10.0)),
-		"is_critical":           false,
-		"is_heavy_hit":          bool(hit_data.get("is_heavy_hit", false)),
-		"impulse_strength":      float(hit_data.get("impulse_strength", 0.0)),
+		"damage_base":            float(hit_data.get("damage_base", 20.0)),
+		"posture_damage_base":    float(hit_data.get("posture_damage_base", 10.0)),
+		"is_critical":            false,
+		"is_heavy_hit":           bool(hit_data.get("is_heavy_hit", false)),
+		"impulse_strength":       float(hit_data.get("impulse_strength", 0.0)),
+		"source_position":        hit_data.get("source_position", Vector3.ZERO),
 		"crit_health_multiplier": 1.0,
 		"crit_posture_multiplier": 1.0,
-		"source":                "ENEMIGO"
+		"source":                 "ENEMIGO"
 	}

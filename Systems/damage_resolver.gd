@@ -121,13 +121,13 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 	elif source == "ENEMIGO":
 		# Eventos exclusivos: enemigo golpea al jugador
 		if is_heavy_hit:
-			# EVT_GOLPE_FUERTE_RECIBIDO: activa TIME_STOP en el jugador (sección 13)
 			verdict["generated_events"].append({
 				"event_id": "EVT_GOLPE_FUERTE_RECIBIDO",
 				"payload": {
-					"target_id": snapshot.entity_id,
-					"health_damage": health_damage,
-					"impulse_strength": float(damage_context.get("impulse_strength", 0.0))
+					"target_id":       snapshot.entity_id,
+					"health_damage":   health_damage,
+					"impulse_strength": float(damage_context.get("impulse_strength", 0.0)),
+					"source_position": damage_context.get("source_position", Vector3.ZERO)
 				}
 			})
 		if hearts_consumed > 0:

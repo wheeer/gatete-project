@@ -15,6 +15,9 @@ class_name DonGatoController
 @onready var health_component: DonGatoHealth = $HealthComponent
 
 func _ready() -> void:
+	# PROCESS_MODE_ALWAYS para seguir funcionando durante el TIMESTOP (tree pausado)
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	$StateMachine.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("Player")
 	combat_system.setup(self, $AttackArea, stats_system)
 	movement_system.setup(self, $MeshInstance3D, stats_system, targeting_system)
@@ -95,10 +98,23 @@ func _on_capture_resolved(_result: String) -> void:
 		state_machine.change_state(state_machine.CatState.NORMAL)
 
 func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
-	if event_id != "EVT_LIBERACION_FORZADA_CAPTOR":
-		return
-	if payload.get("target_id", "") != name:
-		return
-	# fallo de captura → STUNNED
-	state_machine.change_state(state_machine.CatState.STUNNED)
-	print("Don Gato — STUNNED por liberación forzada")
+	match event_id:
+		"EVT_LIBERACION_FORZADA_CAPTOR":
+			if payload.get("target_id", "") != name:
+				return
+			state_machine.change_state(state_machine.CatState.STUNNED)
+			print("Don Gato — STUNNED por liberación forzada")
+
+		"EVT_GOLPE_FUERTE_RECIBIDO":
+			if payload.get("target_id", "") != name:
+				return
+			# Calcular dirección de lanzamiento — opuesta al enemigo que golpeó
+			var source_pos: Vector3 = payload.get("source_position", Vector3.ZERO)
+			var push_dir: Vector3
+			if source_pos != Vector3.ZERO:
+				push_dir = (global_position - source_pos).normalized()
+			else:
+				push_dir = -global_transform.basis.z.normalized()
+			push_dir.y = 0.0
+			# Entrar en TIMESTOP con la dirección de lanzamiento lista
+			state_machine.enter_timestop(push_dir)

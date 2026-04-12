@@ -31,6 +31,7 @@ const EXHAUSTED_SPEED := 4.0
 var is_crouching: bool = false
 var is_sprinting: bool = false
 
+
 # Escala visual
 const NORMAL_SCALE_Y := 1.0
 const CROUCH_SCALE_Y := 0.6
@@ -43,6 +44,8 @@ const DASH_COST := 20.0
 var is_dashing: bool = false
 var dash_timer: float = 0.0
 var dash_direction: Vector3 = Vector3.ZERO
+var _dash_recovery_timer: float = 0.0
+const DASH_RECOVERY_DURATION: float = 0.20
 
 var dash_tap_threshold := 0.18
 var dash_input_timer := 0.0
@@ -56,6 +59,8 @@ func setup(_body: CharacterBody3D, _mesh_root: Node3D, _stats: DonGatoStats, _ta
 	original_mesh_y = mesh_root.position.y
 
 func physics_update(delta: float, speed_multiplier: float = 1.0) -> void:
+	if _dash_recovery_timer > 0:
+		_dash_recovery_timer -= delta
 	_read_input()
 	_handle_rundash_input(delta)
 	_update_state()
@@ -138,6 +143,7 @@ func _apply_movement(delta: float, speed_multiplier: float) -> void:
 		
 		if dash_timer <= 0:
 			is_dashing = false
+			_dash_recovery_timer = DASH_RECOVERY_DURATION
 			dash_finished.emit()
 		
 		return
@@ -205,3 +211,20 @@ func handle_input(event: InputEvent) -> void:
 		if stats and stats.spend(15.0):
 			body.velocity.y = JUMP_VELOCITY
 			jumped.emit()
+			
+## Devuelve true si el jugador está en la ventana de recovery post-dash
+func is_in_dash_recovery() -> bool:
+	return _dash_recovery_timer > 0.0
+	
+## Solo física pura — sin input, sin dash, sin sprint
+## Usar en estados donde el jugador no tiene control (KNOCKED_AIRBORNE)
+func physics_only(delta: float) -> void:
+	_apply_gravity(delta)
+	body.move_and_slide()
+
+## Limpiar estado de dash — llamar al entrar en estados sin control
+func cancel_dash_state() -> void:
+	dash_pressed = false
+	dash_input_timer = 0.0
+	is_dashing = false
+	is_sprinting = false

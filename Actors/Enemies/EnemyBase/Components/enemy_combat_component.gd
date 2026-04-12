@@ -63,17 +63,23 @@ func _process(delta: float) -> void:
 func _try_attack(player: Node) -> void:
 	if cooldown_timer > 0.0:
 		return
-
 	cooldown_timer = attack_cooldown
+
+	# Consultar HeavyHitComponent si existe
+	var heavy_comp: HeavyHitComponent = enemy_base.get_node_or_null("HeavyHitComponent")
+	var is_heavy: bool = false
+	if heavy_comp != null and heavy_comp.can_heavy_hit():
+		is_heavy = true
+		heavy_comp.consume()
 
 	var hit_data := {
 		"damage_base":         damage_base,
 		"posture_damage_base": posture_damage_base,
-		"is_heavy_hit":        is_heavy_hit,
-		"impulse_strength":    0.0
+		"is_heavy_hit":        is_heavy,
+		"impulse_strength":    12.0 if is_heavy else 0.0,
+		"source_position":     enemy_base.global_position  # ← para calcular dirección push
 	}
 
-	print("⚔️ %s ataca al jugador" % enemy_base.name)
 	combat_mediator.process_enemy_attack(enemy_base, player, hit_data)
 
 func _get_player() -> Node:
