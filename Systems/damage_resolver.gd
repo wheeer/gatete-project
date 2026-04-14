@@ -139,9 +139,9 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 				}
 			})
 
-# === PASO 8: Recompensas y penalizaciones de combate normal ===
-# TODO Bloque 4: bonus por parry, recuperación por combo perfecto, etc.
-# NOTA: Las recompensas de captura son responsabilidad del CaptureResolver
+	# === PASO 8: Recompensas y penalizaciones de combate normal ===
+	# TODO Bloque 4: bonus por parry, recuperación por combo perfecto, etc.
+	# NOTA: Las recompensas de captura son responsabilidad del CaptureResolver
 
 	return verdict
 

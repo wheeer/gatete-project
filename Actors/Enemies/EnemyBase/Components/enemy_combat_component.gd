@@ -9,7 +9,7 @@ class_name EnemyCombatComponent
 # === Daño que inflige ===
 @export var damage_base: float = 20.0
 @export var posture_damage_base: float = 10.0
-@export var is_heavy_hit: bool = false
+@export var can_be_heavy: bool = false
 
 # === Estado interno ===
 var cooldown_timer: float = 0.0
@@ -65,19 +65,12 @@ func _try_attack(player: Node) -> void:
 		return
 	cooldown_timer = attack_cooldown
 
-	# Consultar HeavyHitComponent si existe
-	var heavy_comp: HeavyHitComponent = enemy_base.get_node_or_null("HeavyHitComponent")
-	var is_heavy: bool = false
-	if heavy_comp != null and heavy_comp.can_heavy_hit():
-		is_heavy = true
-		heavy_comp.consume()
-
 	var hit_data := {
 		"damage_base":         damage_base,
 		"posture_damage_base": posture_damage_base,
-		"is_heavy_hit":        is_heavy,
-		"impulse_strength":    12.0 if is_heavy else 0.0,
-		"source_position":     enemy_base.global_position  # ← para calcular dirección push
+		"can_be_heavy":        can_be_heavy,
+		"impulse_strength":    12.0 if can_be_heavy else 0.0,
+		"source_position":     enemy_base.global_position
 	}
 
 	combat_mediator.process_enemy_attack(enemy_base, player, hit_data)

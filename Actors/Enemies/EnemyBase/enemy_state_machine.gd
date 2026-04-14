@@ -27,7 +27,7 @@ func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Diction
 	match event_id:
 		"EVT_POSTURA_ROTA":
 			_change_state(PhysicalState.POSTURE_BROKEN)
-			print("🔴 %s entra en POSTURA_ROTA" % enemy.name)
+			print(" %s entra en POSTURA_ROTA" % enemy.name)
 		
 		"EVT_RECIBIR_GOLPE":
 			# Posiblemente generar impulsos psicológicos
@@ -39,13 +39,13 @@ func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Diction
 			
 		"EVT_ENEMIGO_MUERTO":
 			_change_state(PhysicalState.DEAD)
-			print("💀 %s entra en DEAD" % enemy.name)
+			print(" %s entra en DEAD" % enemy.name)
 
 func _on_stun_ended() -> void:
 	# Solo volver a NORMAL si no está muerto ni capturado
 	if current_state != PhysicalState.DEAD and current_state != PhysicalState.CAPTURED:
 		_change_state(PhysicalState.NORMAL)
-		print("🟢 %s recupera postura → NORMAL" % enemy.name)
+		print(" %s recupera postura → NORMAL" % enemy.name)
 
 func _change_state(new_state: PhysicalState) -> void:
 	if current_state == new_state:
@@ -56,33 +56,52 @@ func _change_state(new_state: PhysicalState) -> void:
 	match current_state:
 		PhysicalState.POSTURE_BROKEN:
 			enemy.movement.stop()
+			_set_mesh_color(Color(1.0, 0.2, 0.2))  # rojo intenso — ventana de captura abierta
 		
 		PhysicalState.STUNNED:
 			enemy.movement.stop()
+			_set_mesh_color(Color(1.0, 0.6, 0.0))  # naranja — aturdido
 		
 		PhysicalState.NORMAL:
 			enemy.posture.set_process(true)
+			_set_mesh_color(Color.WHITE)             # blanco — estado base
 			var col := enemy.get_node_or_null("CollisionShape3D")
 			if col:
 				col.set_deferred("disabled", false)
-			
+		
+		PhysicalState.CAPTURED:
+			enemy.movement.stop()
+			enemy.posture.set_process(false)
+			_set_mesh_color(Color(0.5, 0.0, 1.0))   # violeta — capturado
+			var col := enemy.get_node_or_null("CollisionShape3D")
+			if col:
+				col.set_deferred("disabled", true)
+		
 		PhysicalState.DEAD:
 			enemy.movement.stop()
+			_set_mesh_color(Color(0.3, 0.3, 0.3))   # gris — muerto
+			# Remover del grupo targetable INMEDIATAMENTE — el Targeting lo detecta
+			# y cambia de objetivo antes de que comience la secuencia de muerte
+			if enemy.is_in_group("targetable"):
+				enemy.remove_from_group("targetable")			
 			var col := enemy.get_node_or_null("CollisionShape3D")
 			if col:
 				col.set_deferred("disabled", true)
 			if EventBus.event_emitted.is_connected(_on_event_emitted):
 				EventBus.event_emitted.disconnect(_on_event_emitted)
-		
-		PhysicalState.CAPTURED:
-			enemy.movement.stop()
-			enemy.posture.set_process(false)
-			var col := enemy.get_node_or_null("CollisionShape3D")
-			if col:
-				col.set_deferred("disabled", true)
 				
 func is_in_state(state: PhysicalState) -> bool:
 	return current_state == state
 
 func get_state_name() -> String:
 	return PhysicalState.keys()[current_state]
+	
+## Cambia el color del mesh del enemigo para feedback visual de estado
+## Placeholder hasta que existan animaciones reales 
+func _set_mesh_color(color: Color) -> void:
+	var mesh := enemy.get_node_or_null("MeshInstance3D")
+	if mesh == null:
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mesh.material_override = mat

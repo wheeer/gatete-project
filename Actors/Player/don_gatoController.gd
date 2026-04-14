@@ -14,6 +14,10 @@ class_name DonGatoController
 @onready var lives_system: DonGatoLives = $LivesSystem
 @onready var health_component: DonGatoHealth = $HealthComponent
 
+## Cooldown global anti-chain — impide TIMESTOP encadenados (NT §13)
+const HEAVY_HIT_IMMUNITY_DURATION: float = 3.5
+var _heavy_hit_immunity_timer: float = 0.0
+
 func _ready() -> void:
 	# PROCESS_MODE_ALWAYS para seguir funcionando durante el TIMESTOP (tree pausado)
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -41,6 +45,8 @@ func _ready() -> void:
 	print("Don Gato inicializado correctamente ")
 
 func _physics_process(delta: float) -> void:
+	if _heavy_hit_immunity_timer > 0.0:
+		_heavy_hit_immunity_timer -= delta
 	# El controller delega la lógica de estado
 	state_machine.physics_update(delta)
 	targeting_system.physics_update()
@@ -108,6 +114,16 @@ func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Diction
 		"EVT_GOLPE_FUERTE_RECIBIDO":
 			if payload.get("target_id", "") != name:
 				return
+			# Cooldown global — ignorar si estamos en ventana de inmunidad
+			if _heavy_hit_immunity_timer > 0.0:
+				print("Don Gato — heavy hit ignorado (inmunidad activa)")
+				return
+			# Solo activar TIMESTOP si el jugador estaba vulnerable
+			if not state_machine.is_vulnerable():
+				print("Don Gato — heavy hit ignorado (jugador no vulnerable)")
+				return
+			# Registrar inmunidad para evitar chain knockbacks
+			_heavy_hit_immunity_timer = HEAVY_HIT_IMMUNITY_DURATION
 			# Calcular dirección de lanzamiento — opuesta al enemigo que golpeó
 			var source_pos: Vector3 = payload.get("source_position", Vector3.ZERO)
 			var push_dir: Vector3

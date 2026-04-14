@@ -17,7 +17,6 @@ const REWARD_HEARTS: int    = 1
 # === Penalizaciones (fallo) ===
 const PENALTY_POSTURE: float = 20.0
 const PENALTY_HEALTH: float  = 15.0
-const PENALTY_STUN_TIME: float = 1.5
 const PENALTY_HEARTS: int   = 1
 
 # === Estado interno ===
@@ -69,8 +68,7 @@ func update(delta: float) -> void:
 	captor_stamina.apply_drain(DRAIN_PER_SECOND_CAPTOR * delta)
 	prey_stamina.apply_drain(DRAIN_PER_SECOND_PREY * prey_stamina.capture_resistance * delta)
 
-	# Evaluar condiciones de fin (orden del NT §17.5.1)
-# Evaluar condiciones de fin
+	# Evaluar condiciones de fin
 	if captor_stamina.is_depleted():
 		_resolve_verdict("FALLO")
 	elif prey_stamina.is_depleted():

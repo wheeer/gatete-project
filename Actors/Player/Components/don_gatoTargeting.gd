@@ -124,6 +124,12 @@ func _unlock():
 func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Dictionary) -> void:
 	if event_id != "EVT_ENEMIGO_MUERTO":
 		return
-	var dead_id = payload.get("target_id", "")
+	var dead_id: String = payload.get("target_id", "")
+	# Buscar el nodo muerto y sacarlo del grupo targetable ANTES de buscar
+	# el siguiente objetivo — evita que _refresh_targets() lo reencuentre
+	for node in get_tree().get_nodes_in_group("targetable"):
+		if node.name == dead_id:
+			node.remove_from_group("targetable")
+			break
 	if current_target != null and current_target.name == dead_id:
 		_switch_to_next_available_target()

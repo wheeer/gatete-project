@@ -126,14 +126,32 @@ func process_enemy_attack(_enemy: Node, player: Node, hit_data: Dictionary) -> v
 	# Emitir eventos
 	damage_resolver.emit_verdict_events(verdict)
 
-## Construye damage_context ddesde un hit del enemigo
+## Construye damage_context desde un hit del enemigo.
+## Evalúa is_heavy_hit en runtime consultando el estado del jugador:
+## is_heavy_hit = true SOLO SI el ataque puede serlo Y el jugador estaba vulnerable.
 func _build_damage_context_from_enemy_hit(hit_data: Dictionary) -> Dictionary:
+	var can_be_heavy: bool = bool(hit_data.get("can_be_heavy", false))
+	var is_heavy: bool = false
+
+	if can_be_heavy:
+		# Consultar estado del jugador en el momento del impacto
+		var players: Array = Engine.get_main_loop().get_root().get_tree().get_nodes_in_group("Player")
+		if not players.is_empty():
+			var player_node: Node = players[0]
+			var state_machine: Node = player_node.get_node_or_null("StateMachine")
+			if state_machine and state_machine.has_method("is_vulnerable"):
+				is_heavy = state_machine.is_vulnerable()
+				if is_heavy:
+					print("💥 Heavy hit confirmado — jugador estaba vulnerable")
+				else:
+					print("🛡️ Heavy hit cancelado — jugador no era vulnerable")
+
 	return {
 		"damage_base":            float(hit_data.get("damage_base", 20.0)),
 		"posture_damage_base":    float(hit_data.get("posture_damage_base", 10.0)),
 		"is_critical":            false,
-		"is_heavy_hit":           bool(hit_data.get("is_heavy_hit", false)),
-		"impulse_strength":       float(hit_data.get("impulse_strength", 0.0)),
+		"is_heavy_hit":           is_heavy,
+		"impulse_strength":       float(hit_data.get("impulse_strength", 0.0)) if is_heavy else 0.0,
 		"source_position":        hit_data.get("source_position", Vector3.ZERO),
 		"crit_health_multiplier": 1.0,
 		"crit_posture_multiplier": 1.0,

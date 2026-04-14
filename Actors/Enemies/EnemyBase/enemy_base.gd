@@ -7,6 +7,11 @@ class_name EnemyBase
 @onready var movement: EnemyMovementComponent = $EnemyMovementComponent
 @onready var combat: EnemyCombatComponent = $EnemyCombatComponent
 
+## Tiempo que el cuerpo permanece visible antes del fade (segundos)
+const DEATH_LINGER_TIME: float = 3.5
+## Duración del fade de desaparición (segundos)
+const DEATH_FADE_TIME: float = 1.0
+
 var state_machine: EnemyStateMachine
 var floating_ui: Node2D
 
@@ -44,7 +49,51 @@ func die() -> void:
 		"target_id": name,
 		"position": global_position
 	}, {"priority": 10})
+	_begin_death_sequence()
+
+## Secuencia de muerte — cuerpo permanece inerte antes de desaparecer (NT placeholder)
+func _begin_death_sequence() -> void:
+	# Desactivar toda lógica de juego inmediatamente
+	set_process(false)
+	set_physics_process(false)
+
+	# Desactivar colisiones para no estorbar a jugador, enemigos ni proyectiles
+	var col := get_node_or_null("CollisionShape3D")
+	if col:
+		col.set_deferred("disabled", true)
+
+	# [HOOK FUTURO] Aquí se reproducirá la animación de muerte
+	# AnimationPlayer.play("death") o similar
+
+	# Esperar antes del fade (tiempo configurable)
+	await get_tree().create_timer(DEATH_LINGER_TIME).timeout
+
+	# Fade gradual — reducir alpha del mesh progresivamente
+	await _fade_out()
+
 	queue_free()
+
+## Fade gradual del mesh hasta transparencia total
+func _fade_out() -> void:
+	var mesh : MeshInstance3D = get_node_or_null("MeshInstance3D")
+	if mesh == null:
+		queue_free()
+		return
+
+	var mat : StandardMaterial3D = mesh.material_override
+	if mat == null or not mat is StandardMaterial3D:
+		queue_free()
+		return
+
+	# Habilitar transparencia en el material
+	(mat as StandardMaterial3D).transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	var elapsed: float = 0.0
+	while elapsed < DEATH_FADE_TIME:
+		elapsed += get_process_delta_time()
+		var alpha: float = 1.0 - clamp(elapsed / DEATH_FADE_TIME, 0.0, 1.0)
+		(mat as StandardMaterial3D).albedo_color.a = alpha
+		await get_tree().process_frame
 
 func _spawn_floating_ui() -> void:
 	var ui_scene = preload("res://UI/EnemyUI/floating_health_bar.tscn")
