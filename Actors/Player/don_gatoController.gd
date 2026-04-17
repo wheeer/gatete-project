@@ -14,6 +14,8 @@ class_name DonGatoController
 @onready var lives_system: DonGatoLives = $LivesSystem
 @onready var health_component: DonGatoHealth = $HealthComponent
 
+var _was_exhausted: bool = false
+
 ## Cooldown global anti-chain — impide TIMESTOP encadenados (NT §13)
 const HEAVY_HIT_IMMUNITY_DURATION: float = 3.5
 var _heavy_hit_immunity_timer: float = 0.0
@@ -31,6 +33,7 @@ func _ready() -> void:
 	movement_system.jumped.connect(_on_jumped)
 	movement_system.dash_started.connect(_on_dash_started)
 	movement_system.dash_finished.connect(_on_dash_finished)
+	stats_system.stamina_depleted.connect(_on_stamina_depleted)
 	posture_component.posture_broken.connect(_on_posture_broken)
 	posture_component.posture_recovered.connect(_on_posture_recovered)
 	combat_system.capture_resolver.capture_resolved.connect(_on_capture_resolved)
@@ -43,10 +46,20 @@ func _ready() -> void:
 	get_tree().current_scene.call_deferred("add_child", stamina_bar_ui)
 	stamina_bar_ui.call_deferred("initialize", self, stats_system)
 	print("Don Gato inicializado correctamente ")
+	# Guardar material base ANTES de cualquier cambio de color
+	state_machine.init_player_material()
 
 func _physics_process(delta: float) -> void:
 	if _heavy_hit_immunity_timer > 0.0:
 		_heavy_hit_immunity_timer -= delta
+	# Restaurar color cuando stamina se recupera del agotamiento
+	if stats_system.is_exhausted:
+		_was_exhausted = true
+		state_machine.force_player_color(Color(1.0, 0.3, 0.0))  # naranja — exhausto, prioridad máxima
+	elif _was_exhausted and not stats_system.is_exhausted:
+		_was_exhausted = false
+		state_machine._restore_player_material()  # libera el lock y restaura material base
+		
 	# El controller delega la lógica de estado
 	state_machine.physics_update(delta)
 	targeting_system.physics_update()
@@ -134,3 +147,6 @@ func _on_event_emitted(event_id: String, payload: Dictionary, _metadata: Diction
 			push_dir.y = 0.0
 			# Entrar en TIMESTOP con la dirección de lanzamiento lista
 			state_machine.enter_timestop(push_dir)
+			
+func _on_stamina_depleted() -> void:
+	print("Don Gato — EXHAUSTO ")

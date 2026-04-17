@@ -77,11 +77,13 @@ func _physics_process(delta: float) -> void:
 					current_phase = AttackPhase.ACTIVE
 					attack_timer = active_time
 					attack_area.monitoring = true
+					_set_attack_color(Color(1.0, 0.1, 0.1))   # rojo — activo
 				
 				AttackPhase.ACTIVE:
 					current_phase = AttackPhase.RECOVERY
 					attack_timer = recovery_time
 					attack_area.monitoring = false
+					_set_attack_color(Color(1.0, 0.5, 0.0))   # naranja — recovery
 				
 				AttackPhase.RECOVERY:
 					_end_attack()
@@ -313,3 +315,11 @@ func _roll_damage() -> float:
 	#	print("CRIT x", local_crit_multiplier)
 	
 	return dmg
+	
+## Cambia color del jugador durante fases de ataque
+## Complementa el feedback de don_gatoStateMachine
+func _set_attack_color(color: Color) -> void:
+	# Respetar el lock del controller (ej: exhausto tiene prioridad)
+	var state_machine: Node = body.get_node_or_null("StateMachine")
+	if state_machine and state_machine.has_method("_set_player_color"):
+		state_machine._set_player_color(color)

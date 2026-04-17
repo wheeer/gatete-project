@@ -9,7 +9,7 @@ class_name EnemyCombatComponent
 # === Daño que inflige ===
 @export var damage_base: float = 20.0
 @export var posture_damage_base: float = 10.0
-@export var can_be_heavy: bool = false
+@export var can_be_heavy: bool = true
 
 # === Estado interno ===
 var cooldown_timer: float = 0.0

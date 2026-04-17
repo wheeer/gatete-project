@@ -20,6 +20,10 @@ enum CatState {
 const STUN_DURATION: float = 1.5
 const TIMESTOP_DURATION: float = 0.35
 const AIR_RECOVERY_DURATION: float = 0.3
+const AIR_REACTION_WINDOW: float = 0.4
+
+var _air_reaction_timer: float = 0.0
+var _air_recovery_attempted: bool = false
 
 const PENALTY_HEALTH: float = 15.0
 const PENALTY_POSTURE: float = 20.0
@@ -30,6 +34,9 @@ var stun_timer: float = 0.0
 var _timestop_timer: float = 0.0
 var _air_recovery_timer: float = 0.0
 var _pending_push: Vector3 = Vector3.ZERO
+
+var _original_player_material: Material = null
+var _color_locked: bool = false  # si true, solo el controller puede cambiar el color Material = null
 
 func change_state(new_state: CatState) -> void:
 	if current_state == new_state:
@@ -51,9 +58,19 @@ func change_state(new_state: CatState) -> void:
 
 	# Entrar al nuevo estado
 	match current_state:
+		CatState.NORMAL:
+			_restore_player_material()
+
+		CatState.ATTACKING:
+			_set_player_color(Color(1.0, 1.0, 0.0))   # amarillo — startup
+
+		CatState.DASHING:
+			_set_player_color(Color(0.0, 1.0, 1.0))   # cyan
+
 		CatState.STUNNED:
-			movement_system.cancel_dash_state() 
+			movement_system.cancel_dash_state()
 			stun_timer = STUN_DURATION
+			_set_player_color(Color(0.5, 0.5, 0.5))   # gris
 			print("Don Gato — STUNNED")
 
 		CatState.POSTURE_BROKEN:
@@ -62,13 +79,12 @@ func change_state(new_state: CatState) -> void:
 
 		CatState.KNOCKED_AIRBORNE:
 			get_tree().paused = false
-			movement_system.cancel_dash_state()  # ← limpiar estado de dash
-			var body: CharacterBody3D = movement_system.body as CharacterBody3D
-			if body:
-				body.velocity.x = _pending_push.x * 22.0
-				body.velocity.z = _pending_push.z * 22.0
-				body.velocity.y = 8.0
-			print("Don Gato — KNOCKED_AIRBORNE")
+			movement_system.cancel_dash_state()
+			# Impulso ya fue aplicado en enter_timestop() — no re-aplicar
+			_air_reaction_timer = AIR_REACTION_WINDOW
+			_air_recovery_attempted = false
+			_set_player_color(Color(1.0, 0.4, 0.8))   # rosa
+			print("Don Gato — KNOCKED_AIRBORNE (ventana reacción: %.2fs)" % AIR_REACTION_WINDOW)
 
 		CatState.AIR_RECOVERY:
 			get_tree().paused = false
@@ -78,20 +94,34 @@ func change_state(new_state: CatState) -> void:
 				body.velocity.z *= 0.2
 				body.velocity.y = 1.0
 			_air_recovery_timer = AIR_RECOVERY_DURATION
+			_set_player_color(Color(0.0, 1.0, 0.4))   # verde brillante
 			print("Don Gato — AIR_RECOVERY exitoso ✅")
 
 		CatState.CAPTURING:
 			movement_system.force_free_look = true
+			_set_player_color(Color(0.5, 0.0, 1.0))   # violeta
+
+		CatState.TIMESTOP:
+			_set_player_color(Color(1.0, 0.1, 0.1))   # rojo intenso
 
 ## Entrada especial para TIMESTOP — recibe la dirección del lanzamiento
 func enter_timestop(push_dir: Vector3) -> void:
 	if current_state == CatState.TIMESTOP:
 		return
 	_pending_push = push_dir
+
+	# Aplicar impulso INMEDIATAMENTE — el jugador sale volando ahora
+	var body: CharacterBody3D = movement_system.body as CharacterBody3D
+	if body:
+		body.velocity.x = push_dir.x * 22.0
+		body.velocity.z = push_dir.z * 22.0
+		body.velocity.y = 8.0
+
 	_timestop_timer = TIMESTOP_DURATION
 	current_state = CatState.TIMESTOP
 	get_tree().paused = true
-	print("Don Gato — TIMESTOP activado (%.2fs)" % TIMESTOP_DURATION)
+	_set_player_color(Color(1.0, 0.1, 0.1))  # rojo intenso — TIMESTOP
+	print("Don Gato — TIMESTOP activado (%.2fs) — impulso aplicado" % TIMESTOP_DURATION)
 
 func physics_update(delta: float) -> void:
 	match current_state:
@@ -117,16 +147,42 @@ func physics_update(delta: float) -> void:
 			# El árbol está pausado — solo este nodo procesa
 			_timestop_timer -= delta
 			if _timestop_timer <= 0.0:
-				# Tiempo agotado — fallo de AIR_RECOVERY
-				print("Don Gato — fallo AIR_RECOVERY ❌")
+				# Sin input — entra en KNOCKED_AIRBORNE (ya tiene impulso aplicado)
 				change_state(CatState.KNOCKED_AIRBORNE)
 
 		CatState.KNOCKED_AIRBORNE:
 			movement_system.physics_only(delta)
 			var body: CharacterBody3D = movement_system.body as CharacterBody3D
-			if body and body.is_on_floor():
-				_apply_airborne_penalty()
-				change_state(CatState.STUNNED)
+			if body == null:
+				return
+
+			# Descontar ventana de reacción
+			if _air_reaction_timer > 0.0:
+				_air_reaction_timer -= delta
+
+			# Detectar colisión con pared u objeto inamovible
+			if body.is_on_wall():
+				if _air_recovery_attempted:
+					# Reaccionó antes del choque — se pega brevemente, sin castigo
+					_set_player_color(Color(0.0, 1.0, 0.4))  # verde — salvado
+					print("Don Gato — se pegó a la pared con AIR_RECOVERY ✅")
+					change_state(CatState.AIR_RECOVERY)
+				else:
+					# No reaccionó — castigo completo por impacto
+					print("Don Gato — impacto con pared ❌")
+					_apply_airborne_penalty()
+					change_state(CatState.STUNNED)
+				return
+
+			# Aterrizó en suelo
+			if body.is_on_floor():
+				if _air_recovery_attempted:
+					# Reaccionó en el aire exitosamente
+					change_state(CatState.AIR_RECOVERY)
+				else:
+					# No reaccionó — castigo completo
+					_apply_airborne_penalty()
+					change_state(CatState.STUNNED)
 
 		CatState.AIR_RECOVERY:
 			movement_system.physics_update(delta, 0.5)
@@ -155,6 +211,9 @@ func is_vulnerable() -> bool:
 	if current_state == CatState.STUNNED:
 		return true
 	if current_state == CatState.POSTURE_BROKEN:
+		return true
+	# Agotamiento de stamina — movimiento torpe, sin capacidad de reacción 
+	if movement_system.stats and movement_system.stats.is_exhausted:
 		return true
 	# Ventanas de recovery dentro de estados activos
 	if combat_system.is_in_attack_recovery():
@@ -190,11 +249,14 @@ func handle_input(event: InputEvent) -> void:
 				combat_system.cancel_attack()
 
 		CatState.TIMESTOP:
-			if event.is_action_pressed("rundash"):
-				change_state(CatState.AIR_RECOVERY)
+			pass
 
 		CatState.KNOCKED_AIRBORNE:
-			pass
+			# Solo se puede reaccionar durante la primera mitad del vuelo
+			if event.is_action_pressed("rundash") and _air_reaction_timer > 0.0:
+				_air_recovery_attempted = true
+				_set_player_color(Color(0.0, 1.0, 0.4))  # verde — reacción registrada
+				print("Don Gato — reacción aérea registrada ✅")
 
 		CatState.CAPTURING:
 			if event.is_action_pressed("atacar"):
@@ -235,3 +297,52 @@ func _apply_airborne_penalty() -> void:
 	EventBus.emit_event("EVT_FALLO_RECUPERACION", {
 		"target_id": body_node.name
 	}, {"priority": 10})
+	
+## Feedback visual de estado — placeholder hasta modelo real
+## Mismo patrón que enemy_state_machine._set_mesh_color()
+## Inicializar material base — llamar una sola vez al inicio
+func init_player_material() -> void:
+	var body_node: CharacterBody3D = movement_system.body as CharacterBody3D
+	if body_node == null:
+		return
+	var mesh: MeshInstance3D = body_node.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	_original_player_material = mesh.material_override
+
+func _set_player_color(color: Color) -> void:
+	if _color_locked:
+		return
+	var body_node: CharacterBody3D = movement_system.body as CharacterBody3D
+	if body_node == null:
+		return
+	var mesh: MeshInstance3D = body_node.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mesh.material_override = mat
+
+## Fuerza un color ignorando el lock — exclusivo para el controller (exhausto)
+func force_player_color(color: Color) -> void:
+	_color_locked = true
+	var body_node: CharacterBody3D = movement_system.body as CharacterBody3D
+	if body_node == null:
+		return
+	var mesh: MeshInstance3D = body_node.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mesh.material_override = mat
+	
+## Restaura el material original del mesh del jugador
+func _restore_player_material() -> void:
+	_color_locked = false
+	var body_node: CharacterBody3D = movement_system.body as CharacterBody3D
+	if body_node == null:
+		return
+	var mesh: MeshInstance3D = body_node.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh == null:
+		return
+	mesh.material_override = _original_player_material
