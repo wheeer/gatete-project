@@ -14,8 +14,22 @@ custom_minimum_size = Vector2(80, 8)
 layout_mode = 2
 show_percentage = false
 
+[node name="VidaLabel" type="Label" parent="VBoxContainer/VidaBar"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="PostureBar" type="ProgressBar" parent="VBoxContainer"]
 custom_minimum_size = Vector2(80, 8)
 layout_mode = 2
 size_flags_vertical = 8
 show_percentage = false
+
+[node name="PostureLabel" type="Label" parent="VBoxContainer/PostureBar"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+horizontal_alignment = 1
+vertical_alignment = 1

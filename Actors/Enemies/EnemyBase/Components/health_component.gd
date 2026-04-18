@@ -38,3 +38,9 @@ func is_alive() -> bool:
 
 func is_dead() -> bool:
 	return current_health <= 0
+## Llamado por ADNHandler al inicializar con datos de raza
+
+func reset_to_max(new_max: float) -> void:
+	max_health = new_max
+	current_health = new_max
+	health_changed.emit(current_health, max_health)

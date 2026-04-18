@@ -77,3 +77,12 @@ func _trigger_instant_recovery() -> void:
 	broken_timer = 0.0
 	posture_changed.emit(current_posture, max_posture)
 	posture_recovered.emit()
+
+## Llamado por ADNHandler al inicializar con datos de raza
+func reset_to_max(new_max: float) -> void:
+	max_posture = new_max
+	current_posture = new_max
+	broken = false
+	regen_delay_timer = 0.0
+	broken_timer = 0.0
+	posture_changed.emit(current_posture, max_posture)

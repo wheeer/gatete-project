@@ -99,8 +99,10 @@ func resolve(damage_context: Dictionary, snapshot: EntitySnapshot) -> Dictionary
 		"payload": {
 			"target_id": snapshot.entity_id,
 			"damage_dealt": health_damage,
+			"health_max": snapshot.health_max,
 			"posture_damage_dealt": posture_damage_base,
 			"is_critical": is_critical,
+			"is_heavy_hit": is_heavy_hit,
 			"hearts_consumed": hearts_consumed,
 			"source": source
 		}

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="RazaResource" load_steps=2 format=3 uid="uid://bvo1ywk8b6fg8"]
+
+[ext_resource type="Script" uid="uid://0tulxt0d3yin" path="res://Systems/raza_resource.gd" id="1_7ifl7"]
+
+[resource]
+script = ExtResource("1_7ifl7")
+nombre_raza = "Raton"
+vida_base = 60.0
+postura_base = 70.0
+velocidad_base = 6.0
+damage_base = 15.0
+posture_damage_base = 8.0
+detection_range = 10.0
+attack_range = 1.5
+can_be_heavy = true
+capture_stamina_max = 80.0
+capture_resistance = 0.6
+capture_weight = "LIVIANO"
+forcejeo_damage = 6.0
+metadata/_custom_type_script = "uid://0tulxt0d3yin"

@@ -12,6 +12,10 @@ const DEATH_LINGER_TIME: float = 3.5
 ## Duración del fade de desaparición (segundos)
 const DEATH_FADE_TIME: float = 1.0
 
+var adn_handler: ADNHandler = get_node_or_null("ADNHandler")
+# ADNHandler se auto-inicializa si tiene raza_override asignado en el inspector.
+# Si viene de un spawner, este ya habrá llamado adn_handler.initialize(raza) antes de _ready().
+
 var state_machine: EnemyStateMachine
 var floating_ui: Node2D
 
@@ -53,24 +57,24 @@ func die() -> void:
 
 ## Secuencia de muerte — cuerpo permanece inerte antes de desaparecer (NT placeholder)
 func _begin_death_sequence() -> void:
-	# Desactivar toda lógica de juego inmediatamente
 	set_process(false)
 	set_physics_process(false)
+	combat.set_process(false)
+	movement.set_process(false)
+	movement.stop()
 
-	# Desactivar colisiones para no estorbar a jugador, enemigos ni proyectiles
+	## Desactivar HurtBox para que no reciba más golpes del jugador
+	var hurtbox := get_node_or_null("HurtBox") as Area3D
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", false)
+		hurtbox.set_deferred("monitorable", false)
+
 	var col := get_node_or_null("CollisionShape3D")
 	if col:
 		col.set_deferred("disabled", true)
 
-	# [HOOK FUTURO] Aquí se reproducirá la animación de muerte
-	# AnimationPlayer.play("death") o similar
-
-	# Esperar antes del fade (tiempo configurable)
 	await get_tree().create_timer(DEATH_LINGER_TIME).timeout
-
-	# Fade gradual — reducir alpha del mesh progresivamente
 	await _fade_out()
-
 	queue_free()
 
 ## Fade gradual del mesh hasta transparencia total
